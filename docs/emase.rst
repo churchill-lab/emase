@@ -17,6 +17,14 @@ emase Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`Sparse3DMatrix` Module
+----------------------------
+
+.. automodule:: emase.Sparse3DMatrix
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`AlignmentPropertyMatrix` Module
 -------------------------------------
 
@@ -29,14 +37,6 @@ emase Package
 -----------------------
 
 .. automodule:: emase.EMfactory
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`Sparse3DMatrix` Module
-----------------------------
-
-.. automodule:: emase.Sparse3DMatrix
     :members:
     :undoc-members:
     :show-inheritance:
