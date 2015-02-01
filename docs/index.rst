@@ -9,10 +9,11 @@ Welcome to EMASE's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    readme
    installation
+   emase
    usage
    contributing
    authors

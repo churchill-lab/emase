@@ -6,6 +6,7 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+import emase
 
 
 with open('README.rst') as readme_file:
@@ -27,7 +28,7 @@ test_requirements = [
 
 setup(
     name='emase',
-    version='0.9.0',
+    version=emase.__version__,
     description="EMASE: Expectation-Maximization algorithm for Allele Specific Expression",
     long_description=readme + '\n\n' + history,
     author="Kwangbom \"KB\" Choi",
