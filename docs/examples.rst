@@ -31,8 +31,7 @@ Run EMASE
 Results
 ~~~~~~~
 
-*Files
-emase.isoforms.effective_read_counts
-emase.isoforms.tpm
-emase.genes.effective_read_counts
-emase.genes.tpm
+* emase.isoforms.effective_read_counts
+* emase.isoforms.tpm
+* emase.genes.effective_read_counts
+* emase.genes.tpm
