@@ -1,6 +1,6 @@
-========
-Examples
-========
+=========
+USE CASES
+=========
 
 Estimation of allele-specific expression from a diploid sample
 --------------------------------------------------------------
@@ -8,17 +8,17 @@ Estimation of allele-specific expression from a diploid sample
 Building Diploid Transcriptome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Seqnature incorporates known polymorphisms and short indels from
-genetically diverse and heterozygous model organisms into reference
-genomes, and can construct individualized haploid or diploid
-transcriptomes suitable for read alignment by common aligners.
+Seqnature incorporates known polymorphisms and short indels from genetically
+diverse and heterozygous model organisms into reference genomes, and can
+construct individualized haploid or diploid transcriptomes suitable for read
+alignment by common aligners.
 
 Aligning reads to the Diploid Transcriptome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-EMASE has been extensively used with the aligner bowtie1. RNA-seq reads
-need to be aligned simultaneously to a diploid transcriptome. Use bowtie
-aligner with the following option::
+EMASE has been extensively used with the aligner bowtie1. RNA-seq reads need to
+be aligned simultaneously to a diploid transcriptome. Use bowtie aligner with
+the following option::
 
     bowtie -a -best -strata -v 3 -m 100
 
