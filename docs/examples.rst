@@ -1,5 +1,5 @@
 =========
-USE CASES
+Use Cases
 =========
 
 Estimation of allele-specific expression from a diploid sample
