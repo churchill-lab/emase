@@ -13,9 +13,9 @@ help_message = '''
                      -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
-        <grp_file>       :
-        <len_file>       :
-        <out_file>       : The name of output result file. (default: 'emase.depths')
+        <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
+        <len_file>       : File that contains transcript lengths
+        <out_file>       : The name of output result file. (default: 'emase.isoforms')
         <min_uniq_reads> : The number of unique reads to be considered for convergence checking
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 1000)

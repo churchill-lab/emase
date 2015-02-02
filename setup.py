@@ -41,6 +41,7 @@ setup(
                  'emase'},
     include_package_data=True,
     scripts=[
+        'scripts/bam2emase.py',
         'scripts/run_emase.py',
         'scripts/count_alignments.py',
         'scripts/combine_h5files.py',
