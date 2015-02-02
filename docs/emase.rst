@@ -1,5 +1,5 @@
-emase Package
-=============
+Modules
+=======
 
 :mod:`emase` Package
 --------------------
