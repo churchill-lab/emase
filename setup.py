@@ -40,6 +40,12 @@ setup(
     package_dir={'emase':
                  'emase'},
     include_package_data=True,
+    scripts=[
+        'scripts/run_emase.py',
+        'scripts/count_alignments.py',
+        'scripts/combine_h5files.py',
+        'scripts/count_multireads_pairwise.py'
+    ],
     install_requires=requirements,
     license="MIT",
     zip_safe=False,

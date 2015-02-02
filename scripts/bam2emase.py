@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+import os
+import sys
+import getopt
+from emase.AlignmentMatrixFactory import AlignmentMatrixFactory as AMF
+
+__author__ = 'Kwangbom "KB" Choi, Ph. D.'
+
+
+
+help_message = '''
+
+    Usage:
+        bam2emase.py -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
+
+    Input:
+        <aln_file>   : Sam/Bam file
+        <lid_file>   : Text file that lists all the locus IDs
+        <out_file>   : PyTables file that stores the data
+        <haplotypes> : Haplotype names listed using comma(,)
+
+    Parameters:
+        -h, --help: shows this help message
+
+'''
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def get_names(idfile):
+    ids = dict()
+    master_id = 0
+    with open(idfile) as fh:
+        for curline in fh:
+            item = curline.rstrip().split("\t")
+            g = item[0]
+            if not ids.has_key(g):
+                ids[g] = master_id
+                master_id += 1
+    num_ids = len(ids)
+    names = { index:name for name, index in ids.iteritems() }
+    return [ names[k] for k in xrange(num_ids) ]
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help"])
+        except getopt.error, msg:
+            raise Usage(msg)
+
+        # Default values of vars
+        alnfile = None
+        lidfile = None
+        outfile = 'alignments.transcriptome.h5'
+        haplotypes = None
+        index_dtype = 'uint32'
+        data_dtype  = 'uint8'
+
+        # option processing (change this later with optparse)
+        for option, value in opts:
+            if option in ("-h", "--help"):
+                raise Usage(help_message)
+            if option == '-a':
+                alnfile = value
+            if option == '-i':
+                lidfile = value
+            if option == '-o':
+                outfile = value
+            if option == '-s':
+                haplotypes = tuple(value.split(','))
+            if option == '-t':
+                index_dtype = value
+            if option == '-T':
+                data_dtype = value
+
+        # Check if the required options are given
+        if haplotypes is None:
+            raise Usage(help_message)
+        if alnfile is None or lidfile is None:
+            raise Usage(help_message)
+
+        #
+        # Main body
+        #
+        loci = get_names(lidfile)
+
+        alignmat_factory = AMF(alnfile)
+        alignmat_factory.prepare(haplotypes, loci, outdir=os.path.dirname(outfile))
+        alignmat_factory.produce(outfile, index_dtype=index_dtype, data_dtype=data_dtype)
+        alignmat_factory.cleanup()
+
+        #
+        # End of main body
+        #
+
+    except Usage, err:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
