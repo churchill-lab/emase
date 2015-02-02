@@ -7,9 +7,8 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
-
     Usage:
-        count_shared_multireads_pairwise.py -i <infile> -g <grpfile> -o <outbase>
+        count-shared-multireads-pairwise -i <infile> -g <grpfile> -o <outbase>
 
     Input:
         <infile>  : Alignments stored in an EMASE format (PyTables HDF5)

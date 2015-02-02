@@ -4,16 +4,12 @@ import getopt
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 help_message = '''
-
     Usage:
-        combine_h5files.py -i <h5_list> -c <comp_lib> -o <out_file>
+        combine-emase-files -i <h5_file_list> -o <out_file>
 
     Input:
-        <h5_list>  : comma(,) separated list of PyTables files
-        <comp_lib> : compression library for saving PyTables
+        <h5_file_list> : comma(,) separated list of emase format (PyTables) files
         <out_file> : output file name
-
-    Note:
 
 '''
 
@@ -32,8 +28,8 @@ def main(argv=None):
 
         # Default values of vars
         flist = None
-        complib = 'zlib'
         outfile = 'alignments.combined.h5'
+        complib = 'zlib'
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -41,7 +37,7 @@ def main(argv=None):
                 raise Usage(help_message)
             if option == '-i':
                 flist = value.split(',')
-            if option == '-c':
+            if option == '-c': # hidden option (Specify the compression mode for writing PyTables)
                 complib = value
             if option == '-o':
                 outfile = value
@@ -56,6 +52,7 @@ def main(argv=None):
 
         aln_list = list()
         for f in flist:
+            # TODO: Check if the loci and haplotypes are in the equivalent orders
             aln_list.append(APM(h5file=f))
         combined_aln = aln_list[0].copy()
         for aln in aln_list[1:]:

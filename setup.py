@@ -41,11 +41,11 @@ setup(
                  'emase'},
     include_package_data=True,
     scripts=[
-        'scripts/bam2emase.py',
-        'scripts/run_emase.py',
-        'scripts/count_alignments.py',
-        'scripts/combine_h5files.py',
-        'scripts/count_multireads_pairwise.py'
+        'scripts/bam-to-emase',
+        'scripts/run-emase',
+        'scripts/count-alignments',
+        'scripts/combine-emase-files',
+        'scripts/count-shared-multireads-pairwise'
     ],
     install_requires=requirements,
     license="MIT",

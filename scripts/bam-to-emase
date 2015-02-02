@@ -9,9 +9,8 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 help_message = '''
-
     Usage:
-        bam2emase.py -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
+        bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
 
     Input:
         <aln_file>   : Sam/Bam file

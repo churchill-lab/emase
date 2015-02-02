@@ -7,10 +7,9 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
-
     Usage:
-        run_emase.py -i <h5_file> -g <grp_file> -d <len_file> -o <out_file> \\
-                     -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
+        run-emase -i <h5_file> -g <grp_file> -d <len_file> -o <out_file> \\
+                  -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
