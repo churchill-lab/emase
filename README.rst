@@ -104,8 +104,12 @@ Features
 
 * References
 
-[RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations]
-(http://www.genetics.org/content/198/1/59.short) Steven C. Munger, Narayanan Raghupathy,Kwangbom Choi, 
+[RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations](http://www.genetics.org/content/198/1/59.short) Steven C. Munger, Narayanan Raghupathy,Kwangbom Choi, 
 Allen K. Simons, Daniel M. Gatti, Douglas A. Hinerfeld, Karen L. Svenson, Mark P. Keller, Alan D. Attie, 
 Matthew A. Hibbs, Joel H. Graber, Elissa J. Chesler and Gary A. Churchill
+
+
+[PRDM9 Drives Evolutionary Erosion of Hotspots in Mus musculus through Haplotype-Specific Initiation of Meiotic Recombination](http://www.plosgenetics.org/article/browse/issue/info%3Adoi%2F10.1371%2Fissue.pgen.v11.i01#tocGrp_2)
+Christopher L. Baker, Shimpei Kajita, Michael Walker, Ruth L. Saxl, Narayanan Raghupathy, Kwangbom Choi, Petko M. Petkov, Kenneth Paigen
+PLOS Genetics: published 08 Jan 2015 | info:doi/10.1371/journal.pgen.1004916
 
