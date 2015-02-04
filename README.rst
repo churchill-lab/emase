@@ -103,7 +103,6 @@ Features
 * TODO
 
 * References
-RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations,      
 
 [RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations]
 (http://www.genetics.org/content/198/1/59.short) Steven C. Munger, Narayanan Raghupathy,Kwangbom Choi, 
