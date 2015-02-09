@@ -41,10 +41,11 @@ setup(
                  'emase'},
     include_package_data=True,
     scripts=[
+        'scripts/prepare-emase',
         'scripts/bam-to-emase',
+        'scripts/combine-emase-files',
         'scripts/run-emase',
         'scripts/count-alignments',
-        'scripts/combine-emase-files',
         'scripts/count-shared-multireads-pairwise'
     ],
     install_requires=requirements,
