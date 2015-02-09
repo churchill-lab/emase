@@ -16,7 +16,7 @@ EMASE: Expectation-Maximization algorithm for Allele Specific Expression
 ------------------------------------------------------------------------
 Narayanan Raghupathy, Kwangbom Choi, Steve Munger, and Gary Churchill
 
-* Free software: MIT license
+* Free software: GNU General Public License v3 (GPLv3)
 * Documentation: https://emase.readthedocs.org.
 
 Note: The documentation for EMASE is still under work.
