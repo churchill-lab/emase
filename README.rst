@@ -12,12 +12,14 @@ Overview
         :target: https://pypi.python.org/pypi/emase
 
 
-EMASE: Expectation-Maximization algorithm for Allele Specific Expression
+EMASE: Expectation-Maximization algorithm for Allele Specific Expression 
 ------------------------------------------------------------------------
 Narayanan Raghupathy, Kwangbom Choi, Steve Munger, and Gary Churchill
 
 * Free software: MIT license
 * Documentation: https://emase.readthedocs.org.
+
+Note: The documentation for EMASE is still under work.
 
 What is EMASE?
 ~~~~~~~~~~~~~~
@@ -40,6 +42,10 @@ Large-scale genome sequencing efforts have characterized millions of genetic
 variants across in human and model organisms. However development of tools that
 can effectively utilize this individual/strain-specific variation to inform
 quantitation of gene expression abundance have lagged behind.
+
+EMASE, together with Seqnature (https://github.com/jaxcs/Seqnature), offers an integrated 
+solution to utilize known genetic variations in quantifying expression abundances at allele 
+and gene/isoform level.
 
 In F1 hybrids from model organisms, EMASE allows us to utilize parental
 strain-specific genetic variation in RNA-seq analysis to quantify gene
@@ -90,7 +96,21 @@ instead of diploid transcriptome for alignment target sequences.
 Mining Diploid alignments and alignment probabilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
 Features
 ~~~~~~~~
 
 * TODO
+
+References
+~~~~~~~~~~
+
+[RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations](http://www.genetics.org/content/198/1/59.short) Steven C. Munger, Narayanan Raghupathy,Kwangbom Choi, 
+Allen K. Simons, Daniel M. Gatti, Douglas A. Hinerfeld, Karen L. Svenson, Mark P. Keller, Alan D. Attie, 
+Matthew A. Hibbs, Joel H. Graber, Elissa J. Chesler and Gary A. Churchill. Genetics. 2014 Sep;198(1):59-73. doi: 10.1534/genetics.114.165886.
+
+
+[PRDM9 Drives Evolutionary Erosion of Hotspots in Mus musculus through Haplotype-Specific Initiation of Meiotic Recombination](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004916)
+Christopher L. Baker, Shimpei Kajita, Michael Walker, Ruth L. Saxl, Narayanan Raghupathy, Kwangbom Choi, Petko M. Petkov, Kenneth Paigen
+PLOS Genetics: published 08 Jan 2015 | info:doi/10.1371/journal.pgen.1004916
+
