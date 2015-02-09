@@ -184,9 +184,9 @@ def main(argv=None):
 
         #
         # Get pooled transcriptome
-        transcriptome_file = os.path.join(outdir, 'emase.pooled.transcripts.fa')
+        transcriptome_file = os.path.join(outdir, 'emase.pooled.transcriptome.fa')
         seqout = open(transcriptome_file, 'w')
-        lenout = open(os.path.join(outdir, 'emase.pooled.transcripts.info'), 'w')
+        lenout = open(os.path.join(outdir, 'emase.pooled.transcriptome.info'), 'w')
         for hid in xrange(num_haps):
             genomefile = genomelist[hid]
             genomename = os.path.splitext(os.path.basename(genomefile))[0]
