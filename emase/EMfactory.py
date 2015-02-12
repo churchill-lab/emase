@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import time
-from scipy.sparse import lil_matrix
+from scipy.sparse import eye, lil_matrix
 from .AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
@@ -22,7 +22,7 @@ class EMfactory:
             for i in xrange(self.alignments.num_groups):
                 self.grp_conv_mat[self.alignments.groups[i], i] = 1.0
             self.grp_conv_mat = self.grp_conv_mat.tocsc()
-        self.t2t_mat = np.eye(self.alignments.num_loci, self.alignments.num_loci)
+        self.t2t_mat = eye(self.alignments.num_loci, self.alignments.num_loci)
         self.t2t_mat = self.t2t_mat.tolil()
         for tid_list in self.alignments.groups:
             for ii in xrange(len(tid_list)):
