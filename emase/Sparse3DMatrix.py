@@ -290,6 +290,10 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
 
     def normalize_reads(self, axis=2, groups=None):
         # In-place normalization
+        """
+
+        :rtype :
+        """
         if self.finalized:
             if axis == 0:
                 normalizer = self.sum(axis=1) # Sparse matrix of |reads| x |loci|

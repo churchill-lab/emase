@@ -6,8 +6,12 @@ from .AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
+def enum(**enums):
+    return type('Enum', (), enums)
 
 class EMfactory:
+
+    MODEL = enum(GENE_ISOFORM_ALLELE_MODEL=0, GENE_ALLELE_ISOFORM_MODEL=1, GENE_COMMUNITY_MODEL=2, RSEM_MODEL=3)
 
     def __init__(self, alignments, lenfile=None, read_length=100):
         self.alignments = alignments
@@ -36,12 +40,14 @@ class EMfactory:
         self.alignments.initialize()
         self.allelic_expression = self.alignments.sum(axis=APM.Axis.READ)
         if self.target_lengths is not None:
-            self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)  # allelic_expression is at depth-level
+            self.allelic_expression = np.divide(self.allelic_expression,
+                                                self.target_lengths)  # allelic_expression is at depth-level
         if pseudocount > 0.0:  # pseudocount is at depth-level
             orig_allelic_expression_sum = self.allelic_expression.sum()
             nzloci = np.nonzero(self.allelic_expression)[1]
             self.allelic_expression[:, nzloci] += pseudocount
-            self.allelic_expression *= (orig_allelic_expression_sum / self.allelic_expression.sum())  # original depth scale
+            self.allelic_expression *= (
+                orig_allelic_expression_sum / self.allelic_expression.sum())  # original depth scale
 
     def get_allelic_expression(self, at_group_level=False):
         if at_group_level:
@@ -53,8 +59,18 @@ class EMfactory:
         self.alignments.reset()
         self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
         self.alignments.normalize_reads(axis=APM.Axis.READ)
-        if model == 1:
+        if model == 'gene>isoform>allele-model':
+            self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.HAPLOTYPE)
+            self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping=self.t2t_mat)
+            self.alignments.multiply(self.allelic_expression * self.grp_sum_mat, axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.READ)
+        elif model == 'gene>allele>isoform-model':
             pass
+        elif model == 'gene>allele*isoform-model':
+            pass
+        elif model == 'rsem-model':
 
     def update_allelic_expression(self, model=1):
         '''A single EM step'''
@@ -95,10 +111,10 @@ class EMfactory:
                 delmin, s = divmod(int(time1 - time0), 60)
                 h, m = divmod(delmin, 60)
                 print " %5d      %4d:%02d:%02d     %16.2f     %9.2f%%     %s  %s: %.2f ==> %.2f" % \
-                    (num_iters, h, m, s, err_sum, err_max * 100,
-                     self.alignments.lname[err_max_lid], self.alignments.hname[err_max_hid],
-                     prev_allelic_expression[err_max_hid, err_max_lid],
-                     curr_allelic_expression[err_max_hid, err_max_lid])
+                      (num_iters, h, m, s, err_sum, err_max * 100,
+                       self.alignments.lname[err_max_lid], self.alignments.hname[err_max_hid],
+                       prev_allelic_expression[err_max_hid, err_max_lid],
+                       curr_allelic_expression[err_max_hid, err_max_lid])
 
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
         # Get counts
@@ -152,4 +168,4 @@ class EMfactory:
 
 
 if __name__ == "__main__":
-    pass # TODO: Put some simple test
+    pass  # TODO: Put some simple test
