@@ -73,7 +73,7 @@ class EMfactory:
         if model == self.MODEL.GENE_ISOFORM_ALLELE_MODEL:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.LOCUS) # Locus-wise normalization
-            self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.READ)
+            self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
