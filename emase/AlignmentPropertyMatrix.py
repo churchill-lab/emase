@@ -305,28 +305,29 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         """
         if self.rname is not None:
             print self.rname[rid]
+            print '--'
         r = self.get_read_data(rid)
-        #nzcol = r.nonzero()[1]
-        #if len(nzcol) > 0:
-            #print r[:, np.unique(nzcol)].todense().transpose()
         aligned_loci = np.unique(r.nonzero()[1])
         for locus in aligned_loci:
-            print locus + "\t" + r[:, locus].todense().transpose()[0]
-        else:
-            print
+            nzvec = r[:, locus].todense().transpose()[0].A.flatten()
+            if self.lname is not None:
+                print self.lname[locus],
+            else:
+                print locus,
+            print nzvec
 
     #
     # For future use
     #
-    def get_reads_aligned_to_locus(self, locus_name, use_read_name=False):
-        rset  = self.l2rset[self.lid[locus_name]]
-        reads = dict()
-        for r in rset:
-            rdata = self.get_read_data(r)
-            if use_read_name:
-                r = self.rname[r]
-            reads[r] = rdata
-        return reads
+    def get_reads_aligned_to_locus(self, lid, hid=None):
+        ridset = set()
+        if hid is None:
+            for hid in xrange(self.num_haplotypes):
+                curset = set(np.nonzero(self.data[hid][:, lid])[0])
+                ridset = ridset.union(curset)
+            return sorted(list(ridset))
+        else:
+            return sorted(np.nonzero(self.data[hid][:, lid])[0])
 
 
 if __name__=="__main__":

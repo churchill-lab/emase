@@ -49,18 +49,23 @@ class EMfactory:
         else:
             return self.allelic_expression.copy()
 
-    def update_allelic_expression(self):
-        '''A single EM step'''
-        err_states = np.seterr(all='warn')
-        err_states = np.seterr(**err_states)
+    def update_probability_at_readlevel(self, model=1):
         self.alignments.reset()
         self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
         self.alignments.normalize_reads(axis=APM.Axis.READ)
+        if model == 1:
+            pass
+
+    def update_allelic_expression(self, model=1):
+        '''A single EM step'''
+        err_states = np.seterr(all='warn')
+        err_states = np.seterr(**err_states)
+        self.update_probability_at_readlevel(model)
         self.allelic_expression = self.alignments.sum(axis=APM.Axis.READ)
         if self.target_lengths is not None:
             self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)
 
-    def run(self, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
+    def run(self, model=1, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
         '''Run EM iterations'''
         if verbose:
             print
@@ -73,7 +78,7 @@ class EMfactory:
         errchk_locs = np.where(num_uniq_reads > min_uniq_reads - np.nextafter(0, 1))
         while err_max > tol and num_iters < max_iters:
             prev_allelic_expression = self.get_allelic_expression()
-            self.update_allelic_expression()
+            self.update_allelic_expression(model=model)
             curr_allelic_expression = self.get_allelic_expression()
             err = np.abs(curr_allelic_expression - prev_allelic_expression)
             err_sum = err.sum()
