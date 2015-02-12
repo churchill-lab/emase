@@ -231,30 +231,30 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         else:
             raise RuntimeError('The original matrix must be finalized.')
 
-    def initialize(self): # Inline initialization
-        if self.finalized:
-            self.normalize_reads(axis=self.Axis.LOCUS)
-            # When there are nested groups (like a gene as a group of isoforms),
-            # we should run load_groups(grpfile) first before running this method.
-            if self.groups is not None and self.gname is not None: # Each group should have equal weight initially.
-                self.normalize_reads(axis=self.Axis.GROUP, groups=self.groups)
-            self.normalize_reads(axis=self.Axis.READ)
-        else:
-            raise RuntimeError('The matrix is not finalized.')
-
-    def get_initial_probability(self, shallow=False): # Copies the original matrix (Use lots of memory)
-        if self.finalized:
-            align_prob = self.copy(shallow=shallow)
-            align_prob.normalize_reads(axis=self.Axis.LOCUS)
-            # if self.num_groups > 0:
-            # When there are nested groups (like a gene as a group of isoforms),
-            # we should run load_groups(grpfile) first before running this method.
-            if self.groups is not None and self.gname is not None: # Each group should have equal weight initially.
-                align_prob.normalize_reads(axis=self.Axis.GROUP, groups=self.groups)
-            align_prob.normalize_reads(axis=self.Axis.READ)
-            return align_prob
-        else:
-            raise RuntimeError('The matrix is not finalized.')
+    # def initialize(self): # Inline initialization
+    #     if self.finalized:
+    #         self.normalize_reads(axis=self.Axis.LOCUS)
+    #         # When there are nested groups (like a gene as a group of isoforms),
+    #         # we should run load_groups(grpfile) first before running this method.
+    #         if self.groups is not None and self.gname is not None: # Each group should have equal weight initially.
+    #             self.normalize_reads(axis=self.Axis.GROUP, grouping_mat=self.t2t_mat)
+    #         self.normalize_reads(axis=self.Axis.READ)
+    #     else:
+    #         raise RuntimeError('The matrix is not finalized.')
+    #
+    # def get_initial_probability(self, shallow=False): # Copies the original matrix (Use lots of memory)
+    #     if self.finalized:
+    #         align_prob = self.copy(shallow=shallow)
+    #         align_prob.normalize_reads(axis=self.Axis.LOCUS)
+    #         # if self.num_groups > 0:
+    #         # When there are nested groups (like a gene as a group of isoforms),
+    #         # we should run load_groups(grpfile) first before running this method.
+    #         if self.groups is not None and self.gname is not None: # Each group should have equal weight initially.
+    #             align_prob.normalize_reads(axis=self.Axis.GROUP, groups=self.groups)
+    #         align_prob.normalize_reads(axis=self.Axis.READ)
+    #         return align_prob
+    #     else:
+    #         raise RuntimeError('The matrix is not finalized.')
 
     def get_unique_reads(self, shallow=False):
         if self.finalized:

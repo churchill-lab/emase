@@ -51,17 +51,16 @@ class EMfactory:
         :param pseudocount: Uniform prior for allele specificity estimation
         :return: Nothing (as it performs an in-place operations)
         """
-        self.alignments.initialize()
+        # self.alignments.initialize()
+        self.alignments.normalize_reads(axis=APM.Axis.READ)
         self.allelic_expression = self.alignments.sum(axis=APM.Axis.READ)
-        if self.target_lengths is not None:
-            self.allelic_expression = np.divide(self.allelic_expression,
-                                                self.target_lengths)  # allelic_expression is at depth-level
+        if self.target_lengths is not None: # allelic_expression will be at depth-level
+            self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)
         if pseudocount > 0.0:  # pseudocount is at depth-level
             orig_allelic_expression_sum = self.allelic_expression.sum()
             nzloci = np.nonzero(self.allelic_expression)[1]
             self.allelic_expression[:, nzloci] += pseudocount
-            self.allelic_expression *= (
-                orig_allelic_expression_sum / self.allelic_expression.sum())  # original depth scale
+            self.allelic_expression *= (orig_allelic_expression_sum / self.allelic_expression.sum())  # original depth scale
 
     def get_allelic_expression(self, at_group_level=False):
         if at_group_level:
