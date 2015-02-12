@@ -288,47 +288,6 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
         else:
             raise RuntimeError('The original matrix must be finalized.')
 
-    def normalize_reads(self, axis=2, groups=None):
-        # In-place normalization
-        """
-
-        :rtype :
-        """
-        if self.finalized:
-            if axis == 0:
-                normalizer = self.sum(axis=1) # Sparse matrix of |reads| x |loci|
-                for hid in xrange(self.shape[1]):
-                    self.data[hid] = np.divide(self.data[hid], normalizer)
-            elif axis == 1:
-                raise NotImplementedError('The method is not yet implemented for the axis.')
-            elif axis == 2:
-                sum_mat = self.sum(axis=0)
-                normalizer = sum_mat.sum(axis=1)
-                normalizer = normalizer.ravel()
-                for hid in xrange(self.shape[1]):
-                    self.data[hid].data /= normalizer[self.data[hid].indices]
-            elif axis == 3:
-                if groups is None:
-                    raise RuntimeError('Group information is missing.')
-                t2tmat = eye(self.shape[0], self.shape[0])
-                t2tmat = t2tmat.tolil()
-                for tid_list in groups:
-                    for ii in xrange(len(tid_list)):
-                        for jj in xrange(ii):
-                            i = tid_list[ii]
-                            j = tid_list[jj]
-                            t2tmat[i, j] = 1
-                            t2tmat[j, i] = 1
-                t2tmat = t2tmat.tocsc()
-                emat = self.sum(axis=1)
-                normalizer = t2tmat * emat.transpose()
-                for hid in xrange(self.shape[1]):
-                    self.data[hid] = self.data[hid] / normalizer.transpose()
-            else:
-                raise RuntimeError('The axis should be 0, 1, 2, or 3.')
-        else:
-            raise RuntimeError('The original matrix must be finalized.')
-
     #
     # Helper methods
     #

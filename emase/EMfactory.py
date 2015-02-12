@@ -22,6 +22,16 @@ class EMfactory:
             for i in xrange(self.alignments.num_groups):
                 self.grp_conv_mat[self.alignments.groups[i], i] = 1.0
             self.grp_conv_mat = self.grp_conv_mat.tocsc()
+            self.t2t_mat = np.eye(self.alignments.num_loci, self.alignments.num_loci)
+            self.t2t_mat = self.t2t_mat.tolil()
+            for tid_list in self.alignments.groups:
+                for ii in xrange(len(tid_list)):
+                    for jj in xrange(ii):
+                        i = tid_list[ii]
+                        j = tid_list[jj]
+                        self.t2t_mat[i, j] = 1
+                        self.t2t_mat[j, i] = 1
+            self.t2t_mat = self.t2t_mat.tocsc()
         self.target_lengths = None
         if lenfile is not None:
             hid = dict(zip(self.alignments.hname, np.arange(len(self.alignments.hname))))
@@ -36,7 +46,11 @@ class EMfactory:
                 raise RuntimeError('There exist transcripts missing length information.')
 
     def prepare(self, pseudocount=0.0):
-        '''Initialize the posterior probability'''
+        """
+        Initialize the probability of read origin according to the alignment profile
+        :param pseudocount:
+        :return: Nothing (as it performs an in-place operations)
+        """
         self.alignments.initialize()
         self.allelic_expression = self.alignments.sum(axis=APM.Axis.READ)
         if self.target_lengths is not None:
@@ -55,34 +69,46 @@ class EMfactory:
         else:
             return self.allelic_expression.copy()
 
-    def update_probability_at_readlevel(self, model=1):
+    def update_probability_at_read_level(self, model=1):
         self.alignments.reset()
-        self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
-        self.alignments.normalize_reads(axis=APM.Axis.READ)
-        if model == 'gene>isoform>allele-model':
+        if model == self.MODEL.GENE_ISOFORM_ALLELE_MODEL:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
-            self.alignments.normalize_reads(axis=APM.Axis.HAPLOTYPE)
+            self.alignments.normalize_reads(axis=APM.Axis.LOCUS) # Locus-wise normalization
             self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.READ)
-            self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping=self.t2t_mat)
-            self.alignments.multiply(self.allelic_expression * self.grp_sum_mat, axis=APM.Axis.READ)
+            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
-        elif model == 'gene>allele>isoform-model':
+        elif model == self.MODEL.GENE_ALLELE_ISOFORM_MODEL:
             pass
-        elif model == 'gene>allele*isoform-model':
+        elif model == self.MODEL.GENE_COMMUNITY_MODEL:
             pass
-        elif model == 'rsem-model':
+        elif model == self.MODEL.RSEM_MODEL:
+            self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.READ)
 
     def update_allelic_expression(self, model=1):
-        '''A single EM step'''
+        """
+        A single EM step
+        :param model:
+        :return:
+        """
         err_states = np.seterr(all='warn')
         err_states = np.seterr(**err_states)
-        self.update_probability_at_readlevel(model)
+        self.update_probability_at_read_level(model)
         self.allelic_expression = self.alignments.sum(axis=APM.Axis.READ)
         if self.target_lengths is not None:
             self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)
 
     def run(self, model=1, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
-        '''Run EM iterations'''
+        """
+        Run EM iterations
+        :param model:
+        :param tol:
+        :param max_iters:
+        :param min_uniq_reads:
+        :param verbose:
+        :return:
+        """
         if verbose:
             print
             print "Iter No  Time (hh:mm:ss)  Total error (depth)  Max error (%)  Locus of max error  Allele expression change"
@@ -117,7 +143,13 @@ class EMfactory:
                        curr_allelic_expression[err_max_hid, err_max_lid])
 
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
-        # Get counts
+        """
+        Get counts
+        :param filename:
+        :param grp_wise:
+        :param reorder:
+        :return:
+        """
         effective_read_counts = self.alignments.sum(axis=APM.Axis.READ)
         if grp_wise:
             lname = self.alignments.gname

@@ -199,6 +199,38 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
     # Helper functions
     #
 
+    def normalize_reads(self, axis, grouping_mat=None):
+        """
+        Read-wise normalization
+        :param axis: The dimension along which we want to normalize values
+        :param grouping_mat: An incidence matrix that specifies which isoforms are from a same gene
+        :return: Nothing (as the method performs in-place operations)
+        :rtype : None
+        """
+        if self.finalized:
+            if axis == self.Axis.LOCUS: # Locus-wise normalization on each read
+                normalizer = self.sum(axis=self.Axis.HAPLOTYPE) # Sparse matrix of |reads| x |loci|
+                for hid in xrange(self.shape[1]):
+                    self.data[hid] = np.divide(self.data[hid], normalizer)
+            elif axis == self.Axis.HAPLOTYPE: # haplotype-wise normalization on each read
+                raise NotImplementedError('The method is not yet implemented for the axis.')
+            elif axis == self.Axis.READ: # normalization each read as a whole
+                sum_mat = self.sum(axis=self.Axis.LOCUS)
+                normalizer = sum_mat.sum(axis=self.Axis.HAPLOTYPE)
+                normalizer = normalizer.ravel()
+                for hid in xrange(self.shape[1]):
+                    self.data[hid].data /= normalizer[self.data[hid].indices]
+            elif axis == self.Axis.GROUP: # group-wise normalization on each read
+                if grouping_mat is None:
+                    raise RuntimeError('Group information matrix is missing.')
+                normalizer = grouping_mat * self.sum(axis=self.Axis.HAPLOTYPE).transpose()
+                for hid in xrange(self.shape[1]):
+                    self.data[hid] = self.data[hid] / normalizer.transpose()
+            else:
+                raise RuntimeError('The axis should be 0, 1, 2, or 3.')
+        else:
+            raise RuntimeError('The original matrix must be finalized.')
+
     def initialize(self): # Inline initialization
         if self.finalized:
             self.normalize_reads(axis=self.Axis.LOCUS)
@@ -255,7 +287,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 nnz_readwise = np.diff(summat.tocsr().indptr)
                 unique_reads = summat[nnz_readwise < 2]
                 unique_reads.data = np.ones(unique_reads.nnz)
-                return unique_reads.sum(axis=0).A.ravel()
+                return unique_reads.sum(axis=self.Axis.LOCUS).A.ravel()
             else:
                 unique_reads = self.get_unique_reads()
                 return unique_reads.sum(axis=self.Axis.READ)
