@@ -8,11 +8,9 @@ from numbers import Number
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
-
 class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignments
 
     def __init__(self, other=None, h5file=None, datanode='/', shape=None, dtype=float):
-
         self.shape = (0, 0, 0)
         self.data  = list()
         self.finalized = False # The data matrix has been populated with alignment data and converted to csc format
@@ -29,30 +27,9 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
             h5fh = tables.open_file(h5file, 'r')
             self.shape = h5fh.get_node_attr(datanode, 'shape')
             for hid in xrange(self.shape[1]):
-                #hapnode = h5fh.get_node(datanode + '/h%d' % hid)
-                #indptr = h5fh.get_node(hapnode, 'indptr').read()
-                #indices = h5fh.get_node(hapnode, 'indices').read()
-                #if not incidence_only:
-                    #data = h5fh.get_node(hapnode, 'data').read()
-                    #data = data.astype(dtype)
-                #else:
-                    #data = np.ones(len(indices), dtype=dtype)
-                #self.data.append(csc_matrix((data, indices, indptr), shape=(self.shape[2], self.shape[0])))
                 self.data.append(self._reconstruct_spmat(h5fh, hid, datanode, dtype))
             h5fh.close()
             self.finalize() # This also converts the data matrices into csc format
-
-        #elif h5file is not None:
-            #h5fh = tables.open_file(h5file, 'r')
-            #self.shape = h5fh.get_node_attr(datanode, 'shape')
-            #for hid in xrange(self.shape[1]):
-                #hapnode = h5fh.get_node(datanode + '/h%d' % hid)
-                #coor = h5fh.get_node(hapnode, 'coor').read()
-                #data = h5fh.get_node(hapnode, 'data').read()
-                #data = data.astype(float)
-                #self.data.append(coo_matrix((data, coor), shape=(self.shape[2], self.shape[0])))
-            #h5fh.close()
-            #self.finalize() # This also converts the data matrices into csc format
 
         elif shape is not None:
             if len(shape) != 3:
@@ -257,7 +234,12 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
     #
 
     def add(self, addend_mat, axis=1):
-        # In-place addition
+        """
+        In-place addition
+        :param addend_mat:
+        :param axis:
+        :return:
+        """
         if self.finalized:
             if axis == 0:
                 raise NotImplementedError('The method is not yet implemented for the axis.')
@@ -271,18 +253,31 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
         else:
             raise RuntimeError('The original matrix must be finalized.')
 
-    def multiply(self, factor_set, axis=2):
-        # In-place multiplication
+    def multiply(self, multiplier, axis=2):
+        """
+        In-place multiplication
+        :param multiplier: A matrix or vector to be multiplied
+        :param axis: The dim along which 'multiplier' is multiplied
+        :return: Nothing (as it performs in-place operations)
+        """
         if self.finalized:
             if axis == 0:
                 raise NotImplementedError('The method is not yet implemented for the axis.')
             elif axis == 1:
-                raise NotImplementedError('The method is not yet implemented for the axis.')
-            elif axis == 2: # factor_set is np.matrix of shape |haplotypes| x |loci|
+                if multiplier.ndim == 1: # multiplier is np.array of length \loci\
+                    sz = len(multiplier)
+                    multiplier_mat = lil_matrix((sz, sz))
+                    multiplier_mat.setdiag(multiplier)
+                    for hid in xrange(self.shape[1]):
+                        self.data[hid] = self.data[hid] * multiplier_mat
+                elif multiplier.ndim == 2: # multiplier is sp.sparse matrix of shape |reads\ x \loci\
+                    for hid in xrange(self.shape[1]):
+                        self.data[hid] = self.data[hid].multiply(multiplier)
+            elif axis == 2: # multiplier is np.matrix of shape |haplotypes| x |loci|
                 for hid in xrange(self.shape[1]):
-                    factor = factor_set[hid, :]
-                    factor = factor.ravel()
-                    self.data[hid].data *= factor.repeat(np.diff(self.data[hid].indptr))
+                    multiplier_vec = multiplier[hid, :]
+                    multiplier_vec = multiplier_vec.ravel()
+                    self.data[hid].data *= multiplier_vec.repeat(np.diff(self.data[hid].indptr))
             else:
                 raise RuntimeError('The axis should be 0, 1, or 2.')
         else:
@@ -319,19 +314,8 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
                     d = h5fh.create_carray(hgroup, 'data', obj=spmat.data.astype(data_dtype), filters=fil)
             h5fh.flush()
             h5fh.close()
-            #h5fh = tables.open_file(h5file, 'w', title=title)
-            #fil  = tables.Filters(complevel=1, complib=complib)
-            #for hid in xrange(self.shape[1]):
-                #hgroup = h5fh.create_group(h5fh.root, 'h%d' % hid, 'coo_matrix components for Haplotype %d' % hid)
-                #dmat = self.data[hid].tocoo()
-                #c = h5fh.create_carray(hgroup, 'coor', obj=np.vstack((dmat.row.astype(index_dtype), dmat.col.astype(index_dtype))), filters=fil)
-                #d = h5fh.create_carray(hgroup, 'data', obj=dmat.data.astype(data_dtype), filters=fil)
-            #h5fh.set_node_attr(h5fh.root, 'shape', self.shape)
-            #h5fh.flush()
-            #h5fh.close()
         else:
             raise RuntimeError('The matrix is not finalized.')
-
 
 
 if __name__ == "__main__":
