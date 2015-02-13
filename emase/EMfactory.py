@@ -149,7 +149,7 @@ class EMfactory:
                 time1 = time.time()
                 delmin, s = divmod(int(time1 - time0), 60)
                 h, m = divmod(delmin, 60)
-                print " %5d      %4d:%02d:%02d     %16.2f     %9.2f%%     %s  %s: %.2f ==> %.2f" % \
+                print " %5d      %4d:%02d:%02d     %16.2f     %9.2f%%    %s  %s: %.2f ==> %.2f" % \
                       (num_iters, h, m, s, err_sum, err_max * 100,
                        self.alignments.lname[err_max_lid], self.alignments.hname[err_max_hid],
                        prev_allelic_expression[err_max_hid, err_max_lid],
@@ -157,7 +157,7 @@ class EMfactory:
 
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
         """
-        Get counts
+        Write estimated read counts
         :param filename:
         :param grp_wise:
         :param reorder:
