@@ -6,12 +6,8 @@ from .AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
-def enum(**enums):
-    return type('Enum', (), enums)
 
 class EMfactory:
-
-    Model = enum(GENE_ISOFORM_ALLELE_MODEL=0, GENE_ALLELE_ISOFORM_MODEL=1, GENE_COMMUNITY_MODEL=2, RSEM_MODEL=3)
 
     def __init__(self, alignments, lenfile=None, read_length=100):
         self.alignments = alignments
@@ -69,27 +65,42 @@ class EMfactory:
             return self.allelic_expression.copy()
 
     def update_probability_at_read_level(self, model=1):
+        """
+        Update the probability of read origin at read level
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
+        :return: Nothing (as it performs in-place operations)
+        """
         self.alignments.reset()
-        if model == self.Model.GENE_ISOFORM_ALLELE_MODEL:
+        if model == 1:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.LOCUS)  # Locus-wise normalization
             self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
-        elif model == self.Model.GENE_ALLELE_ISOFORM_MODEL:
-            pass
-        elif model == self.Model.GENE_COMMUNITY_MODEL:
-            pass
-        elif model == self.Model.RSEM_MODEL:
+        elif model == 2:  # TODO: Fix this branch
+            self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
+            self.alignments.multiply(self.allelic_expression * self.t2t_mat, axis=APM.Axis.HAPLOTYPE) # HAPLOGROUP sum_mat
+            self.alignments.normalize_reads(axis=APM.Axis.LOCUS)  # Locus-wise normalization
+            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.alignments.normalize_reads(axis=APM.Axis.READ)
+        elif model == 3:
+            self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
+            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.alignments.normalize_reads(axis=APM.Axis.READ)
+        elif model == 4:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
+        else:
+            raise RuntimeError('The read normalization model should be 1, 2, 3, or 4.')
 
     def update_allelic_expression(self, model=1):
         """
-        A single EM step
-        :param model:
-        :return:
+        A single EM step: Update probability at read level and then re-estimate allelic specific expression
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
+        :return: Nothing (as it performs in-place operations)
         """
         err_states = np.seterr(all='warn')
         err_states = np.seterr(**err_states)
@@ -101,12 +112,12 @@ class EMfactory:
     def run(self, model=1, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
         """
         Run EM iterations
-        :param model:
-        :param tol:
-        :param max_iters:
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
+        :param tol: Tolerance for termination
+        :param max_iters: Maximum number of iterations until termination
         :param min_uniq_reads:
         :param verbose:
-        :return:
+        :return: Nothing (as it performs in-place operations)
         """
         if verbose:
             print

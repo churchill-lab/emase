@@ -13,7 +13,7 @@ def enum(**enums):
 
 class AlignmentPropertyMatrix(Sparse3DMatrix):
 
-    Axis = enum(LOCUS=0, HAPLOTYPE=1, READ=2, GROUP=3)
+    Axis = enum(LOCUS=0, HAPLOTYPE=1, READ=2, GROUP=3, HAPLOGROUP=4)
 
     def __init__(self, other=None, \
                  h5file=None, datanode='/', metanode='/', shallow=False, \
@@ -209,23 +209,35 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         """
         if self.finalized:
             if axis == self.Axis.LOCUS: # Locus-wise normalization on each read
-                normalizer = self.sum(axis=self.Axis.HAPLOTYPE) # Sparse matrix of |reads| x |loci|
-                for hid in xrange(self.shape[1]):
-                    self.data[hid] = np.divide(self.data[hid], normalizer)
-            elif axis == self.Axis.HAPLOTYPE: # haplotype-wise normalization on each read
-                raise NotImplementedError('The method is not yet implemented for the axis.')
-            elif axis == self.Axis.READ: # normalization each read as a whole
+                normalizer = self.sum(axis=self.Axis.HAPLOTYPE)  # Sparse matrix of |reads| x |loci|
+                for hid in xrange(self.num_haplotypes):
+                    self.data[hid] = np.divide(self.data[hid], normalizer)  # element-wise division
+            elif axis == self.Axis.HAPLOTYPE:  # haplotype-wise normalization on each read
+                for hid in xrange(self.num_haplotypes):
+                    normalizer = self.data[hid].sum(axis=self.Axis.HAPLOTYPE)  # Sparse matrix (vector) of |reads| x 1
+                    normalizer = normalizer.A.flatten()
+                    self.data[hid].data /= normalizer[self.data[hid].indices]
+            elif axis == self.Axis.READ:  # normalization each read as a whole
                 sum_mat = self.sum(axis=self.Axis.LOCUS)
                 normalizer = sum_mat.sum(axis=self.Axis.HAPLOTYPE)
                 normalizer = normalizer.ravel()
-                for hid in xrange(self.shape[1]):
+                for hid in xrange(self.num_haplotypes):
                     self.data[hid].data /= normalizer[self.data[hid].indices]
-            elif axis == self.Axis.GROUP: # group-wise normalization on each read
+            elif axis == self.Axis.GROUP:  # group-wise normalization on each read
                 if grouping_mat is None:
                     raise RuntimeError('Group information matrix is missing.')
-                normalizer = grouping_mat * self.sum(axis=self.Axis.HAPLOTYPE).transpose()
-                for hid in xrange(self.shape[1]):
-                    self.data[hid] = self.data[hid] / normalizer.transpose()
+                # normalizer = grouping_mat * self.sum(axis=self.Axis.HAPLOTYPE).transpose()
+                # for hid in xrange(self.num_haplotypes):
+                #     self.data[hid] = self.data[hid] / normalizer.transpose()
+                normalizer = self.sum(axis=self.Axis.HAPLOTYPE) * grouping_mat
+                for hid in xrange(self.num_haplotypes):
+                    self.data[hid] = np.divide(self.data[hid], normalizer)
+            elif axis == self.Axis.HAPLOGROUP:  # haplotype-wise & group-wise normalization on each read
+                if grouping_mat is None:
+                    raise RuntimeError('Group information matrix is missing.')
+                for hid in xrange(self.num_haplotypes):  # normalizer is different hap-by-hap
+                    normalizer = self.data[hid] * grouping_mat  # Sparse matrix of \reads\ x \loci\
+                    self.data[hid] = np.divide(self.data[hid], normalizer)
             else:
                 raise RuntimeError('The axis should be 0, 1, 2, or 3.')
         else:
