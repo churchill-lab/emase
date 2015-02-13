@@ -11,7 +11,7 @@ def enum(**enums):
 
 class EMfactory:
 
-    MODEL = enum(GENE_ISOFORM_ALLELE_MODEL=0, GENE_ALLELE_ISOFORM_MODEL=1, GENE_COMMUNITY_MODEL=2, RSEM_MODEL=3)
+    Model = enum(GENE_ISOFORM_ALLELE_MODEL=0, GENE_ALLELE_ISOFORM_MODEL=1, GENE_COMMUNITY_MODEL=2, RSEM_MODEL=3)
 
     def __init__(self, alignments, lenfile=None, read_length=100):
         self.alignments = alignments
@@ -70,18 +70,18 @@ class EMfactory:
 
     def update_probability_at_read_level(self, model=1):
         self.alignments.reset()
-        if model == self.MODEL.GENE_ISOFORM_ALLELE_MODEL:
+        if model == self.Model.GENE_ISOFORM_ALLELE_MODEL:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
-            self.alignments.normalize_reads(axis=APM.Axis.LOCUS) # Locus-wise normalization
+            self.alignments.normalize_reads(axis=APM.Axis.LOCUS)  # Locus-wise normalization
             self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
-            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
+            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
-        elif model == self.MODEL.GENE_ALLELE_ISOFORM_MODEL:
+        elif model == self.Model.GENE_ALLELE_ISOFORM_MODEL:
             pass
-        elif model == self.MODEL.GENE_COMMUNITY_MODEL:
+        elif model == self.Model.GENE_COMMUNITY_MODEL:
             pass
-        elif model == self.MODEL.RSEM_MODEL:
+        elif model == self.Model.RSEM_MODEL:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
 
