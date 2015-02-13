@@ -73,17 +73,20 @@ class EMfactory:
         self.alignments.reset()
         if model == 1:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
-            self.alignments.normalize_reads(axis=APM.Axis.LOCUS)  # Locus-wise normalization
+            self.alignments.normalize_reads(axis=APM.Axis.LOCUS)
             self.alignments.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
-        elif model == 2:  # TODO: Fix this branch
+        elif model == 2:
+            copy_alignments = self.alignments.copy(shallow=True)
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
-            self.alignments.multiply(self.allelic_expression * self.t2t_mat, axis=APM.Axis.HAPLOTYPE) # HAPLOGROUP sum_mat
-            self.alignments.normalize_reads(axis=APM.Axis.LOCUS)  # Locus-wise normalization
-            self.alignments.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            haplogroup_mat = self.allelic_expression * self.t2t_mat
+            copy_alignments.multiply(haplogroup_mat, axis=APM.Axis.HAPLOTYPE)
+            copy_alignments.normalize_reads(axis=APM.Axis.LOCUS)
+            self.alignments.multiply(copy_alignments)
+            self.alignments.multiply(haplogroup_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
         elif model == 3:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)

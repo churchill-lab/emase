@@ -8,19 +8,24 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
     Usage:
-        run-emase -i <h5_file> -g <grp_file> -d <len_file> -o <out_file> \\
+        run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> \\
                   -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
         <len_file>       : File that contains transcript lengths
-        <out_file>       : The name of output result file. (default: 'emase.isoforms')
+        <multiread_model>: Multiread model ID
+                              1: Gene->Isoform->Allele,
+                              2: Gene->Allele->Isoform,
+                              3: Gene->Isoform*Allele,
+                              4: Gene*Isoform*Allele
         <min_uniq_reads> : The number of unique reads to be considered for convergence checking
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 1000)
         <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
     Parameters:
         -h, --help: shows this help message
+        -c: reports the alignment counts
         -w: reports the posterior probability for each read
 
 '''
@@ -36,7 +41,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:d:b:p:r:m:t:o:w", ["help"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:b:p:r:m:t:cw", ["help"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -44,6 +49,7 @@ def main(argv=None):
         h5file = None
         grpfile = None
         lenfile = None
+        multiread_model = 1
         outfile = 'emase.isoforms'
         min_uniq_reads = 0
         read_length = 100
@@ -51,6 +57,7 @@ def main(argv=None):
         max_iters = 999
         tolerance = 0.01
         report_gene_counts = False
+        report_alignment_counts = False
         report_posterior = False
 
         # option processing (change this later with optparse)
@@ -62,8 +69,12 @@ def main(argv=None):
             if option == '-g':
                 grpfile = value
                 report_gene_counts = True
-            if option == '-d':
+            if option == '-L':
                 lenfile = value
+            if option == '-M':
+                multiread_model = int(value)
+            if option == '-o':
+                outfile = value
             if option == '-b':
                 min_uniq_reads = int(value)
             if option == '-p':
@@ -74,8 +85,8 @@ def main(argv=None):
                 max_iters = int(value)
             if option == '-t':
                 tolerance = float(value)
-            if option == '-o':
-                outfile = value
+            if option == '-c':
+                report_alignment_counts = True
             if option == '-w':
                 report_posterior = True
 
@@ -91,7 +102,7 @@ def main(argv=None):
         alignments.reset()
         em_factory = EMfactory(alignments, lenfile=lenfile, read_length=read_length)
         em_factory.prepare(pseudocount)
-        em_factory.run(tol=tolerance, max_iters=max_iters, min_uniq_reads=min_uniq_reads, verbose=True)
+        em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, min_uniq_reads=min_uniq_reads, verbose=True)
         em_factory.report_depths(filename="%s.tpm" % outfile, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % outfile)
         if report_posterior:
@@ -100,6 +111,14 @@ def main(argv=None):
             grp_outfile = outfile.replace('isoforms', 'genes')
             em_factory.report_depths(filename="%s.tpm" % grp_outfile, tpm=True, grp_wise=True)
             em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % grp_outfile, grp_wise=True)
+        if report_alignment_counts:
+            alignments.reset()
+            cnt_outfile1 = "%s.alignment_counts" % outfile
+            report_alignment_counts(alignments, filename=cnt_outfile1)
+            alignments._bundle_inline(reset=True)
+            cnt_outfile2 = "%s.alignment_counts" % grp_outfile
+            report_alignment_counts(alignments, filename=cnt_outfile2)
+
 
         #
         # End of main body

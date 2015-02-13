@@ -264,15 +264,18 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
             if axis == 0:
                 raise NotImplementedError('The method is not yet implemented for the axis.')
             elif axis == 1:
-                if multiplier.ndim == 1: # multiplier is np.array of length \loci\
+                if multiplier.ndim == 1:  # multiplier is np.array of length \loci\
                     sz = len(multiplier)
                     multiplier_mat = lil_matrix((sz, sz))
                     multiplier_mat.setdiag(multiplier)
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid] * multiplier_mat
-                elif multiplier.ndim == 2: # multiplier is sp.sparse matrix of shape |reads\ x \loci\
+                elif multiplier.ndim == 2:  # multiplier is sp.sparse matrix of shape |reads\ x \loci\
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid].multiply(multiplier)
+                elif isinstance(multiplier, Sparse3DMatrix):  # multiplier is Sparse3DMatrix object
+                    for hid in xrange(self.shape[1]):
+                        self.data[hid] = self.data[hid].multiply(multiplier.data[hid])
             elif axis == 2: # multiplier is np.matrix of shape |haplotypes| x |loci|
                 for hid in xrange(self.shape[1]):
                     multiplier_vec = multiplier[hid, :]
