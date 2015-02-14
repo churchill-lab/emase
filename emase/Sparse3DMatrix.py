@@ -8,13 +8,16 @@ from numbers import Number
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
-class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignments
-
+class Sparse3DMatrix:
+    """
+    3-dim sparse matrix designed for "pooled" RNA-seq alignments
+    """
     def __init__(self, other=None, h5file=None, datanode='/', shape=None, dtype=float):
         self.shape = (0, 0, 0)
-        self.data  = list()
+        self.ndim = 3
+        self.data = list()
         self.finalized = False # The data matrix has been populated with alignment data and converted to csc format
-
+        # If copying from 'other' Sparse3DMatrix
         if other is not None:
             if other.finalized:
                 self.shape = other.shape
@@ -22,7 +25,7 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
                 self.finalized = True
             else:
                 raise RuntimeError('The original matrix must be finalized.')
-
+        # If reading in from emase format file
         elif h5file is not None:
             h5fh = tables.open_file(h5file, 'r')
             self.shape = h5fh.get_node_attr(datanode, 'shape')
@@ -30,7 +33,7 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
                 self.data.append(self._reconstruct_spmat(h5fh, hid, datanode, dtype))
             h5fh.close()
             self.finalize() # This also converts the data matrices into csc format
-
+        # If creating from scratch
         elif shape is not None:
             if len(shape) != 3:
                 raise RuntimeError('The shape must be a tuple of three positive integers.')
@@ -253,7 +256,7 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
         else:
             raise RuntimeError('The original matrix must be finalized.')
 
-    def multiply(self, multiplier, axis=2):
+    def multiply(self, multiplier, axis=None):
         """
         In-place multiplication
         :param multiplier: A matrix or vector to be multiplied
@@ -261,28 +264,37 @@ class Sparse3DMatrix: # 3-dim sparse matrix designed for "pooled" RNA-seq alignm
         :return: Nothing (as it performs in-place operations)
         """
         if self.finalized:
-            if axis == 0:
-                raise NotImplementedError('The method is not yet implemented for the axis.')
-            elif axis == 1:
-                if multiplier.ndim == 1:  # multiplier is np.array of length \loci\
+            if multiplier.ndim == 1:
+                if axis == 0:  # multiplier is np.array of length |haplotypes|
+                    raise NotImplementedError('The method is not yet implemented for the axis.')
+                elif axis == 1:  # multiplier is np.array of length |loci|
                     sz = len(multiplier)
                     multiplier_mat = lil_matrix((sz, sz))
                     multiplier_mat.setdiag(multiplier)
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid] * multiplier_mat
-                elif multiplier.ndim == 2:  # multiplier is sp.sparse matrix of shape |reads\ x \loci\
+                elif axis == 2:  # multiplier is np.array of length |reads|
+                    raise NotImplementedError('The method is not yet implemented for the axis.')
+                else:
+                    raise RuntimeError('The axis should be 0, 1, or 2.')
+            elif multiplier.ndim == 2:
+                if axis == 0:  # multiplier is sp.sparse matrix of shape |reads| x |haplotypes|
+                    raise NotImplementedError('The method is not yet implemented for the axis.')
+                elif axis == 1:  # multiplier is sp.sparse matrix of shape |reads| x |loci|
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid].multiply(multiplier)
-                elif isinstance(multiplier, Sparse3DMatrix):  # multiplier is Sparse3DMatrix object
+                elif axis == 2:  # multiplier is np.matrix of shape |haplotypes| x |loci|
+                    for hid in xrange(self.shape[1]):
+                        multiplier_vec = multiplier[hid, :]
+                        multiplier_vec = multiplier_vec.ravel()
+                        self.data[hid].data *= multiplier_vec.repeat(np.diff(self.data[hid].indptr))
+                else:
+                    raise RuntimeError('The axis should be 0, 1, or 2.')
+            elif isinstance(multiplier, Sparse3DMatrix):  # multiplier is Sparse3DMatrix object
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid].multiply(multiplier.data[hid])
-            elif axis == 2: # multiplier is np.matrix of shape |haplotypes| x |loci|
-                for hid in xrange(self.shape[1]):
-                    multiplier_vec = multiplier[hid, :]
-                    multiplier_vec = multiplier_vec.ravel()
-                    self.data[hid].data *= multiplier_vec.repeat(np.diff(self.data[hid].indptr))
             else:
-                raise RuntimeError('The axis should be 0, 1, or 2.')
+                raise RuntimeError('The multiplier should be 1, 2 dimensional numpy array or a Sparse3DMatrix object.')
         else:
             raise RuntimeError('The original matrix must be finalized.')
 

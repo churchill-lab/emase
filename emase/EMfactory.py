@@ -82,11 +82,11 @@ class EMfactory:
             copy_alignments = self.alignments.copy(shallow=True)
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.alignments.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
-            haplogroup_mat = self.allelic_expression * self.t2t_mat
-            copy_alignments.multiply(haplogroup_mat, axis=APM.Axis.HAPLOTYPE)
+            haplogroup_sum_mat = self.allelic_expression * self.t2t_mat
+            copy_alignments.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
             copy_alignments.normalize_reads(axis=APM.Axis.LOCUS)
             self.alignments.multiply(copy_alignments)
-            self.alignments.multiply(haplogroup_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.alignments.multiply(haplogroup_sum_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.alignments.normalize_reads(axis=APM.Axis.READ)
         elif model == 3:
             self.alignments.multiply(self.allelic_expression, axis=APM.Axis.READ)

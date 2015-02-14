@@ -214,7 +214,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     self.data[hid] = np.divide(self.data[hid], normalizer)  # element-wise division
             elif axis == self.Axis.HAPLOTYPE:  # haplotype-wise normalization on each read
                 for hid in xrange(self.num_haplotypes):
-                    normalizer = self.data[hid].sum(axis=self.Axis.HAPLOTYPE)  # Sparse matrix (vector) of |reads| x 1
+                    normalizer = self.data[hid].sum(axis=self.Axis.HAPLOTYPE)  # 1-dim Sparse matrix of |reads| x 1
                     normalizer = normalizer.A.flatten()
                     self.data[hid].data /= normalizer[self.data[hid].indices]
             elif axis == self.Axis.READ:  # normalization each read as a whole
@@ -251,7 +251,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             if not shallow:
                 unique_reads.__copy_names(self)
                 unique_reads.__copy_group_info(self)
-            factor = self.sum(axis=self.Axis.LOCUS).sum(axis=self.Axis.HAPLOTYPE) # Read-level number of alignments
+            factor = self.sum(axis=self.Axis.LOCUS).sum(axis=self.Axis.HAPLOTYPE)  # Read-level number of alignments
             for hid in xrange(self.num_haplotypes):
                 hdata = self.data[hid].copy()
                 hdata.data *= factor[hdata.indices] # Only unique reads will remain to be 1
