@@ -98,10 +98,8 @@ def main(argv=None):
         # Main body
         #
 
-        alignments = APM(h5file=h5file, grpfile=grpfile)
-        alignments.reset()
-        em_factory = EMfactory(alignments, lenfile=lenfile, read_length=read_length)
-        em_factory.prepare(pseudocount)
+        em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
+        em_factory.prepare(pseudocount, lenfile=lenfile, read_length=read_length)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, min_uniq_reads=min_uniq_reads, verbose=True)
         em_factory.report_depths(filename="%s.tpm" % outfile, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % outfile)
@@ -112,13 +110,13 @@ def main(argv=None):
             em_factory.report_depths(filename="%s.tpm" % grp_outfile, tpm=True, grp_wise=True)
             em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % grp_outfile, grp_wise=True)
         if report_alignment_counts:
-            alignments.reset()
+            em_factory.probability.reset()
             cnt_outfile1 = "%s.alignment_counts" % outfile
-            report_alignment_counts(alignments, filename=cnt_outfile1)
-            alignments._bundle_inline(reset=True)
-            cnt_outfile2 = "%s.alignment_counts" % grp_outfile
-            report_alignment_counts(alignments, filename=cnt_outfile2)
-
+            report_alignment_counts(em_factory.probability, filename=cnt_outfile1)
+            if report_gene_counts:
+                em_factory.probability._bundle_inline(reset=True)
+                cnt_outfile2 = "%s.alignment_counts" % grp_outfile
+                report_alignment_counts(em_factory.probability, filename=cnt_outfile2)
 
         #
         # End of main body
