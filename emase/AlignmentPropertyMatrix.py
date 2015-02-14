@@ -236,7 +236,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 if grouping_mat is None:
                     raise RuntimeError('Group information matrix is missing.')
                 for hid in xrange(self.num_haplotypes):  # normalizer is different hap-by-hap
-                    normalizer = self.data[hid] * grouping_mat  # Sparse matrix of \reads\ x \loci\
+                    normalizer = self.data[hid] * grouping_mat  # Sparse matrix of |reads| x |loci|
                     self.data[hid] = np.divide(self.data[hid], normalizer)
             else:
                 raise RuntimeError('The axis should be 0, 1, 2, or 3.')
