@@ -12,7 +12,7 @@ class EMfactory:
     A class that coordinate Expectation-Maximization
     """
     def __init__(self, alignments):
-        self.probability = alignments.reset()
+        self.probability = alignments
         self.allelic_expression = None
         self.grp_conv_mat = None
         self.t2t_mat = None
