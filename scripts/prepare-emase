@@ -15,7 +15,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
     Usage:
-        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m ]
+        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m --no-bowtie-index ]
 
     Input:
         <genome_files> : List of Genome files (comma delimited)
@@ -26,6 +26,7 @@ help_message = '''
     Parameters:
         -h, --help: shows this help message
         -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
+        --no-bowtie-index: skips building bowtie index
 '''
 
 class Usage(Exception):
@@ -130,7 +131,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mo:", ["help", "--save-g2tmap"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mo:", ["help", "--save-g2tmap", "--no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -141,6 +142,7 @@ def main(argv=None):
         num_haps = 0
         outdir = '.'
         save_g2tmap = False
+        build_bowtie_index = True
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -157,6 +159,8 @@ def main(argv=None):
                 save_g2tmap = True
             if option == '-o':
                 outdir = value
+            if option in ('--no-bowtie-index'):
+                build_bowtie_index = False
 
         # Check if the required options are given
         if num_haps < 1:
@@ -164,7 +168,8 @@ def main(argv=None):
             return 2
         if haplist is None:
             haplist = list(string.uppercase[:num_haps])
-            print >> sys.stderr, "Default haplotype names will be used: %s" % ', '.join(haplist)
+            if num_haps > 1:
+                print >> sys.stderr, "Default haplotype names will be used: %s" % ', '.join(haplist)
         if gtflist is None:
             gtflist = [ os.path.splitext(genomefile)[0] + '.gtf' for genomefile in genomelist ]
             print >> sys.stderr, "Assuming there exist the following GTF files:\n%s" % '\n'.join(gtflist)
@@ -199,13 +204,15 @@ def main(argv=None):
                 tinfo = tdb[tid]
                 if num_haps > 1: # No need to add suffix if we deal with a single genome
                     tid = tid + "_%s" % hapname
-                if genome.has_key(tinfo['chr']):
+                if genome.has_key(tinfo['chr']):  # Filter out transcripts from chromosome that the input genome does not contain
                     fragment = Seq("", generic_dna)
                     for exon in tinfo['exon']:
                         fragment += get_fragment(exon[0], exon[1], tinfo['chr'], tinfo['strand'], genome)
                     if len(fragment) > 0:
                         SeqIO.write(SeqRecord(fragment, tid, '', ''), seqout, 'fasta')
                     lenout.write("%s\t%d\n" % (tid, len(fragment)))
+                else:
+                    print >> sys.stderr, "Skipping Transcript %s of Chromosome %s..." % (tid, tinfo['chr'])
         seqout.close()
         lenout.close()
 
@@ -215,15 +222,17 @@ def main(argv=None):
                 glist = gdb.keys()
                 glist.sort()
                 for gid in glist:
-                    item = [gid]
-                    item = item + list(gdb[gid]['isoform'])
-                    fhout.write("\t".join(item) + "\n")
+                    if genome.has_key(gdb[gid]['chr']):
+                        item = [gid]
+                        item = item + list(gdb[gid]['isoform'])
+                        fhout.write("\t".join(item) + "\n")
 
         #
         # Build bowtie index for the pooled transcriptome
-        out_index = os.path.join(os.path.dirname(transcriptome_file), 'bowtie.transcriptome')
-        print >> sys.stderr, "Building bowtie index..."
-        status = subprocess.call("bowtie-build %s %s" % (transcriptome_file, out_index), shell=True)
+        if build_bowtie_index:
+            out_index = os.path.join(os.path.dirname(transcriptome_file), 'bowtie.transcriptome')
+            print >> sys.stderr, "Building bowtie index..."
+            status = subprocess.call("bowtie-build %s %s" % (transcriptome_file, out_index), shell=True)
 
         #
         # End of main body
