@@ -131,7 +131,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mo:", ["help", "--save-g2tmap", "--no-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mio:", ["help", "--save-g2tmap", "--no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -159,7 +159,7 @@ def main(argv=None):
                 save_g2tmap = True
             if option == '-o':
                 outdir = value
-            if option in ('--no-bowtie-index'):
+            if option in ('-i', '--no-bowtie-index'):
                 build_bowtie_index = False
 
         # Check if the required options are given
