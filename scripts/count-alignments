@@ -13,7 +13,7 @@ help_message = '''
     Input:
         <infile>  : Alignments stored in an EMASE format (PyTables HDF5)
         <grpfile> : Gene to isoform map if counting at gene level
-        <outbase> : The name of output result file. (default: 'emase')
+        <outbase> : The name of output result file. (default: './emase')
 
     Parameters:
         -h, --help: shows this help message
@@ -52,7 +52,7 @@ def main(argv=None):
         # Default values of vars
         infile = None
         grpfile = None
-        outbase = 'emase'
+        outbase = './emase'
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -75,11 +75,11 @@ def main(argv=None):
 
         alnmat = APM(h5file=infile, grpfile=grpfile)
         outfile1 = "%s.isoforms.alignment_counts" % outbase
-        report_alignment_counts(alnmat, filename=outfile1)
+        alnmat.report_alignment_counts(filename=outfile1)
 
         alnmat._bundle_inline(reset=True)
         outfile2 = "%s.genes.alignment_counts" % outbase
-        report_alignment_counts(alnmat, filename=outfile2)
+        alnmat.report_alignment_counts(filename=outfile2)
 
         #
         # End of main body

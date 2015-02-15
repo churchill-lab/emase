@@ -288,6 +288,20 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         else:
             raise RuntimeError('The matrix is not finalized.')
 
+    def report_alignment_counts(self, filename):
+        alignment_counts = self.count_alignments()
+        allelic_unique_counts = self.count_unique_reads(ignore_haplotype=False)
+        locus_unique_counts = self.count_unique_reads(ignore_haplotype=True)
+        cntdata = np.vstack((alignment_counts, allelic_unique_counts))
+        cntdata = np.vstack((cntdata, locus_unique_counts))
+        fhout = open(filename, 'w')
+        fhout.write("locus\t" + "\t".join(['aln_%s' % h for h in self.hname]) + "\t")
+        fhout.write("\t".join(['uniq_%s' % h for h in self.hname]) + "\t")
+        fhout.write("locus_uniq" + "\n")
+        for locus_id in xrange(self.num_loci):
+            fhout.write("\t".join([self.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())) + "\n")
+        fhout.close()
+
     def combine(self, other, shallow=False):
         if self.finalized and other.finalized:
             dmat = Sparse3DMatrix.combine(self, other)

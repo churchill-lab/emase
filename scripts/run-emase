@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 import getopt
 from emase.EMfactory import EMfactory
@@ -8,7 +9,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
     Usage:
-        run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> \\
+        run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
                   -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
@@ -19,6 +20,7 @@ help_message = '''
                               2: Gene->Allele->Isoform,
                               3: Gene->Isoform*Allele,
                               4: Gene*Isoform*Allele
+        <outbase>        : EMASE outputs the result to outbase (default: './emase')
         <min_uniq_reads> : The number of unique reads to be considered for convergence checking
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 1000)
@@ -50,7 +52,7 @@ def main(argv=None):
         grpfile = None
         lenfile = None
         multiread_model = 1
-        outfile = 'emase.isoforms'
+        outbase = './emase'
         min_uniq_reads = 0
         read_length = 100
         pseudocount = 0.2
@@ -74,7 +76,7 @@ def main(argv=None):
             if option == '-M':
                 multiread_model = int(value)
             if option == '-o':
-                outfile = value
+                outbase = value
             if option == '-b':
                 min_uniq_reads = int(value)
             if option == '-p':
@@ -97,26 +99,23 @@ def main(argv=None):
         #
         # Main body
         #
-
-        em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
+        alnmat = APM(h5file=h5file, grpfile=grpfile)
+        em_factory = EMfactory(alnmat)
         em_factory.prepare(pseudocount, lenfile=lenfile, read_length=read_length)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, min_uniq_reads=min_uniq_reads, verbose=True)
-        em_factory.report_depths(filename="%s.tpm" % outfile, tpm=True)
-        em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % outfile)
+        em_factory.report_depths(filename=os.path.join(outbase, ".isoforms.tpm"), tpm=True)
+        em_factory.report_effective_read_counts(filename=os.path.join(outbase, "isoforms.effective_read_counts"))
         if report_posterior:
-            em_factory.export_posterior_probability(filename="%s.posterior.h5" % outfile)
+            em_factory.export_posterior_probability(filename=os.path.join(outbase, ".posterior.h5"))
         if report_gene_counts:
-            grp_outfile = outfile.replace('isoforms', 'genes')
-            em_factory.report_depths(filename="%s.tpm" % grp_outfile, tpm=True, grp_wise=True)
-            em_factory.report_effective_read_counts(filename="%s.effective_read_counts" % grp_outfile, grp_wise=True)
+            em_factory.report_depths(filename=os.path.join(outbase, ".genes.tpm"), tpm=True, grp_wise=True)
+            em_factory.report_effective_read_counts(filename=os.path.join(outbase, ".genes.effective_read_counts"), grp_wise=True)
         if report_alignment_counts:
-            em_factory.probability.reset()
-            cnt_outfile1 = "%s.alignment_counts" % outfile
-            report_alignment_counts(em_factory.probability, filename=cnt_outfile1)
+            alnmat.reset()
+            alnmat.report_alignment_counts(filename=os.path.join(outbase, ".isoforms.alignment_counts"))
             if report_gene_counts:
-                em_factory.probability._bundle_inline(reset=True)
-                cnt_outfile2 = "%s.alignment_counts" % grp_outfile
-                report_alignment_counts(em_factory.probability, filename=cnt_outfile2)
+                alnmat._bundle_inline(reset=True)
+                alnmat.report_alignment_counts(filename=os.path.join(outbase, ".genes.alignment_counts"))
 
         #
         # End of main body
