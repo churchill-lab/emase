@@ -26,7 +26,6 @@ help_message = '''
     Parameters:
         -h, --help: shows this help message
         -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
-
 '''
 
 class Usage(Exception):
@@ -43,9 +42,6 @@ def parse_gtf(gtffile):
     tdb = {}
     with open(gtffile) as fh:
         for curline in dropwhile(is_comment, fh):
-        #for curline in fh:
-            #if is_comment(curline):
-                #continue
             item = curline.rstrip().split("\t")
             attribute = defaultdict(list)
             for e in item[8].split("; "):
@@ -56,7 +52,7 @@ def parse_gtf(gtffile):
             s = int(item[3])
             e = int(item[4])
             #chro = item[0].replace('chr', '')
-            chro = item[0]
+            chro = item[0]  # Leave the chromosome names as is in gtf file
             strand = item[6]
             if feature == 'gene': # Seqnature currently has some issue processing this entry
                 gid = attribute.pop('gene_id')[0]
@@ -108,7 +104,7 @@ def parse_gtf(gtffile):
                     tdb[tid]['exon_number'].append(enu)
                 elif feature == 'UTR' or feature == 'Selenocysteine':
                     tdb[tid][feature].append((s, e))
-                elif feature in set(('start_codon', 'stop_codon')):
+                elif feature in ('start_codon', 'stop_codon'):
                     tdb[tid][feature].append((s, e))
                     tdb[tid][feature + '_frame'].append(int(item[7]))
                 elif feature == 'CDS':

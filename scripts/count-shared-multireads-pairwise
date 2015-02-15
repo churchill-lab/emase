@@ -17,7 +17,6 @@ help_message = '''
 
     Parameters:
         -h, --help: shows this help message
-
 '''
 
 class Usage(Exception):

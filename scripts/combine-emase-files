@@ -10,7 +10,6 @@ help_message = '''
     Input:
         <h5_file_list> : comma(,) separated list of emase format (PyTables) files
         <out_file> : output file name
-
 '''
 
 class Usage(Exception):

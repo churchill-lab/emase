@@ -29,7 +29,6 @@ help_message = '''
         -h, --help: shows this help message
         -c: reports the alignment counts
         -w: reports the posterior probability for each read
-
 '''
 
 
