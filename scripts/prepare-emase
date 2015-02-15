@@ -15,7 +15,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
     Usage:
-        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m --no-bowtie-index ]
+        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
 
     Input:
         <genome_files> : List of Genome files (comma delimited)
@@ -26,7 +26,7 @@ help_message = '''
     Parameters:
         -h, --help: shows this help message
         -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
-        --no-bowtie-index: skips building bowtie index
+        -x, --no-bowtie-index: skips building bowtie index
 '''
 
 class Usage(Exception):
@@ -131,7 +131,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mio:", ["help", "--save-g2tmap", "--no-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "--save-g2tmap", "--no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -157,10 +157,10 @@ def main(argv=None):
                 haplist = value.split(',')
             if option in ('-m', '--save-g2tmap'):
                 save_g2tmap = True
+            if option in ('-x', '--no-bowtie-index'):
+                build_bowtie_index = False
             if option == '-o':
                 outdir = value
-            if option in ('-i', '--no-bowtie-index'):
-                build_bowtie_index = False
 
         # Check if the required options are given
         if num_haps < 1:
@@ -168,7 +168,9 @@ def main(argv=None):
             return 2
         if haplist is None:
             haplist = list(string.uppercase[:num_haps])
-            if num_haps > 1:
+            if num_haps == 1:
+                print >> sys.stderr, "Assuming single genome analysis. No suffix will be added to ID's"
+            else:
                 print >> sys.stderr, "Default haplotype names will be used: %s" % ', '.join(haplist)
         if gtflist is None:
             gtflist = [ os.path.splitext(genomefile)[0] + '.gtf' for genomefile in genomelist ]
@@ -197,14 +199,17 @@ def main(argv=None):
             genome = SeqIO.to_dict(SeqIO.parse(open(genomefile), "fasta"))
             print >> sys.stderr, "Parsing %s..." % os.path.basename(gtffile)
             gdb, tdb = parse_gtf(gtffile)
-            print >> sys.stderr, "Building %s transcriptome using suffix \'_%s\'..." % (genomename, hapname)
+            if num_haps == 1:
+                print >> sys.stderr, "Building %s transcriptome (Note: No suffix added to ID's)..." % genomename
+            elif num_haps > 1:
+                print >> sys.stderr, "Building %s transcriptome using suffix \'_%s\'..." % (genomename, hapname)
             tlist = tdb.keys()
             tlist.sort()
             for tid in tlist:
                 tinfo = tdb[tid]
-                if num_haps > 1: # No need to add suffix if we deal with a single genome
-                    tid = tid + "_%s" % hapname
                 if genome.has_key(tinfo['chr']):  # Filter out transcripts from chromosome that the input genome does not contain
+                    if num_haps > 1: # No need to add suffix if we deal with a single genome
+                        tid = tid + "_%s" % hapname
                     fragment = Seq("", generic_dna)
                     for exon in tinfo['exon']:
                         fragment += get_fragment(exon[0], exon[1], tinfo['chr'], tinfo['strand'], genome)
