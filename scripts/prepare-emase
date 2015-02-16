@@ -83,7 +83,7 @@ def parse_gtf(gtffile):
                                 'end':e,
                                 'eid':[],
                                 'exon':[],
-                                'exon_number':[], # Do we need this?
+                                'exon_number':[],  # Do we need this?
                                 'UTR':[],
                                 'Selenocysteine':[],
                                 'start_codon':[],
