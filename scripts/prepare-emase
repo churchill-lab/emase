@@ -102,6 +102,7 @@ def parse_gtf(gtffile):
                         gdb[gid]['isoform'].add(tid)
                     else:  # This is a non-standard case where the input gtf does not have detailed gene-level annotation
                         gdb[gid] = dict()
+                        gdb[gid]['chr'] = chro
                         gdb[gid]['isoform'] = set(tid)
             else:
                 gid = attribute['gene_id'][0]
