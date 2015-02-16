@@ -121,6 +121,8 @@ def parse_gtf(gtffile):
                         tdb[tid]['exon'].append((s, e))
                     else:  # This is a non-standard case where input gtf does not have detailed transcript-level annotation
                         tdb[tid] = dict()
+                        tdb[tid]['chr'] = chro
+                        tdb[tid]['strand'] = strand
                         tdb[tid]['exon'] = [(s, e)]
                 elif feature == 'UTR' or feature == 'Selenocysteine':
                     tdb[tid][feature].append((s, e))
