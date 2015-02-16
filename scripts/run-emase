@@ -7,6 +7,7 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
+
 help_message = '''
     Usage:
         run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
@@ -65,30 +66,30 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == '-i':
+            if option == "-i":
                 h5file = value
-            if option == '-g':
+            if option == "-g":
                 grpfile = value
                 report_gene_counts = True
-            if option == '-L':
+            if option == "-L":
                 lenfile = value
-            if option == '-M':
+            if option == "-M":
                 multiread_model = int(value)
-            if option == '-o':
+            if option == "-o":
                 outbase = value
-            if option == '-b':
+            if option == "-b":
                 min_uniq_reads = int(value)
-            if option == '-p':
+            if option == "-p":
                 pseudocount = float(value)
-            if option == '-r':
+            if option == "-r":
                 read_length = int(value)
-            if option == '-m':
+            if option == "-m":
                 max_iters = int(value)
-            if option == '-t':
+            if option == "-t":
                 tolerance = float(value)
-            if option == '-c':
+            if option == "-c":
                 report_alignment_counts = True
-            if option == '-w':
+            if option == "-w":
                 report_posterior = True
 
         # Check if the required options are given

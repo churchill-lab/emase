@@ -7,7 +7,6 @@ from emase.AlignmentMatrixFactory import AlignmentMatrixFactory as AMF
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
-
 help_message = '''
     Usage:
         bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
@@ -21,6 +20,7 @@ help_message = '''
     Parameters:
         -h, --help: shows this help message
 '''
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -38,8 +38,8 @@ def get_names(idfile):
                 ids[g] = master_id
                 master_id += 1
     num_ids = len(ids)
-    names = { index:name for name, index in ids.iteritems() }
-    return [ names[k] for k in xrange(num_ids) ]
+    names = {index:name for name, index in ids.iteritems()}
+    return [names[k] for k in xrange(num_ids)]
 
 
 def main(argv=None):
@@ -63,17 +63,17 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == '-a':
+            if option == "-a":
                 alnfile = value
-            if option == '-i':
+            if option == "-i":
                 lidfile = value
-            if option == '-o':
+            if option == "-o":
                 outfile = value
-            if option == '-s':
+            if option == "-s":
                 haplotypes = tuple(value.split(','))
-            if option == '-t':
+            if option == "-t":
                 index_dtype = value
-            if option == '-T':
+            if option == "-T":
                 data_dtype = value
 
         # Check if the required options are given

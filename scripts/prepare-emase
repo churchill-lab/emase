@@ -13,6 +13,7 @@ from itertools import dropwhile
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
+
 help_message = '''
     Usage:
         prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
@@ -28,6 +29,7 @@ help_message = '''
         -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
         -x, --no-bowtie-index: skips building bowtie index
 '''
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -131,7 +133,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "--save-g2tmap", "--no-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "save-g2tmap", "no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -148,18 +150,18 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == '-G':
+            if option == "-G":
                 genomelist = value.split(',')
                 num_haps = len(genomelist)
-            if option == '-g':
+            if option == "-g":
                 gtflist = value.split(',')
-            if option == '-s':
+            if option == "-s":
                 haplist = value.split(',')
-            if option in ('-m', '--save-g2tmap'):
+            if option in ("-m", "--save-g2tmap"):
                 save_g2tmap = True
-            if option in ('-x', '--no-bowtie-index'):
+            if option in ("-x", "--no-bowtie-index"):
                 build_bowtie_index = False
-            if option == '-o':
+            if option == "-o":
                 outdir = value
 
         # Check if the required options are given

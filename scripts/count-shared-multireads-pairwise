@@ -6,6 +6,7 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
+
 help_message = '''
     Usage:
         count-shared-multireads-pairwise -i <infile> -g <grpfile> -o <outbase>
@@ -18,6 +19,7 @@ help_message = '''
     Parameters:
         -h, --help: shows this help message
 '''
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -51,11 +53,11 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == '-i':
+            if option == "-i":
                 infile = value
-            if option == '-g':
+            if option == "-g":
                 grpfile = value
-            if option == '-o':
+            if option == "-o":
                 outbase = value
 
         # Check if the required options are given

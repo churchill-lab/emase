@@ -3,6 +3,7 @@ import sys
 import getopt
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
+
 help_message = '''
     Usage:
         combine-emase-files -i <h5_file_list> -o <out_file>
@@ -11,6 +12,7 @@ help_message = '''
         <h5_file_list> : comma(,) separated list of emase format (PyTables) files
         <out_file> : output file name
 '''
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -34,11 +36,11 @@ def main(argv=None):
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
-            if option == '-i':
+            if option == "-i":
                 flist = value.split(',')
-            if option == '-c': # hidden option (Specify the compression mode for writing PyTables)
+            if option == "-c":  # hidden option (Specify the compression mode for writing PyTables)
                 complib = value
-            if option == '-o':
+            if option == "-o":
                 outfile = value
 
         # Check if the required options are given
