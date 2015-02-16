@@ -83,7 +83,7 @@ def parse_gtf(gtffile):
                                 'end':e,
                                 'eid':[],
                                 'exon':[],
-                                'exon_number':[], # Do we need this?
+                                'exon_number':[],  # Do we need this?
                                 'UTR':[],
                                 'Selenocysteine':[],
                                 'start_codon':[],
@@ -100,11 +100,14 @@ def parse_gtf(gtffile):
                 gid = attribute['gene_id'][0]
                 tid = attribute['transcript_id'][0]
                 if feature == 'exon':
-                    enu = int(attribute.pop('exon_number')[0])
                     eid = attribute.pop('exon_id')[0]
                     tdb[tid]['eid'].append(eid)
                     tdb[tid]['exon'].append((s, e))
-                    tdb[tid]['exon_number'].append(enu)
+                    try:
+                        enu = int(attribute.pop('exon_number')[0])
+                        tdb[tid]['exon_number'].append(enu)
+                    except:
+                        pass
                 elif feature == 'UTR' or feature == 'Selenocysteine':
                     tdb[tid][feature].append((s, e))
                 elif feature in ('start_codon', 'stop_codon'):
@@ -113,9 +116,9 @@ def parse_gtf(gtffile):
                 elif feature == 'CDS':
                     pass
                 else:
-                    print >> sys.stderr, "[Unknown feature: %s]/n%s" % (feature, curline)
+                    print >> sys.stderr, "[Unknown feature: %s]\n%s" % (feature, curline)
 
-    return (gdb, tdb)
+    return gdb, tdb
 
 
 #
