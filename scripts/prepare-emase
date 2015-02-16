@@ -95,7 +95,10 @@ def parse_gtf(gtffile):
                             v = v.pop()
                         tdb[tid][k] = v
                     gid = tdb[tid]['gene_id']
-                    gdb[gid]['isoform'].add(tid)
+                    if gdb.has_key(gid):
+                        gdb[gid]['isoform'].add(tid)
+                    else:  # Assumes the input gtf does not have specific gene level annotation
+                        gdb[gid]['isoform'] = set(tid)
             else:
                 gid = attribute['gene_id'][0]
                 tid = attribute['transcript_id'][0]
