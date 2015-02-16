@@ -28,6 +28,9 @@ help_message = '''
         -h, --help: shows this help message
         -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
         -x, --no-bowtie-index: skips building bowtie index
+
+    Note:
+        Does not work if the input gtf file is older than Ensembl Release 75.
 '''
 
 
@@ -97,18 +100,28 @@ def parse_gtf(gtffile):
                     gid = tdb[tid]['gene_id']
                     if gdb.has_key(gid):
                         gdb[gid]['isoform'].add(tid)
-                    else:  # Assumes the input gtf does not have specific gene level annotation
+                    else:  # This is a non-standard case where the input gtf does not have detailed gene-level annotation
                         gdb[gid] = dict()
                         gdb[gid]['isoform'] = set(tid)
             else:
                 gid = attribute['gene_id'][0]
                 tid = attribute['transcript_id'][0]
                 if feature == 'exon':
-                    enu = int(attribute.pop('exon_number')[0])
-                    eid = attribute.pop('exon_id')[0]
-                    tdb[tid]['eid'].append(eid)
-                    tdb[tid]['exon'].append((s, e))
-                    tdb[tid]['exon_number'].append(enu)
+                    if tdb.has_key(tid):
+                        try:
+                            enu = int(attribute.pop('exon_number')[0])
+                            tdb[tid]['exon_number'].append(enu)
+                        except:
+                            pass
+                        try:
+                            eid = attribute.pop('exon_id')[0]
+                            tdb[tid]['eid'].append(eid)
+                        except:
+                            pass
+                        tdb[tid]['exon'].append((s, e))
+                    else:  # This is a non-standard case where input gtf does not have detailed transcript-level annotation
+                        tdb[tid] = dict()
+                        tdb[tid]['exon'] = [(s, e)]
                 elif feature == 'UTR' or feature == 'Selenocysteine':
                     tdb[tid][feature].append((s, e))
                 elif feature in ('start_codon', 'stop_codon'):
