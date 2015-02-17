@@ -21,7 +21,7 @@ help_message = '''
                               2: Gene->Allele->Isoform,
                               3: Gene->Isoform*Allele,
                               4: Gene*Isoform*Allele
-        <outbase>        : EMASE outputs the result to outbase (default: './emase')
+        <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
         <min_uniq_reads> : The number of unique reads to be considered for convergence checking
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 1000)
