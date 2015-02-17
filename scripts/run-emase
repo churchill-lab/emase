@@ -15,16 +15,16 @@ help_message = '''
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
-        <len_file>       : File that contains transcript lengths
+        <len_file>       : File that contains transcript lengths (default: 100)
         <multiread_model>: Multiread model ID
                               1: Gene->Isoform->Allele,
                               2: Gene->Allele->Isoform,
-                              3: Gene->Isoform*Allele,
+                              3: Gene->Isoform*Allele,  (default model)
                               4: Gene*Isoform*Allele
-        <outbase>        : EMASE outputs the result to outbase (default: './emase')
-        <min_uniq_reads> : The number of unique reads to be considered for convergence checking
+        <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
+        <min_uniq_reads> : The number of unique reads to be considered for convergence checking (default: 0)
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
-        <max_iters>      : The number of maximum iterations for EM (default: 1000)
+        <max_iters>      : The number of maximum iterations for EM (default: 999)
         <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
     Parameters:
         -h, --help: shows this help message
@@ -51,11 +51,11 @@ def main(argv=None):
         h5file = None
         grpfile = None
         lenfile = None
-        multiread_model = 1
+        multiread_model = 3
         outbase = './emase'
         min_uniq_reads = 0
         read_length = 100
-        pseudocount = 0.2
+        pseudocount = 0.0
         max_iters = 999
         tolerance = 0.01
         report_gene_counts = False
@@ -103,19 +103,19 @@ def main(argv=None):
         em_factory = EMfactory(alnmat)
         em_factory.prepare(pseudocount, lenfile=lenfile, read_length=read_length)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, min_uniq_reads=min_uniq_reads, verbose=True)
-        em_factory.report_depths(filename=os.path.join(outbase, ".isoforms.tpm"), tpm=True)
-        em_factory.report_effective_read_counts(filename=os.path.join(outbase, "isoforms.effective_read_counts"))
+        em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
+        em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
         if report_posterior:
-            em_factory.export_posterior_probability(filename=os.path.join(outbase, ".posterior.h5"))
+            em_factory.export_posterior_probability(filename="%s.posterior.h5" % outbase)
         if report_gene_counts:
-            em_factory.report_depths(filename=os.path.join(outbase, ".genes.tpm"), tpm=True, grp_wise=True)
-            em_factory.report_effective_read_counts(filename=os.path.join(outbase, ".genes.effective_read_counts"), grp_wise=True)
+            em_factory.report_depths(filename="%s.genes.tpm" % outbase, tpm=True, grp_wise=True)
+            em_factory.report_effective_read_counts(filename="%s.genes.effective_read_counts" % outbase, grp_wise=True)
         if report_alignment_counts:
             alnmat.reset()
-            alnmat.report_alignment_counts(filename=os.path.join(outbase, ".isoforms.alignment_counts"))
+            alnmat.report_alignment_counts(filename="%s.isoforms.alignment_counts" % outbase)
             if report_gene_counts:
                 alnmat._bundle_inline(reset=True)
-                alnmat.report_alignment_counts(filename=os.path.join(outbase, ".genes.alignment_counts"))
+                alnmat.report_alignment_counts(filename="%s.genes.alignment_counts" % outbase)
 
         #
         # End of main body
