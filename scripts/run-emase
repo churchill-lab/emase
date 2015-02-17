@@ -15,16 +15,16 @@ help_message = '''
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
-        <len_file>       : File that contains transcript lengths
+        <len_file>       : File that contains transcript lengths (default: 100)
         <multiread_model>: Multiread model ID
                               1: Gene->Isoform->Allele,
                               2: Gene->Allele->Isoform,
-                              3: Gene->Isoform*Allele,
+                              3: Gene->Isoform*Allele,  (default model)
                               4: Gene*Isoform*Allele
         <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
-        <min_uniq_reads> : The number of unique reads to be considered for convergence checking
+        <min_uniq_reads> : The number of unique reads to be considered for convergence checking (default: 0)
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
-        <max_iters>      : The number of maximum iterations for EM (default: 1000)
+        <max_iters>      : The number of maximum iterations for EM (default: 999)
         <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
     Parameters:
         -h, --help: shows this help message
@@ -51,11 +51,11 @@ def main(argv=None):
         h5file = None
         grpfile = None
         lenfile = None
-        multiread_model = 1
+        multiread_model = 3
         outbase = './emase'
         min_uniq_reads = 0
         read_length = 100
-        pseudocount = 0.2
+        pseudocount = 0.0
         max_iters = 999
         tolerance = 0.01
         report_gene_counts = False
