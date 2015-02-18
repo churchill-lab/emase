@@ -202,6 +202,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
     def normalize_reads(self, axis, grouping_mat=None):
         """
         Read-wise normalization
+
         :param axis: The dimension along which we want to normalize values
         :param grouping_mat: An incidence matrix that specifies which isoforms are from a same gene
         :return: Nothing (as the method performs in-place operations)
