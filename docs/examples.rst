@@ -50,11 +50,11 @@ This will store the following files in the folder 'S1xS2'
 
 Now you can align your RNA-seq reads against the pooled bowtie index of target region::
 
-    bowtie -q -a --best --strata --sam -v 3 --un ${UNMAPPED} ${INDEXBASE} ${FQFILE} | samtools view -bS -F 4 - > ${OUTFILE}
+    bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome S1xS2.fastq | samtools view -bS -F 4 - > bowtie.transcriptome.bam
 
 It is now ready to run emase. We assume the read length is 100bp.::
 
-    run-emase -i bowtie.user_region.bam -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
+    run-emase -i bowtie.transcriptome.bam -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
 
 Estimation of allele-specific expression from human RNA-seq sample
 ------------------------------------------------------------------
