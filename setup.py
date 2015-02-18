@@ -16,11 +16,11 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    'numexpr=2.3.1',
+    'numexpr==2.3.1',
     'pysam>=0.6',
-    'numpy=1.8.2',
-    'scipy=0.13.3',
-    'tables=3.1.0'
+    'numpy==1.8.2',
+    'scipy==0.13.3',
+    'pytables==3.1.0',
 ]
 
 test_requirements = [
