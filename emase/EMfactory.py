@@ -21,6 +21,7 @@ class EMfactory:
     def prepare(self, pseudocount=0.0, lenfile=None, read_length=100):
         """
         Initialize the probability of read origin according to the alignment profile
+
         :param pseudocount: Uniform prior for allele specificity estimation
         :return: Nothing (as it performs an in-place operations)
         """
@@ -63,6 +64,7 @@ class EMfactory:
     def reset(self, pseudocount=0.0):
         """
         Initialize the probability of read origin according to the alignment profile
+
         :param pseudocount: Uniform prior for allele specificity estimation
         :return: Nothing (as it performs an in-place operations)
         """
@@ -86,6 +88,7 @@ class EMfactory:
     def update_probability_at_read_level(self, model=1):
         """
         Update the probability of read origin at read level
+
         :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
         :return: Nothing (as it performs in-place operations)
         """
@@ -121,6 +124,7 @@ class EMfactory:
     def update_allelic_expression(self, model=1):
         """
         A single EM step: Update probability at read level and then re-estimate allelic specific expression
+
         :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
         :return: Nothing (as it performs in-place operations)
         """
@@ -134,6 +138,7 @@ class EMfactory:
     def run(self, model=1, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
         """
         Run EM iterations
+
         :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
@@ -177,6 +182,7 @@ class EMfactory:
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
         """
         Write estimated read counts
+
         :param filename:
         :param grp_wise:
         :param reorder:

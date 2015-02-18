@@ -206,7 +206,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         :param axis: The dimension along which we want to normalize values
         :param grouping_mat: An incidence matrix that specifies which isoforms are from a same gene
         :return: Nothing (as the method performs in-place operations)
-        :rtype : None
+        :rtype: None
         """
         if self.finalized:
             if axis == self.Axis.LOCUS: # Locus-wise normalization on each read
@@ -334,7 +334,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
     def print_read(self, rid):
         """
-        Function: Prints nonzero rows of the read wanted
+        Prints nonzero rows of the read wanted
 
         """
         if self.rname is not None:
@@ -364,6 +364,6 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             return sorted(np.nonzero(self.data[hid][:, lid])[0])
 
 
-if __name__=="__main__":
-    pass # TODO: Put a simple usage example here
+if __name__ == "__main__":
+    pass  # TODO: Put a simple usage example here
 

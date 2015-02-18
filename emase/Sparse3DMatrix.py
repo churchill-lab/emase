@@ -239,9 +239,10 @@ class Sparse3DMatrix:
     def add(self, addend_mat, axis=1):
         """
         In-place addition
-        :param addend_mat:
-        :param axis:
-        :return:
+
+        :param addend_mat: A matrix to be added on the Sparse3DMatrix object
+        :param axis: The dimension along the addend_mat is added
+        :return: Nothing (as it performs in-place operations)
         """
         if self.finalized:
             if axis == 0:
@@ -259,6 +260,7 @@ class Sparse3DMatrix:
     def multiply(self, multiplier, axis=None):
         """
         In-place multiplication
+
         :param multiplier: A matrix or vector to be multiplied
         :param axis: The dim along which 'multiplier' is multiplied
         :return: Nothing (as it performs in-place operations)
@@ -334,5 +336,5 @@ class Sparse3DMatrix:
 
 
 if __name__ == "__main__":
-    pass # TODO: Give some usage example
+    pass  # TODO: Give some usage example
 
