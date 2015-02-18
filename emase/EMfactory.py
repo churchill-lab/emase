@@ -154,7 +154,7 @@ class EMfactory:
         err_max = 1.0
         time0 = time.time()
         num_uniq_reads = self.probability.count_unique_reads()
-        errchk_locs = np.where(num_uniq_reads > min_uniq_reads - np.nextafter(0, 1))
+        errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
         while err_max > tol and num_iters < max_iters:
             prev_allelic_expression = self.get_allelic_expression()
             self.update_allelic_expression(model=model)

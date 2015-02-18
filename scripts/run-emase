@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import os
 import sys
 import getopt
 from emase.EMfactory import EMfactory
@@ -22,12 +21,13 @@ help_message = '''
                               3: Gene->Isoform*Allele,  (default model)
                               4: Gene*Isoform*Allele
         <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
-        <min_uniq_reads> : The number of unique reads to be considered for convergence checking (default: 0)
+        <min_uniq_reads> : The number of unique reads to be considered for convergence checking (default: 1)
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 999)
         <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
     Parameters:
         -h, --help: shows this help message
+        -g: reports gene level result too
         -c: reports the alignment counts
         -w: reports the posterior probability for each read
 '''
@@ -53,7 +53,7 @@ def main(argv=None):
         lenfile = None
         multiread_model = 3
         outbase = './emase'
-        min_uniq_reads = 0
+        min_uniq_reads = 1
         read_length = 100
         pseudocount = 0.0
         max_iters = 999
