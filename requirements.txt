@@ -1,6 +1,6 @@
 wheel>=0.23.0
+numexpr=2.3.1
 pysam>=0.6
-numexpr>=2.3
-numpy>=1.7,<1.9
-scipy>=0.12,<0.14
-tables>=3.0,<3.1.1
+numpy=1.8.2
+scipy=0.13.3
+tables=3.1.0
