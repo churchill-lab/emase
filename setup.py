@@ -16,9 +16,10 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    'numpy>=1.7',
-    'scipy>=0.12,<0.14',
     'pysam>=0.6',
+    'numexpr>=2.1'
+    'numpy>=1.7,<1.9',
+    'scipy>=0.12,<0.14',
     'tables>=3.0,<3.1.1'
 ]
 
