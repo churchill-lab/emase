@@ -97,10 +97,6 @@ Mining Diploid alignments and alignment probabilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-Features
-~~~~~~~~
-
-* TODO
 
 References
 ~~~~~~~~~~

@@ -16,8 +16,8 @@ Contents:
    emase
    usage
    examples
-   contributing
    authors
+   contributing
    history
 
 Indices and tables
