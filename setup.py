@@ -17,7 +17,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'pysam>=0.6',
-    'numexpr>=2.1'
+    'numexpr>=2.1',
     'numpy>=1.7,<1.9',
     'scipy>=0.12,<0.14',
     'tables>=3.0,<3.1.1'
