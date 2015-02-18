@@ -19,7 +19,7 @@ requirements = [
     'numpy>=1.7',
     'scipy>=0.12,<0.14',
     'pysam>=0.6',
-    'tables>=3.0'
+    'tables>=3.0,<3.1.1'
 ]
 
 test_requirements = [
