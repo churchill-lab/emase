@@ -20,7 +20,6 @@ requirements = [
     'numexpr==2.3.1',
     'scipy==0.13.3',
     'pysam>=0.6',
-    'hdf5==1.8.9',
     'tables==3.1.0',
 ]
 
