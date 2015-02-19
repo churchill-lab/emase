@@ -135,15 +135,30 @@ class EMfactory:
         if self.target_lengths is not None:
             self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)
 
-    def run(self, model=1, tol=0.01, max_iters=999, min_uniq_reads=1, verbose=True):
+    def get_errchk_locs(self, min_uniq_reads=1):
+        """
+        Decide which [isoform, haplotype] locations to check for termination determination
+
+        :param min_uniq_reads: A threshold for eligibility of termination checking (default: 1)
+        :return: the locations that satisfies minimun unique read count
+        :rtype: numpy.array
+        """
+        num_uniq_reads = self.probability.count_unique_reads()
+        errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
+        return errchk_locs
+
+    def run(self, model, errchk_locs, tol=0.01, max_iters=999, verbose=True):
         """
         Run EM iterations
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
+        :param model: Normalization model
+                        1: Gene->Isoform->Allele
+                        2: Gene->Allele->Isoform
+                        3: Gene->Isoform*Allele
+                        4: Gene*Isoform*Allele (RSEM)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
-        :param min_uniq_reads:
-        :param verbose:
+        :param verbose: Display information on how EM is running
         :return: Nothing (as it performs in-place operations)
         """
         if verbose:
@@ -153,8 +168,6 @@ class EMfactory:
         num_iters = 0
         err_max = 1.0
         time0 = time.time()
-        num_uniq_reads = self.probability.count_unique_reads()
-        errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
         while err_max > tol and num_iters < max_iters:
             prev_allelic_expression = self.get_allelic_expression()
             self.update_allelic_expression(model=model)

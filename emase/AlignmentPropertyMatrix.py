@@ -258,7 +258,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             factor = self.sum(axis=self.Axis.LOCUS).sum(axis=self.Axis.HAPLOTYPE)  # Read-level number of alignments
             for hid in xrange(self.num_haplotypes):
                 hdata = self.data[hid].copy()
-                hdata.data *= factor[hdata.indices] # Only unique reads will remain to be 1
+                hdata.data *= factor[hdata.indices]  # Only unique reads will remain to be 1
                 hdata = hdata.tocoo()
                 uloc = np.where(abs(hdata.data - 1.0) < 0.000001)[0].ravel()
                 hdata.row = hdata.row[uloc]
