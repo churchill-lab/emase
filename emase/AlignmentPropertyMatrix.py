@@ -209,8 +209,9 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         :rtype: None
         """
         if self.finalized:
-            if axis == self.Axis.LOCUS: # Locus-wise normalization on each read
+            if axis == self.Axis.LOCUS:  # Locus-wise normalization on each read
                 normalizer = self.sum(axis=self.Axis.HAPLOTYPE)  # Sparse matrix of |reads| x |loci|
+                normalizer.data += 0.000001  # Trying to avoid nan problem
                 for hid in xrange(self.num_haplotypes):
                     self.data[hid] = np.divide(self.data[hid], normalizer)  # element-wise division
             elif axis == self.Axis.HAPLOTYPE:  # haplotype-wise normalization on each read
@@ -231,6 +232,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 # for hid in xrange(self.num_haplotypes):
                 #     self.data[hid] = self.data[hid] / normalizer.transpose()
                 normalizer = self.sum(axis=self.Axis.HAPLOTYPE) * grouping_mat
+                normalizer.data += 0.000001  # Trying to avoid nan problem
                 for hid in xrange(self.num_haplotypes):
                     self.data[hid] = np.divide(self.data[hid], normalizer)
             elif axis == self.Axis.HAPLOGROUP:  # haplotype-wise & group-wise normalization on each read
@@ -238,6 +240,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     raise RuntimeError('Group information matrix is missing.')
                 for hid in xrange(self.num_haplotypes):  # normalizer is different hap-by-hap
                     normalizer = self.data[hid] * grouping_mat  # Sparse matrix of |reads| x |loci|
+                    normalizer.data += 0.000001  # Trying to avoid nan problem
                     self.data[hid] = np.divide(self.data[hid], normalizer)
             else:
                 raise RuntimeError('The axis should be 0, 1, 2, or 3.')
