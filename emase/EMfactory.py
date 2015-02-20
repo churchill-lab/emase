@@ -145,7 +145,7 @@ class EMfactory:
         errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
         return errchk_locs
 
-    def run(self, model, tol=0.01, max_iters=999, verbose=True):
+    def run(self, model, threshold_for_chk=1.0, tol=0.01, max_iters=999, verbose=True):
         """
         Run EM iterations
 
@@ -154,6 +154,7 @@ class EMfactory:
                         2: Gene->Allele->Isoform
                         3: Gene->Isoform*Allele
                         4: Gene*Isoform*Allele (RSEM)
+        :param threshold_for_chk: The minimum TPM to be considered on checking termination (default: 1.0)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
         :param verbose: Display information on how EM is running
@@ -170,11 +171,13 @@ class EMfactory:
         time0 = time.time()
         while err_max > tol and num_iters < max_iters:
             prev_allelic_expression = self.get_allelic_expression()
+            prev_allelic_expression *= (1000000.0 / prev_allelic_expression.sum())
             self.update_allelic_expression(model=model)
             curr_allelic_expression = self.get_allelic_expression()
+            curr_allelic_expression *= (1000000.0 / curr_allelic_expression.sum())
             err = np.abs(curr_allelic_expression - prev_allelic_expression)
             err_sum = err.sum()
-            errchk_locs = np.where(prev_allelic_expression > 1.0)
+            errchk_locs = np.where(prev_allelic_expression > threshold_for_chk)
             err[errchk_locs] /= prev_allelic_expression[errchk_locs]
             err_max = err[errchk_locs].max()
             err_max_loc = err[errchk_locs].argmax()

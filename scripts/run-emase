@@ -10,7 +10,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 help_message = '''
     Usage:
         run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
-                  -b <min_uniq_reads> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
+                  -b <min_tpm> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
@@ -21,13 +21,14 @@ help_message = '''
                               3: Gene->Isoform*Allele,  (default model)
                               4: Gene*Isoform*Allele
         <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
-        <min_uniq_reads> : The number of unique reads to be considered for convergence checking (default: 1)
+        <min_tpm> : The minimum TPM required to be considered for convergence checking (default: 1.0)
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 999)
         <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
     Parameters:
         -h, --help: shows this help message
-        -g: reports gene level result too
+        -G: reports gene level result too (Not yet implemented)
+        -D: performs length normalization for apportioning information per read (Not yet implemented)
         -c: reports the alignment counts
         -w: reports the posterior probability for each read
 '''
@@ -53,7 +54,7 @@ def main(argv=None):
         lenfile = None
         multiread_model = 3
         outbase = './emase'
-        min_uniq_reads = 1
+        min_tpm = 1.0
         read_length = 100
         pseudocount = 0.0
         max_iters = 999
@@ -78,7 +79,7 @@ def main(argv=None):
             if option == "-o":
                 outbase = value
             if option == "-b":
-                min_uniq_reads = int(value)
+                min_tpm = int(value)
             if option == "-p":
                 pseudocount = float(value)
             if option == "-r":
@@ -104,7 +105,7 @@ def main(argv=None):
         # errchk_locs = em_factory.get_errchk_locs(min_uniq_reads=min_uniq_reads)  # TODO: Just check allelic expressions
         em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
         # em_factory.run(model=multiread_model, errchk_locs=errchk_locs, tol=tolerance, max_iters=max_iters, verbose=True)
-        em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
+        em_factory.run(model=multiread_model, threshold_for_chk=min_tpm, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
         if report_posterior:
