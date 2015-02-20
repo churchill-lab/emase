@@ -128,8 +128,6 @@ class EMfactory:
         :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
         :return: Nothing (as it performs in-place operations)
         """
-        err_states = np.seterr(all='warn')
-        err_states = np.seterr(**err_states)
         self.update_probability_at_read_level(model)
         self.allelic_expression = self.probability.sum(axis=APM.Axis.READ)
         if self.target_lengths is not None:
@@ -161,6 +159,8 @@ class EMfactory:
         :param verbose: Display information on how EM is running
         :return: Nothing (as it performs in-place operations)
         """
+        orig_err_states = np.seterr(all='raise')
+        np.seterr(under='ignore')
         if verbose:
             print
             print "Iter No  Time (hh:mm:ss)  Total error (depth)  Max error (%)  Locus of max error  Allele expression change"

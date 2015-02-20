@@ -101,8 +101,8 @@ def main(argv=None):
         #
         alnmat = APM(h5file=h5file, grpfile=grpfile)
         em_factory = EMfactory(alnmat)
-        errchk_locs = em_factory.get_errchk_locs(min_uniq_reads=min_uniq_reads)
-        em_factory.prepare(pseudocount, lenfile=lenfile, read_length=read_length)
+        errchk_locs = em_factory.get_errchk_locs(min_uniq_reads=min_uniq_reads)  # TODO: Just check allelic expressions
+        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
         em_factory.run(model=multiread_model, errchk_locs=errchk_locs, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
