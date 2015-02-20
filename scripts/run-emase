@@ -79,7 +79,7 @@ def main(argv=None):
             if option == "-o":
                 outbase = value
             if option == "-b":
-                min_tpm = int(value)
+                min_tpm = float(value)
             if option == "-p":
                 pseudocount = float(value)
             if option == "-r":
