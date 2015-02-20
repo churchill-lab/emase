@@ -145,7 +145,7 @@ class EMfactory:
         errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
         return errchk_locs
 
-    def run(self, model, errchk_locs, tol=0.01, max_iters=999, verbose=True):
+    def run(self, model, tol=0.01, max_iters=999, verbose=True):
         """
         Run EM iterations
 
@@ -174,13 +174,12 @@ class EMfactory:
             curr_allelic_expression = self.get_allelic_expression()
             err = np.abs(curr_allelic_expression - prev_allelic_expression)
             err_sum = err.sum()
-            err_locs = np.nonzero(prev_allelic_expression)
-            err[err_locs] /= np.maximum(prev_allelic_expression[err_locs], 1.0)
-            err_masked = err[errchk_locs]
-            err_max = err_masked.max()
-            err_maxlocus = np.unravel_index(err_masked.argmax(), err_masked.shape)
-            err_max_hid = errchk_locs[0][err_maxlocus]
-            err_max_lid = errchk_locs[1][err_maxlocus]
+            errchk_locs = np.where(prev_allelic_expression > 1.0)
+            err[errchk_locs] /= prev_allelic_expression[errchk_locs]
+            err_max = err[errchk_locs].max()
+            err_max_loc = err[errchk_locs].argmax()
+            err_max_hid = errchk_locs[0][err_max_loc]
+            err_max_lid = errchk_locs[1][err_max_loc]
             num_iters += 1
             if verbose:
                 time1 = time.time()
@@ -191,6 +190,53 @@ class EMfactory:
                        self.probability.lname[err_max_lid], self.probability.hname[err_max_hid],
                        prev_allelic_expression[err_max_hid, err_max_lid],
                        curr_allelic_expression[err_max_hid, err_max_lid])
+
+    # def run(self, model, errchk_locs, tol=0.01, max_iters=999, verbose=True):
+    #     """
+    #     Run EM iterations
+    #
+    #     :param model: Normalization model
+    #                     1: Gene->Isoform->Allele
+    #                     2: Gene->Allele->Isoform
+    #                     3: Gene->Isoform*Allele
+    #                     4: Gene*Isoform*Allele (RSEM)
+    #     :param tol: Tolerance for termination
+    #     :param max_iters: Maximum number of iterations until termination
+    #     :param verbose: Display information on how EM is running
+    #     :return: Nothing (as it performs in-place operations)
+    #     """
+    #     orig_err_states = np.seterr(all='raise')
+    #     np.seterr(under='ignore')
+    #     if verbose:
+    #         print
+    #         print "Iter No  Time (hh:mm:ss)  Total error (depth)  Max error (%)  Locus of max error  Allele expression change"
+    #         print "-------  ---------------  -------------------  -------------  ------------------  ------------------------"
+    #     num_iters = 0
+    #     err_max = 1.0
+    #     time0 = time.time()
+    #     while err_max > tol and num_iters < max_iters:
+    #         prev_allelic_expression = self.get_allelic_expression()
+    #         self.update_allelic_expression(model=model)
+    #         curr_allelic_expression = self.get_allelic_expression()
+    #         err = np.abs(curr_allelic_expression - prev_allelic_expression)
+    #         err_sum = err.sum()
+    #         err_locs = np.nonzero(prev_allelic_expression)
+    #         err[err_locs] /= np.maximum(prev_allelic_expression[err_locs], 1.0)
+    #         err_masked = err[errchk_locs]
+    #         err_max = err_masked.max()
+    #         err_maxlocus = np.unravel_index(err_masked.argmax(), err_masked.shape)
+    #         err_max_hid = errchk_locs[0][err_maxlocus]
+    #         err_max_lid = errchk_locs[1][err_maxlocus]
+    #         num_iters += 1
+    #         if verbose:
+    #             time1 = time.time()
+    #             delmin, s = divmod(int(time1 - time0), 60)
+    #             h, m = divmod(delmin, 60)
+    #             print " %5d      %4d:%02d:%02d     %16.2f     %9.2f%%    %s   %s: %.2f ==> %.2f" % \
+    #                   (num_iters, h, m, s, err_sum, err_max * 100,
+    #                    self.probability.lname[err_max_lid], self.probability.hname[err_max_hid],
+    #                    prev_allelic_expression[err_max_hid, err_max_lid],
+    #                    curr_allelic_expression[err_max_hid, err_max_lid])
 
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
         """
