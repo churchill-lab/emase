@@ -101,13 +101,11 @@ class EMfactory:
             self.probability.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.probability.normalize_reads(axis=APM.Axis.READ)
         elif model == 2:
-            copy_probability = self.probability.copy(shallow=True)
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
             haplogroup_sum_mat = self.allelic_expression * self.t2t_mat
-            copy_probability.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
-            copy_probability.normalize_reads(axis=APM.Axis.LOCUS)
-            self.probability.multiply(copy_probability)
+            self.probability.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
+            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.probability.multiply(haplogroup_sum_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.probability.normalize_reads(axis=APM.Axis.READ)
         elif model == 3:
