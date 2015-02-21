@@ -105,7 +105,7 @@ def main(argv=None):
         # errchk_locs = em_factory.get_errchk_locs(min_uniq_reads=min_uniq_reads)  # TODO: Just check allelic expressions
         em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
         # em_factory.run(model=multiread_model, errchk_locs=errchk_locs, tol=tolerance, max_iters=max_iters, verbose=True)
-        em_factory.run(model=multiread_model, threshold_for_chk=min_tpm, tol=tolerance, max_iters=max_iters, verbose=True)
+        em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
         if report_posterior:

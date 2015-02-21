@@ -143,7 +143,7 @@ class EMfactory:
         errchk_locs = np.where(num_uniq_reads > min_uniq_reads - 0.5)
         return errchk_locs
 
-    def run(self, model, threshold_for_chk=1.0, tol=0.01, max_iters=999, verbose=True):
+    def run(self, model, tol=0.001, max_iters=999, verbose=True):
         """
         Run EM iterations
 
@@ -162,35 +162,26 @@ class EMfactory:
         np.seterr(under='ignore')
         if verbose:
             print
-            print "Iter No  Time (hh:mm:ss)  Total error (depth)  Max error (%)  Locus of max error  Allele expression change"
-            print "-------  ---------------  -------------------  -------------  ------------------  ------------------------"
+            print "Iter No  Time (hh:mm:ss)    Total change (TPM)  "
+            print "-------  ---------------  ----------------------"
         num_iters = 0
-        err_max = 1.0
+        err_sum = 1000000.0
         time0 = time.time()
-        while err_max > tol and num_iters < max_iters:
-            prev_allelic_expression = self.get_allelic_expression()
-            prev_allelic_expression *= (1000000.0 / prev_allelic_expression.sum())
+        target_err = 1000000.0 * tol
+        while err_sum > target_err and num_iters < max_iters:
+            prev_isoform_expression = self.get_allelic_expression().sum(axis=0)
+            prev_isoform_expression *= (1000000.0 / prev_isoform_expression.sum())
             self.update_allelic_expression(model=model)
-            curr_allelic_expression = self.get_allelic_expression()
-            curr_allelic_expression *= (1000000.0 / curr_allelic_expression.sum())
-            err = np.abs(curr_allelic_expression - prev_allelic_expression)
+            curr_isoform_expression = self.get_allelic_expression().sum(axis=0)
+            curr_isoform_expression *= (1000000.0 / curr_isoform_expression.sum())
+            err = np.abs(curr_isoform_expression - prev_isoform_expression)
             err_sum = err.sum()
-            errchk_locs = np.where(prev_allelic_expression > threshold_for_chk)
-            err[errchk_locs] /= prev_allelic_expression[errchk_locs]
-            err_max = err[errchk_locs].max()
-            err_max_loc = err[errchk_locs].argmax()
-            err_max_hid = errchk_locs[0][err_max_loc]
-            err_max_lid = errchk_locs[1][err_max_loc]
             num_iters += 1
             if verbose:
                 time1 = time.time()
                 delmin, s = divmod(int(time1 - time0), 60)
                 h, m = divmod(delmin, 60)
-                print " %5d      %4d:%02d:%02d     %16.2f     %9.2f%%    %s   %s: %.2f ==> %.2f" % \
-                      (num_iters, h, m, s, err_sum, err_max * 100,
-                       self.probability.lname[err_max_lid], self.probability.hname[err_max_hid],
-                       prev_allelic_expression[err_max_hid, err_max_lid],
-                       curr_allelic_expression[err_max_hid, err_max_lid])
+                print " %5d      %4d:%02d:%02d      %9.1f / 1000000" % (num_iters, h, m, s, err_sum)
 
     # def run(self, model, errchk_locs, tol=0.01, max_iters=999, verbose=True):
     #     """
