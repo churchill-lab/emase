@@ -20,7 +20,7 @@ class EMfactory:
 
     def prepare(self, pseudocount=0.0, lenfile=None, read_length=100):
         """
-        Initialize the probability of read origin according to the alignment profile
+        Initializes the probability of read origin according to the alignment profile
 
         :param pseudocount: Uniform prior for allele specificity estimation
         :return: Nothing (as it performs an in-place operations)
@@ -63,7 +63,7 @@ class EMfactory:
 
     def reset(self, pseudocount=0.0):
         """
-        Initialize the probability of read origin according to the alignment profile
+        Initializes the probability of read origin according to the alignment profile
 
         :param pseudocount: Uniform prior for allele specificity estimation
         :return: Nothing (as it performs an in-place operations)
@@ -87,7 +87,7 @@ class EMfactory:
 
     def update_probability_at_read_level(self, model=1):
         """
-        Update the probability of read origin at read level
+        Updates the probability of read origin at read level
 
         :param model: Normalization model
                         1: Gene->Isoform->Allele,
@@ -137,14 +137,13 @@ class EMfactory:
 
     def run(self, model, tol=0.001, max_iters=999, verbose=True):
         """
-        Run EM iterations
+        Runs EM iterations
 
         :param model: Normalization model
                         1: Gene->Isoform->Allele
                         2: Gene->Allele->Isoform
                         3: Gene->Isoform*Allele
                         4: Gene*Isoform*Allele (RSEM)
-        :param threshold_for_chk: The minimum TPM to be considered on checking termination (default: 1.0)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
         :param verbose: Display information on how EM is running
@@ -177,12 +176,12 @@ class EMfactory:
 
     def report_effective_read_counts(self, filename, grp_wise=False, reorder='as-is'):
         """
-        Write estimated read counts
+        Writes estimated read counts
 
-        :param filename:
-        :param grp_wise:
-        :param reorder:
-        :return:
+        :param filename: File name for output
+        :param grp_wise: whether the report is at isoform level or gene level
+        :param reorder: whether the report should be either 'decreasing' or 'increasing' order or just 'as-is'
+        :return: Nothing but the method writes a file
         """
         effective_read_counts = self.probability.sum(axis=APM.Axis.READ)
         if grp_wise:
@@ -206,6 +205,14 @@ class EMfactory:
         fhout.close()
 
     def report_depths(self, filename, tpm=True, grp_wise=False, reorder='as-is'):
+        """
+        Writes estimated depths
+
+        :param filename: File name for output
+        :param grp_wise: whether the report is at isoform level or gene level
+        :param reorder: whether the report should be either 'decreasing' or 'increasing' order or just 'as-is'
+        :return: Nothing but the method writes a file
+        """
         if grp_wise:
             lname = self.probability.gname
             depths = self.allelic_expression * self.grp_conv_mat
@@ -213,7 +220,7 @@ class EMfactory:
             lname = self.probability.lname
             depths = self.allelic_expression
         if tpm:
-            depths = depths * (1000000.0 / depths.sum())
+            depths *= (1000000.0 / depths.sum())
         total_depths = depths.sum(axis=0)
         if reorder == 'decreasing':
             report_order = np.argsort(total_depths.flatten())
@@ -230,6 +237,13 @@ class EMfactory:
         fhout.close()
 
     def export_posterior_probability(self, filename, title="Posterior Probability"):
+        """
+        Writes the posterior probability of read origin
+
+        :param filename: File name for output
+        :param title: The title of the posterior probability matrix
+        :return: Nothing but the method writes a file in EMASE format (PyTables)
+        """
         self.probability.save(h5file=filename, title=title)
 
 
