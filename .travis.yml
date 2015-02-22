@@ -1,24 +1,25 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
 
 python:
   - "2.7"
   - "2.6"
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libhdf5-serial-dev liblzo2-dev libbz2-dev python-numpy python-scipy
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -U unittest2 --use-mirrors; fi
-  - pip install --upgrade pip
-  - pip install numexpr==2.3.1
-  - pip install --install-option="--no-cython-compile" cython
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
-  - pip install -r requirements.txt --use-mirrors
-  - python setup.py build -f
+  - sudo apt-get update
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.8.3-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.8.3-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION scipy=0.13.3 pysam>=0.6 pytables=3.1.0
+  - source activate test-environment
+  - python setup.py install
 
-# command to run tests, e.g. python setup.py test
 script:
   - python setup.py test
