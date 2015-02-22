@@ -8,16 +8,17 @@ python:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libhdf5-serial-dev
-  - if [[ $TRAVIS_PYTHON_VERSION == "2.6" ]]; then pip install unittest2; fi
+  - sudo apt-get install -qq libhdf5-serial-dev liblzo2-dev libbz2-dev
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -U unittest2 --use-mirrors; fi
   - pip install --upgrade pip
   - pip install numpy==1.8.2
   - pip install numexpr==2.3.1
+  - pip install scipy==0.13.3
   - pip install cython>=0.13
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt --use-mirrors
   - python setup.py build -f
 
 # command to run tests, e.g. python setup.py test
