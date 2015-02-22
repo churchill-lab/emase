@@ -10,7 +10,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 help_message = '''
     Usage:
         run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
-                  -b <min_tpm> -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
+                  -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
     Input:
         <h5_file>        : Alignments stored in a PyTables HDF5 format
         <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
@@ -21,15 +21,14 @@ help_message = '''
                               3: Gene->Isoform*Allele,  (default model)
                               4: Gene*Isoform*Allele
         <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
-        <min_tpm> : The minimum TPM required to be considered for convergence checking (default: 1.0)
         <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
         <max_iters>      : The number of maximum iterations for EM (default: 999)
-        <tolerance>      : Tolerance for the termination of EM. (default: 0.01)
+        <tolerance>      : Tolerance for the termination of EM. (default: 0.0001)
     Parameters:
         -h, --help: shows this help message
-        -G: reports gene level result too (Not yet implemented)
-        -D: performs length normalization for apportioning information per read (Not yet implemented)
-        -c: reports the alignment counts
+        -G: reports gene level result too (Not yet implemented: Use '-g' for now.)
+        -D: performs length normalization for apportioning information per read (Not yet implemented: Use '-L' for now.)
+        -c: reports the alignment counts (Consider using another script 'count-alignments' instead.)
         -w: reports the posterior probability for each read
 '''
 
@@ -44,7 +43,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:b:p:r:m:t:cw", ["help"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -54,11 +53,10 @@ def main(argv=None):
         lenfile = None
         multiread_model = 3
         outbase = './emase'
-        min_tpm = 1.0
         read_length = 100
         pseudocount = 0.0
         max_iters = 999
-        tolerance = 0.01
+        tolerance = 0.0001
         report_gene_counts = False
         report_alignment_counts = False
         report_posterior = False
@@ -78,8 +76,6 @@ def main(argv=None):
                 multiread_model = int(value)
             if option == "-o":
                 outbase = value
-            if option == "-b":
-                min_tpm = float(value)
             if option == "-p":
                 pseudocount = float(value)
             if option == "-r":
@@ -100,11 +96,9 @@ def main(argv=None):
         #
         # Main body
         #
-        alnmat = APM(h5file=h5file, grpfile=grpfile)
-        em_factory = EMfactory(alnmat)
-        # errchk_locs = em_factory.get_errchk_locs(min_uniq_reads=min_uniq_reads)  # TODO: Just check allelic expressions
+
+        em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
         em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
-        # em_factory.run(model=multiread_model, errchk_locs=errchk_locs, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
@@ -114,7 +108,7 @@ def main(argv=None):
             em_factory.report_depths(filename="%s.genes.tpm" % outbase, tpm=True, grp_wise=True)
             em_factory.report_effective_read_counts(filename="%s.genes.effective_read_counts" % outbase, grp_wise=True)
         if report_alignment_counts:
-            alnmat.reset()
+            alnmat = APM(h5file=h5file, grpfile=grpfile)
             alnmat.report_alignment_counts(filename="%s.isoforms.alignment_counts" % outbase)
             if report_gene_counts:
                 alnmat._bundle_inline(reset=True)

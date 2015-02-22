@@ -69,7 +69,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         if grpfile is not None:
             self.__load_groups(grpfile)
 
-    def __load_groups(self, grpfile): # A group is a set of isoforms within a gene
+    def __load_groups(self, grpfile):  # A group is a set of isoforms within a gene
         if self.lid is not None:
             self.gname  = list()
             self.groups = list()
@@ -137,7 +137,6 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
         :param reset: whether to reset the values at the loci
         :param shallow: whether to copy all the meta data
-
         """
         if self.finalized:
             # if self.num_groups > 0:
@@ -229,9 +228,6 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             elif axis == self.Axis.GROUP:  # group-wise normalization on each read
                 if grouping_mat is None:
                     raise RuntimeError('Group information matrix is missing.')
-                # normalizer = grouping_mat * self.sum(axis=self.Axis.HAPLOTYPE).transpose()
-                # for hid in xrange(self.num_haplotypes):
-                #     self.data[hid] = self.data[hid] / normalizer.transpose()
                 normalizer = self.sum(axis=self.Axis.HAPLOTYPE) * grouping_mat
                 for hid in xrange(self.num_haplotypes):
                     self.data[hid].eliminate_zeros()  # Trying to avoid numerical problem (inf or nan)
