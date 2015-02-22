@@ -44,3 +44,6 @@ docs/_build
 
 # PyCharm settings
 .idea
+
+# Backup files
+*.bak

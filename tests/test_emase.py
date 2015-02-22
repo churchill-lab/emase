@@ -10,8 +10,8 @@ Tests for `emase` module.
 
 import unittest
 
-from emase import emase
-
+from emase import AlignmentPropertyMatrix as APM
+from emase import AlignmentMatrixFactory as AMF
 
 class TestEmase(unittest.TestCase):
 
