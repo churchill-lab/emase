@@ -13,7 +13,7 @@ before_install:
   - pip install --upgrade pip
   - pip install numpy==1.8.2
   - pip install numexpr==2.3.1
-  - pip install Cython==0.21
+  - pip install cython>=0.13
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
