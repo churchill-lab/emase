@@ -85,15 +85,11 @@ class EMfactory:
         else:
             return self.allelic_expression.copy()
 
-    def update_probability_at_read_level(self, model=1):
+    def update_probability_at_read_level(self, model=3):
         """
         Updates the probability of read origin at read level
 
-        :param model: Normalization model
-                        1: Gene->Isoform->Allele,|br|
-                        2: Gene->Allele->Isoform,|br|
-                        3: Gene->Isoform*Allele,|br|
-                        4: Gene*Isoform*Allele (RSEM)
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.probability.reset()  # reset to alignment incidence matrix
@@ -123,15 +119,11 @@ class EMfactory:
         else:
             raise RuntimeError('The read normalization model should be 1, 2, 3, or 4.')
 
-    def update_allelic_expression(self, model=1):
+    def update_allelic_expression(self, model=3):
         """
         A single EM step: Update probability at read level and then re-estimate allelic specific expression
 
-        :param model: Normalization model
-                        1: Gene->Isoform->Allele,|br|
-                        2: Gene->Allele->Isoform,|br|
-                        3: Gene->Isoform*Allele,|br|
-                        4: Gene*Isoform*Allele (RSEM)
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.update_probability_at_read_level(model)
@@ -143,11 +135,7 @@ class EMfactory:
         """
         Runs EM iterations
 
-        :param model: Normalization model
-                        1: Gene->Isoform->Allele,|br|
-                        2: Gene->Allele->Isoform,|br|
-                        3: Gene->Isoform*Allele,|br|
-                        4: Gene*Isoform*Allele (RSEM)
+        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
         :param verbose: Display information on how EM is running

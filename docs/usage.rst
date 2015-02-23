@@ -9,7 +9,7 @@ In python scripts, we can load 'emase' as a module::
 
     import emase
 
-Or:
+Or::
 
     from emase import AlignmentMatrixFactory as AMF
     from emase import AlignmentPropertyMatrix as APM
