@@ -209,9 +209,14 @@ def main(argv=None):
 
         #
         # Get pooled transcriptome
-        transcriptome_file = os.path.join(outdir, 'emase.pooled.transcriptome.fa')
-        seqout = open(transcriptome_file, 'w')
-        lenout = open(os.path.join(outdir, 'emase.pooled.transcriptome.info'), 'w')
+        if num_haps > 1:
+            transcriptomefile = os.path.join(outdir, 'emase.pooled.transcriptome.fa')
+            lenfile = os.path.join(outdir, 'emase.pooled.transcriptome.info')
+        else:
+            transcriptomefile = os.path.join(outdir, 'emase.transcriptome.fa')
+            lenfile = os.path.join(outdir, 'emase.transcriptome.info')
+        seqout = open(transcriptomefile, 'w')
+        lenout = open(lenfile, 'w')
         for hid in xrange(num_haps):
             genomefile = genomelist[hid]
             genomename = os.path.splitext(os.path.basename(genomefile))[0]
@@ -257,9 +262,9 @@ def main(argv=None):
         #
         # Build bowtie index for the pooled transcriptome
         if build_bowtie_index:
-            out_index = os.path.join(os.path.dirname(transcriptome_file), 'bowtie.transcriptome')
+            out_index = os.path.join(os.path.dirname(transcriptomefile), 'bowtie.transcriptome')
             print >> sys.stderr, "Building bowtie index..."
-            status = subprocess.call("bowtie-build %s %s" % (transcriptome_file, out_index), shell=True)
+            status = subprocess.call("bowtie-build %s %s" % (transcriptomefile, out_index), shell=True)
 
         #
         # End of main body

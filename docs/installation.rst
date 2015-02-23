@@ -2,9 +2,10 @@
 Installation
 ============
 
-Our preferred way is to use conda environment::
+We recommend using conda environment::
 
-    $ conda create -n emase scipy=0.13.3 pysam>=0.6 pytables=3.1.0
+    $ git clone https://github.com/jax-cgd/emase.git
+    $ conda create -n emase scipy=0.13.3 pysam>=0.6 pytables=3.1.0 biopython=1.63
     $ source activate emase
     (emase) $ python setup.py install
 

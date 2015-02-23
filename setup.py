@@ -22,6 +22,7 @@ requirements = [
     'pysam>=0.6',
     'cython>=0.13',
     'tables==3.1.0',
+    'biopython==1.63'
 ]
 
 test_requirements = [
