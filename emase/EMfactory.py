@@ -90,9 +90,9 @@ class EMfactory:
         Updates the probability of read origin at read level
 
         :param model: Normalization model
-                        1: Gene->Isoform->Allele,
-                        2: Gene->Allele->Isoform,
-                        3: Gene->Isoform*Allele,
+                        1: Gene->Isoform->Allele,|br|
+                        2: Gene->Allele->Isoform,|br|
+                        3: Gene->Isoform*Allele,|br|
                         4: Gene*Isoform*Allele (RSEM)
         :return: Nothing (as it performs in-place operations)
         """
@@ -127,7 +127,11 @@ class EMfactory:
         """
         A single EM step: Update probability at read level and then re-estimate allelic specific expression
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: RSEM)
+        :param model: Normalization model
+                        1: Gene->Isoform->Allele,|br|
+                        2: Gene->Allele->Isoform,|br|
+                        3: Gene->Isoform*Allele,|br|
+                        4: Gene*Isoform*Allele (RSEM)
         :return: Nothing (as it performs in-place operations)
         """
         self.update_probability_at_read_level(model)
@@ -140,9 +144,9 @@ class EMfactory:
         Runs EM iterations
 
         :param model: Normalization model
-                        1: Gene->Isoform->Allele
-                        2: Gene->Allele->Isoform
-                        3: Gene->Isoform*Allele
+                        1: Gene->Isoform->Allele,|br|
+                        2: Gene->Allele->Isoform,|br|
+                        3: Gene->Isoform*Allele,|br|
                         4: Gene*Isoform*Allele (RSEM)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
