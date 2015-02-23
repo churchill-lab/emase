@@ -28,8 +28,8 @@ Convert bam file to emase sparse 3-dim matrix
 Run EMASE
 ~~~~~~~~~
 
-Estimation of allele-specific binding from ChIP-seq sample
-----------------------------------------------------------
+Estimation of allele-specific binding from ChIP-seq data
+--------------------------------------------------------
 
 We assume you have a set of individualized genome and annotation files created by
 Seqnature package. We also assume you have a bed file that specifies genomic regions
@@ -52,12 +52,12 @@ Now you can align your RNA-seq reads against the pooled bowtie index of target r
 
     bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome S1xS2.fastq | samtools view -bS -F 4 - > bowtie.transcriptome.bam
 
-It is now ready to run emase. We assume the read length is 100bp.::
+It is now ready to run emase. We assume the read length is 100bp::
 
     run-emase -i bowtie.transcriptome.bam -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
 
-Estimation of allele-specific expression from human RNA-seq sample
-------------------------------------------------------------------
+Estimation of allele-specific expression from human RNA-seq data
+----------------------------------------------------------------
 
 We assume you have a vcf file that contains phased variant calls. In general,
 parent information is not available, so we are going to distinguish two alleles
