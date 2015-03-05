@@ -276,12 +276,14 @@ class Sparse3DMatrix:
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid] * multiplier_mat
                 elif axis == 2:  # multiplier is np.array of length |reads|
-                    raise NotImplementedError('The method is not yet implemented for the axis.')
+                    for hid in xrange(self.shape[1]):
+                        self.data[hid].data *= multiplier[self.data[hid].indices]
                 else:
                     raise RuntimeError('The axis should be 0, 1, or 2.')
             elif multiplier.ndim == 2:
                 if axis == 0:  # multiplier is sp.sparse matrix of shape |reads| x |haplotypes|
-                    raise NotImplementedError('The method is not yet implemented for the axis.')
+                    for hid in xrange(self.shape[1]):
+                        self.data[hid].data *= multiplier[self.data[hid].indices, hid]
                 elif axis == 1:  # multiplier is sp.sparse matrix of shape |reads| x |loci|
                     for hid in xrange(self.shape[1]):
                         self.data[hid] = self.data[hid].multiply(multiplier)
