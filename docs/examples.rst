@@ -21,7 +21,7 @@ EMASE requires the list of transcript ID's and which gene each transcript belong
 2. Build individualized genome
 
 We assume there is a vcf file that contains phased variant information for every sample of your population. Unless we
-know which allele is M(aternal) or P(aternal), we are going to distinguish two haplotypes with suffices, L(eft) and
+know which allele is M(aternal) or P(aternal), we are going to distinguish two alleles with suffices, L(eft) and
 R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
 
     python build_new_sequence_from_vcfs.py -r ${REFERENCE_FASTA} \
