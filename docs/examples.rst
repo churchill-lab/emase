@@ -112,13 +112,13 @@ Now we are ready to run EMASE::
     ${SAMPLE_DIR}/emase.genes.alignment_counts
 
 
-Estimating of allele-specific expression from a F1 sample
----------------------------------------------------------
+Estimating allele-specific expression from a F1 sample
+------------------------------------------------------
 
 Coming soon!
 
-Estimating of allele-specific binding from ChIP-seq data
---------------------------------------------------------
+Estimating allele-specific binding from ChIP-seq data
+-----------------------------------------------------
 
 We assume you have a set of individualized genome and annotation files, in this example, S1 and S2, created by Seqnature
 package. We also assume you have a bed file that specifies genomic regions of your interest. First, you need to convert
