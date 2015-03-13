@@ -154,8 +154,8 @@ It is now ready to run emase. We assume the read length is 100bp::
     run-emase -i bowtie.transcriptome.h5 -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
 
 
-Estimating allele-specific expression from a Patient-derived xenograft models
------------------------------------------------------------------------------
+Deconvolving human and mouse gene expression from Patient-Derived Xenograft (PDX) models
+----------------------------------------------------------------------------------------
 
 Coming soon!
 
@@ -163,4 +163,6 @@ Estimating allele-specific expression from a F1 sample
 ------------------------------------------------------
 
 Coming soon!
+
+
 
