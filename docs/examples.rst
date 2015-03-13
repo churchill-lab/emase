@@ -122,7 +122,7 @@ your bed file into a simple gtf format::
 
     bed-to-gtf -i targets.bed -o targets.gtf
 
-The region.gtf files should be modified according to the strains of our interest::
+The targets.gtf files should be modified according to the strains of our interest::
 
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 -o S1.gtf -C S1_comments.txt targets.gtf S1
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 -o S2.gtf -C S2_comments.txt targets.gtf S2
@@ -131,14 +131,20 @@ Finally, run::
 
     prepare-emase -G S1.fa,S2.fa -g S1.gtf,S2.gtf -s S1,S2 -o S1xS2
 
-This will store the following files in the folder 'S1xS2'
-* emase.pooled.transcriptome.fa
-* emase.pooled.transcriptome.info
-* bowtie1 index files
+This will store the following files in the folder 'S1xS2'::
+
+    S1xS2/emase.pooled.transcriptome.fa
+    S1xS2/emase.pooled.transcriptome.info
+    S1xS2/bowtie.transcriptome.1.ebwt
+    S1xS2/bowtie.transcriptome.2.ebwt
+    S1xS2/bowtie.transcriptome.3.ebwt
+    S1xS2/bowtie.transcriptome.4.ebwt
+    S1xS2/bowtie.transcriptome.rev.1.ebwt
+    S1xS2/bowtie.transcriptome.rev.2.ebwt
 
 Now you can align your RNA-seq reads against the pooled bowtie index of target region::
 
-    bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome S1xS2.fastq \
+    bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome ${FASTQ_FILE} \
         | samtools view -bS -F 4 - > S1xS2/bowtie.transcriptome.bam
 
 Next, we convert the alignment file into a format that EMASE use for running EM algorithm::
