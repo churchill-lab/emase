@@ -5,7 +5,7 @@ Real Use Cases
 Estimating allele-specific expression from human RNA-seq data
 -------------------------------------------------------------
 
-#. Process reference data::
+1. Process reference data::
 
     prepare-emase -G ${REF_FASTA} -g ${REF_GTF} -o ${REF_DIR} -m --no-bowtie-index
 
@@ -15,7 +15,7 @@ Estimating allele-specific expression from human RNA-seq data
     ${REF_DIR}/emase.transcriptome.info
     ${REF_DIR}/emase.gene2transcript.tsv
 
-#. Build individualized genome
+2. Build individualized genome
 
 We assume there is a vcf file that contains phased variant information for every sample of your population. Unless we
 know which allele is M(aternal) or P(aternal), we are going to distinguish two haplotypes with suffices, L(eft) and
@@ -34,7 +34,7 @@ R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
                                            -o R.fa \
                                            ${SAMPLE_ID}
 
-#. Individualize gene annotation::
+3. Individualize gene annotation::
 
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
                                  -d ${SAMPLE_DIR} \
@@ -49,7 +49,7 @@ R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
                                  ${REFERENCE_GTF}
                                  ${SAMPLE_ID}
 
-#. Create a personalized diploid transcriptome
+4. Create a personalized diploid transcriptome
 From L.fa, R.fa, and the corresponding gtf files, we are going to create pooled diploid transcriptome and other
 information that EMASE needs::
 
@@ -66,19 +66,19 @@ This will generate the following files::
     ${SAMPLE_DIR}/bowtie.transcriptome.rev.1.ebwt
     ${SAMPLE_DIR}/bowtie.transcriptome.rev.2.ebwt
 
-#. Align RNA-seq reads against the diploid transcriptome::
+5. Align RNA-seq reads against the diploid transcriptome::
 
     bowtie -q -a --best --strata --sam -v 3 ${SAMPLE_DIR}/bowtie.transcriptome ${FASTQ_FILE} \
         | samtools view -bS -F 4 - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
 
-#. Convert bam file into the emase format::
+6. Convert bam file into the emase format::
 
     bam-to-emase -a ${SAMPLE_DIR}/bowtie.transcriptome.bam \
                  -i ${REF_DIR}/emase.transcriptome.info \
                  -s L,R
                  -o ${SAMPLE_DIR}/bowtie.transcriptome.h5
 
-#. Run EMASE::
+7. Run EMASE::
 
     run-emase -i ${SAMPLE_DIR}/bowtie.transcriptome.h5 \
               -g ${REF_DIR}/emase.gene2transcript.tsv \
