@@ -29,35 +29,35 @@ R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
                                            -s ${SNP_VCF} \
                                            -d ${SAMPLE_DIR} \
                                            -o L.fa \
-                                           ${SAMPLE_ID}
+                                           ${SAMPLE_HAP1_ID_IN_VCF}
     python build_new_sequence_from_vcfs.py -r ${REFERENCE_FASTA} \
                                            -i ${INDEL_VCF} \
                                            -s ${SNP_VCF} \
                                            -d ${SAMPLE_DIR} \
                                            -o R.fa \
-                                           ${SAMPLE_ID}
+                                           ${SAMPLE_HAP2_ID_IN_VCF}
 
 3. Individualize gene annotation
 
-We want to update gene annotation too by incorporating individual variation::
+We want to incorporate individual variation into the gene annotation too::
 
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
                                  -d ${SAMPLE_DIR} \
                                  -o L.gtf \
-                                 -C ${SAMPLE_ID}_comments.txt
+                                 -C ${SAMPLE_HAP1_ID_IN_VCF}_comments.txt
                                  ${REFERENCE_GTF} \
-                                 ${SAMPLE_ID}
+                                 ${SAMPLE_HAP1_ID_IN_VCF}
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
                                  -d ${SAMPLE_DIR} \
                                  -o R.gtf \
-                                 -C ${SAMPLE_ID}_comments.txt
+                                 -C ${SAMPLE_HAP1_ID_IN_VCF}_comments.txt
                                  ${REFERENCE_GTF} \
-                                 ${SAMPLE_ID}
+                                 ${SAMPLE_HAP2_ID_IN_VCF}
 
 4. Create a personalized diploid transcriptome
 
-From L.fa, R.fa, and the corresponding gtf files, we are going to create pooled diploid transcriptome and other
-information that EMASE needs::
+From L.fa, R.fa, and the corresponding gtf files, we are going to create diploid transcriptome and other
+information that EMASE requires::
 
     prepare-emase -G ${SAMPLE_DIR}/L.fa,${SAMPLE_DIR}/R.fa -s L,R -o ${SAMPLE_DIR}
 
@@ -74,15 +74,15 @@ This will generate the following files::
 
 5. Align RNA-seq reads against the diploid transcriptome
 
-Although EMASE is flexible framework for ASE estimation, the current version of EMASE most intensely tested with
-transcriptome alignments, i.e., bowtie1::
+Although EMASE is a flexible framework for many other alignment strategies, the current version of EMASE was most
+intensely tested with bowtie1 transcriptome alignments with the following parameters::
 
     bowtie -q -a --best --strata --sam -v 3 ${SAMPLE_DIR}/bowtie.transcriptome ${FASTQ_FILE} \
         | samtools view -bS -F 4 - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
 
 6. Convert bam file into the emase format
 
-EMASE runs on alignment profile of three-dimensional incidence matrix. We convert an alignment file (bam) to
+EMASE runs on an alignment profile of three-dimensional incidence matrix. We convert an alignment file (bam) to
 the EMASE format using the following script::
 
     bam-to-emase -a ${SAMPLE_DIR}/bowtie.transcriptome.bam \
@@ -102,7 +102,7 @@ Now we are ready to run EMASE::
               -r ${READ_LENGTH} \
               -c
 
-'run-emase' outputs the following files::
+'run-emase' outputs the following files as a result::
 
     ${SAMPLE_DIR}/emase.isoforms.effective_read_counts
     ${SAMPLE_DIR}/emase.isoforms.tpm
