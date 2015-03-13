@@ -2,31 +2,6 @@
 Real Use Cases
 ==============
 
-In most cases, we follow the following steps.
-
-Build diploid genome and transcriptome
-""""""""""""""""""""""""""""""""""""""
-Seqnature incorporates known polymorphisms and short indels from genetically diverse and heterozygous model organisms
-into reference genomes, and can construct individualized haploid or diploid transcriptomes suitable for read alignment
-by common aligners.
-
-Align reads against diploid transcriptome
-"""""""""""""""""""""""""""""""""""""""""
-EMASE has been extensively used with the aligner bowtie1. RNA-seq reads need to be aligned simultaneously to a diploid
-transcriptome. Use bowtie aligner with the following option::
-
-    bowtie -q -a --best --strata --sam -v 3
-
-Create alignment profile
-""""""""""""""""""""""""
-Our EM algorithm runs on 3-dimensional incidence matrix of |transcripts|x|haplotypes|x|reads|. Once alignment file in
-bam format is available, we need to convert it into the matrix format.
-
-Run EM Algorithm
-""""""""""""""""
-
-Here, we list several real application scenarios.
-
 Estimating allele-specific expression from human RNA-seq data
 -------------------------------------------------------------
 
@@ -128,14 +103,19 @@ Estimating of allele-specific expression from a F1 sample
 
 Coming soon!
 
-Estimation of allele-specific binding from ChIP-seq data
+Estimating of allele-specific binding from ChIP-seq data
 --------------------------------------------------------
 
-We assume you have a set of individualized genome and annotation files created by
-Seqnature package. We also assume you have a bed file that specifies genomic regions
-of your interest. First, you need to convert your bed file into a simple gtf format::
+We assume you have a set of individualized genome and annotation files, in this example, S1 and S2, created by Seqnature
+package. We also assume you have a bed file that specifies genomic regions of your interest. First, you need to convert
+your bed file into a simple gtf format::
 
-    Narayanan, add your command line here.
+    bed-to-gtf -i targets.bed -o targets.gtf
+
+The region.gtf files should be modified according to the strains of our interest::
+
+    python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 -o S1.gtf -C S1_comments.txt targets.gtf S1
+    python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 -o S2.gtf -C S2_comments.txt targets.gtf S2
 
 Finally, run::
 
