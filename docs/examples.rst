@@ -18,7 +18,7 @@ EMASE requires the list of transcript ID's and which gene each transcript belong
     ${REF_DIR}/emase.transcriptome.info
     ${REF_DIR}/emase.gene2transcript.tsv
 
-2. Build individualized genome
+2. Build an individualized genome
 
 We assume there is a vcf file that contains phased variant information for every sample of your population. Unless we
 know which allele is M(aternal) or P(aternal), we are going to distinguish two alleles with suffices, L(eft) and
@@ -39,7 +39,8 @@ R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
 
 3. Individualize gene annotation
 
-We want to incorporate individual variation into the gene annotation too::
+We want to incorporate individual variation into the gene annotation too so we can build individualized transcriptome in
+the following step::
 
     python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
                                  -d ${SAMPLE_DIR} \
@@ -57,7 +58,7 @@ We want to incorporate individual variation into the gene annotation too::
 4. Create a personalized diploid transcriptome
 
 From L.fa, R.fa, and the corresponding gtf files, we are going to create diploid transcriptome and other
-information that EMASE requires::
+information that EMASE requires. We assume bowtie v1.0.0 or newer is available.::
 
     prepare-emase -G ${SAMPLE_DIR}/L.fa,${SAMPLE_DIR}/R.fa -s L,R -o ${SAMPLE_DIR}
 
