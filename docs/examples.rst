@@ -5,7 +5,7 @@ Real Use Cases
 Estimating allele-specific expression from human RNA-seq data
 -------------------------------------------------------------
 
-1. Process reference data
+**1. Process reference data**
 
 We need to first extract transcript information from the reference genome and gene annotation. Most importantly,
 EMASE requires the list of transcript ID's and which gene each transcript belong to.::
@@ -18,7 +18,7 @@ EMASE requires the list of transcript ID's and which gene each transcript belong
     ${REF_DIR}/emase.transcriptome.info
     ${REF_DIR}/emase.gene2transcript.tsv
 
-2. Build an individualized genome
+**2. Build an individualized genome**
 
 We assume there is a vcf file that contains phased variant information for every sample of your population. Unless we
 know which allele is M(aternal) or P(aternal), we are going to distinguish two alleles with suffices, L(eft) and
@@ -37,7 +37,7 @@ R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
                                            -o R.fa \
                                            ${SAMPLE_HAP2_ID_IN_VCF}
 
-3. Individualize gene annotation
+**3. Individualize gene annotation**
 
 We want to incorporate individual variation into the gene annotation too so we can build individualized transcriptome in
 the following step::
@@ -55,7 +55,7 @@ the following step::
                                  ${REFERENCE_GTF} \
                                  ${SAMPLE_HAP2_ID_IN_VCF}
 
-4. Create a personalized diploid transcriptome
+**4. Create a personalized diploid transcriptome**
 
 From L.fa, R.fa, and the corresponding gtf files, we are going to create diploid transcriptome and other
 information that EMASE requires. We assume bowtie v1.0.0 or newer is available.::
@@ -73,7 +73,7 @@ This will generate the following files::
     ${SAMPLE_DIR}/bowtie.transcriptome.rev.1.ebwt
     ${SAMPLE_DIR}/bowtie.transcriptome.rev.2.ebwt
 
-5. Align RNA-seq reads against the diploid transcriptome
+**5. Align RNA-seq reads against the diploid transcriptome**
 
 Although EMASE is a flexible framework for many other alignment strategies, the current version of EMASE was most
 intensely tested with bowtie1 transcriptome alignments with the following parameters::
@@ -81,7 +81,7 @@ intensely tested with bowtie1 transcriptome alignments with the following parame
     bowtie -q -a --best --strata --sam -v 3 ${SAMPLE_DIR}/bowtie.transcriptome ${FASTQ_FILE} \
         | samtools view -bS -F 4 - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
 
-6. Convert bam file into the emase format
+**6. Convert bam file into the emase format**
 
 EMASE runs on an alignment profile of three-dimensional incidence matrix. We convert an alignment file (bam) to
 the EMASE format using the following script::
@@ -91,7 +91,7 @@ the EMASE format using the following script::
                  -s L,R \
                  -o ${SAMPLE_DIR}/bowtie.transcriptome.h5
 
-7. Run EMASE
+**7. Run EMASE**
 
 Now we are ready to run EMASE::
 
