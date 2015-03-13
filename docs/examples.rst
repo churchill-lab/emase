@@ -2,31 +2,131 @@
 Real Use Cases
 ==============
 
-Estimation of allele-specific expression from a diploid sample
---------------------------------------------------------------
+In most cases, we follow the following steps.
 
-Building Diploid Transcriptome
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build diploid genome and transcriptome
+""""""""""""""""""""""""""""""""""""""
+Seqnature incorporates known polymorphisms and short indels from genetically diverse and heterozygous model organisms
+into reference genomes, and can construct individualized haploid or diploid transcriptomes suitable for read alignment
+by common aligners.
 
-Seqnature incorporates known polymorphisms and short indels from genetically
-diverse and heterozygous model organisms into reference genomes, and can
-construct individualized haploid or diploid transcriptomes suitable for read
-alignment by common aligners.
+Align reads against diploid transcriptome
+"""""""""""""""""""""""""""""""""""""""""
+EMASE has been extensively used with the aligner bowtie1. RNA-seq reads need to be aligned simultaneously to a diploid
+transcriptome. Use bowtie aligner with the following option::
 
-Aligning reads to the Diploid Transcriptome
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    bowtie -q -a --best --strata --sam -v 3
 
-EMASE has been extensively used with the aligner bowtie1. RNA-seq reads need to
-be aligned simultaneously to a diploid transcriptome. Use bowtie aligner with
-the following option::
+Create alignment profile
+""""""""""""""""""""""""
+Our EM algorithm runs on 3-dimensional incidence matrix of |transcripts|x|haplotypes|x|reads|. Once alignment file in
+bam format is available, we need to convert it into the matrix format.
 
-    bowtie -a -best -strata -v 3 -m 100
+Run EM Algorithm
+""""""""""""""""
 
-Convert bam file to emase sparse 3-dim matrix
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Here, we list several real application scenarios.
 
-Run EMASE
-~~~~~~~~~
+Estimating allele-specific expression from human RNA-seq data
+-------------------------------------------------------------
+
+#. Process reference data::
+
+    prepare-emase -G ${REF_FASTA} -g ${REF_GTF} -o ${REF_DIR} -m --no-bowtie-index
+
+'prepare-emase' generates the following files for the reference genome::
+
+    ${REF_DIR}/emase.transcriptome.fa
+    ${REF_DIR}/emase.transcriptome.info
+    ${REF_DIR}/emase.gene2transcript.tsv
+
+#. Build individualized genome
+
+We assume there is a vcf file that contains phased variant information for every sample of your population. Unless we
+know which allele is M(aternal) or P(aternal), we are going to distinguish two haplotypes with suffices, L(eft) and
+R(ight). We also recommend to use different ${SAMPLE_DIR} for each sample::
+
+    python build_new_sequence_from_vcfs.py -r ${REFERENCE_FASTA} \
+                                           -i ${INDEL_VCF} \
+                                           -s ${SNP_VCF} \
+                                           -d ${SAMPLE_DIR} \
+                                           -o L.fa \
+                                           ${SAMPLE_ID}
+    python build_new_sequence_from_vcfs.py -r ${REFERENCE_FASTA} \
+                                           -i ${INDEL_VCF} \
+                                           -s ${SNP_VCF} \
+                                           -d ${SAMPLE_DIR} \
+                                           -o R.fa \
+                                           ${SAMPLE_ID}
+
+#. Individualize gene annotation::
+
+    python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
+                                 -d ${SAMPLE_DIR} \
+                                 -o L.gtf \
+                                 -C ${SAMPLE_ID}_comments.txt
+                                 ${REFERENCE_GTF}
+                                 ${SAMPLE_ID}
+    python adjust_annotations.py -s 4 -e 5 -c 1 -t 9 \
+                                 -d ${SAMPLE_DIR} \
+                                 -o R.gtf \
+                                 -C ${SAMPLE_ID}_comments.txt
+                                 ${REFERENCE_GTF}
+                                 ${SAMPLE_ID}
+
+#. Create a personalized diploid transcriptome
+From L.fa, R.fa, and the corresponding gtf files, we are going to create pooled diploid transcriptome and other
+information that EMASE needs::
+
+    prepare-emase -G ${SAMPLE_DIR}/L.fa,${SAMPLE_DIR}/R.fa -s L,R -o ${SAMPLE_DIR}
+
+This will generate the following files::
+
+    ${SAMPLE_DIR}/emase.pooled.transcriptome.fa
+    ${SAMPLE_DIR}/emase.pooled.transcriptome.info
+    ${SAMPLE_DIR}/bowtie.transcriptome.1.ebwt
+    ${SAMPLE_DIR}/bowtie.transcriptome.2.ebwt
+    ${SAMPLE_DIR}/bowtie.transcriptome.3.ebwt
+    ${SAMPLE_DIR}/bowtie.transcriptome.4.ebwt
+    ${SAMPLE_DIR}/bowtie.transcriptome.rev.1.ebwt
+    ${SAMPLE_DIR}/bowtie.transcriptome.rev.2.ebwt
+
+#. Align RNA-seq reads against the diploid transcriptome::
+
+    bowtie -q -a --best --strata --sam -v 3 ${SAMPLE_DIR}/bowtie.transcriptome ${FASTQ_FILE} \
+        | samtools view -bS -F 4 - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
+
+#. Convert bam file into the emase format::
+
+    bam-to-emase -a ${SAMPLE_DIR}/bowtie.transcriptome.bam \
+                 -i ${REF_DIR}/emase.transcriptome.info \
+                 -s L,R
+                 -o ${SAMPLE_DIR}/bowtie.transcriptome.h5
+
+#. Run EMASE::
+
+    run-emase -i ${SAMPLE_DIR}/bowtie.transcriptome.h5 \
+              -g ${REF_DIR}/emase.gene2transcript.tsv \
+              -L ${SAMPLE_DIR}/emase.pooled.transcriptome.info \
+              -M ${MODEL} \
+              -o ${SAMPLE_DIR}/emase \
+              -r ${READ_LENGTH} \
+              -c
+
+'run-emase' outputs the following files::
+
+    ${SAMPLE_DIR}/emase.isoforms.effective_read_counts
+    ${SAMPLE_DIR}/emase.isoforms.tpm
+    ${SAMPLE_DIR}/emase.isoforms.alignment_counts
+    ${SAMPLE_DIR}/emase.genes.effective_read_counts
+    ${SAMPLE_DIR}/emase.genes.tpm
+    ${SAMPLE_DIR}/emase.genes.alignment_counts
+
+
+Estimating of allele-specific expression from a F1 sample
+---------------------------------------------------------
+
+Coming soon!
 
 Estimation of allele-specific binding from ChIP-seq data
 --------------------------------------------------------
@@ -36,8 +136,6 @@ Seqnature package. We also assume you have a bed file that specifies genomic reg
 of your interest. First, you need to convert your bed file into a simple gtf format::
 
     Narayanan, add your command line here.
-
-...
 
 Finally, run::
 
@@ -50,19 +148,18 @@ This will store the following files in the folder 'S1xS2'
 
 Now you can align your RNA-seq reads against the pooled bowtie index of target region::
 
-    bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome S1xS2.fastq | samtools view -bS -F 4 - > bowtie.transcriptome.bam
+    bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome S1xS2.fastq \
+        | samtools view -bS -F 4 - > S1xS2/bowtie.transcriptome.bam
+
+Next, we convert the alignment file into a format that EMASE use for running EM algorithm::
+
+    bam-to-emase -a S1xS2/bowtie.transcriptome.bam \
+                 -i S1xS2/emase.transcriptome.info \
+                 -s S1,S2
+                 -o S1xS2/bowtie.transcriptome.h5
+
 
 It is now ready to run emase. We assume the read length is 100bp::
 
-    run-emase -i bowtie.transcriptome.bam -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
+    run-emase -i bowtie.transcriptome.h5 -L S1xS2/emase.pooled.transcriptome.info -M 4 -c
 
-Estimation of allele-specific expression from human RNA-seq data
-----------------------------------------------------------------
-
-We assume you have a vcf file that contains phased variant calls. In general,
-parent information is not available, so we are going to distinguish two alleles
-with the names of L(eft) and R(ight).
-
-First build individualized genomes using Seqnature package (link) like this.
-
-...
