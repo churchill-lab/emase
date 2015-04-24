@@ -20,7 +20,10 @@ class AlignmentMatrixFactory():
         # self.num_alignments = None
 
     def prepare(self, haplotypes, loci, delim='_', outdir=None):
-        self.hname = haplotypes
+        if len(haplotypes) > 0:  # Suffices given
+            self.hname = haplotypes
+        else:  # Suffix not given
+            self.hname = ['h0']
         self.lname = loci
         self.rname = set()
         fh = pysam.Samfile(self.alnfile, 'rb')
@@ -40,10 +43,17 @@ class AlignmentMatrixFactory():
             self.tmpfiles[hap] = outfile
             fhout[hap] = open(outfile, "wb")
         fh = pysam.Samfile(self.alnfile, 'rb')
-        for aln in fh.fetch(until_eof=True): # TODO: What if we have some data at this aligned indexes?
-            locus, hap = fh.getrname(aln.tid).split("_")
-            fhout[hap].write(struct.pack('>I', rid[aln.qname]))
-            fhout[hap].write(struct.pack('>I', lid[locus]))
+        if len(haplotypes) > 0:  # Suffices given
+            for aln in fh.fetch(until_eof=True):
+                locus, hap = fh.getrname(aln.tid).split(delim)
+                fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                fhout[hap].write(struct.pack('>I', lid[locus]))
+        else:  # Suffix not given
+            hap = self.hname[0]
+            for aln in fh.fetch(until_eof=True):
+                locus = fh.getrname(aln.tid)
+                fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                fhout[hap].write(struct.pack('>I', lid[locus]))
         for hap in self.hname:
             fhout[hap].close()
 

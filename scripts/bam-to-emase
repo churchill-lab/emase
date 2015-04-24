@@ -55,7 +55,7 @@ def main(argv=None):
         alnfile = None
         lidfile = None
         outfile = 'alignments.transcriptome.h5'
-        haplotypes = None
+        haplotypes = tuple()
         index_dtype = 'uint32'
         data_dtype  = 'uint8'
 
@@ -77,14 +77,19 @@ def main(argv=None):
                 data_dtype = value
 
         # Check if the required options are given
-        if haplotypes is None:
-            raise Usage(help_message)
-        if alnfile is None or lidfile is None:
-            raise Usage(help_message)
+        if len(haplotypes) < 2:
+            print >> sys.stderr, "[Warning] Only one haplotype/strain is given."
+        if alnfile is None:
+            print >> sys.stderr, "[Error] No alignment file is given."
+            return 2
+        if lidfile is None:
+            print >> sys.stderr, "[Error] No locus ID file is given."
+            return 2
 
         #
         # Main body
         #
+
         loci = get_names(lidfile)
 
         alignmat_factory = AMF(alnfile)
