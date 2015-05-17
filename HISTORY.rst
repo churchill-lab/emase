@@ -3,6 +3,10 @@
 History
 -------
 
+0.9.5 (2015-05-17)
+~~~~~~~~~~~~~~~~~~
+* Fixed length normalization: Depth = Count / (Transcript_Length - Read_Length + 1)
+
 0.9.4 (2015-02-23)
 ~~~~~~~~~~~~~~~~~~
 * Fixed a bug in 'prepare-emase'
