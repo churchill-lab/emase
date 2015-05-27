@@ -48,6 +48,7 @@ class EMfactory:
                     item = curline.rstrip().split("\t")
                     locus, hap = item[0].split("_")
                     self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]) - read_length + 1.0, 1.0)
+            self.target_lengths = self.target_lengths.transpose()
             #self.target_lengths = self.target_lengths.transpose() / read_length  # lengths in terms of read counts
             if not np.all(self.target_lengths > 0.0):
                 raise RuntimeError('There exist transcripts missing length information.')
