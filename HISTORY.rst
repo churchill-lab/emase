@@ -3,6 +3,18 @@
 History
 -------
 
+0.9.6 (2015-06-02)
+~~~~~~~~~~~~~~~~~~
+* AlignmentPropertyMatrix can represent Equivalence Classes
+* Fixed a bug in length normalization
+* Swapped Model ID's between 1 and 2
+
+  - Model 1: Gene->Allele->Isoform (*)
+  - Model 2: Gene->Isoform->Allele (*)
+  - Model 3: Gene->Isoform*Allele
+  - Model 4: Gene*Isoform*Allele (RSEM model)
+
+
 0.9.5 (2015-05-17)
 ~~~~~~~~~~~~~~~~~~
 * Fixed length normalization: Depth = Count / (Transcript_Length - Read_Length + 1)

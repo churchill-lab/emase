@@ -90,24 +90,24 @@ class EMfactory:
         """
         Updates the probability of read origin at read level
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.probability.reset()  # reset to alignment incidence matrix
         if model == 1:
-            self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
-            self.probability.normalize_reads(axis=APM.Axis.LOCUS)
-            self.probability.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
-            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
-            self.probability.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
-            self.probability.normalize_reads(axis=APM.Axis.READ)
-        elif model == 2:
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
             haplogroup_sum_mat = self.allelic_expression * self.t2t_mat
             self.probability.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.probability.multiply(haplogroup_sum_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.probability.normalize_reads(axis=APM.Axis.READ)
+        elif model == 2:
+            self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.probability.normalize_reads(axis=APM.Axis.LOCUS)
+            self.probability.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
+            self.probability.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.probability.normalize_reads(axis=APM.Axis.READ)
         elif model == 3:
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
@@ -124,7 +124,7 @@ class EMfactory:
         """
         A single EM step: Update probability at read level and then re-estimate allelic specific expression
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.update_probability_at_read_level(model)
@@ -136,7 +136,7 @@ class EMfactory:
         """
         Runs EM iterations
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
         :param verbose: Display information on how EM is running
