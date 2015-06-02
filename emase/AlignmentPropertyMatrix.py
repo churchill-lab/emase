@@ -24,6 +24,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
         self.num_loci, self.num_haplotypes, self.num_reads = self.shape
         self.num_groups = 0
+        self.count  = None
         self.hname  = None
         self.lname  = None   # locus name
         self.rname  = None   # read name
@@ -32,22 +33,26 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         self.gname  = None   # group name
         self.groups = None   # groups in terms of locus IDs
 
-        if other is not None: # Use for copying from other existing AlignmentPropertyMatrix object
+        if other is not None:  # Use for copying from other existing AlignmentPropertyMatrix object
+            if other.count is not None:
+                self.count = copy.copy(other.count)
             if not shallow:
                 self.__copy_names(other)
                 self.__copy_group_info(other)
 
         elif h5file is not None:  # Use for loading from a pytables file
+            h5fh = tables.open_file(h5file, 'r')
+            if h5fh.__contains__('%s' % (datanode + '/count')):
+                self.count = h5fh.get_node(datanode, 'count').read()
             if not shallow:
-                h5fh = tables.open_file(h5file, 'r')
                 self.hname = h5fh.get_node_attr(datanode, 'hname')
                 self.lname = h5fh.get_node(metanode, 'lname').read()
                 self.rname = h5fh.get_node(metanode, 'rname').read()
                 self.lid = dict(zip(self.lname, np.arange(self.num_loci)))
                 self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
-                h5fh.close()
+            h5fh.close()
 
-        elif shape is not None: # Use for initializing an empty matrix
+        elif shape is not None:  # Use for initializing an empty matrix
             if haplotype_names is not None:
                 if len(haplotype_names) == self.num_haplotypes:
                     self.hname = haplotype_names
@@ -102,6 +107,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
     def copy(self, shallow=False):
         dmat = Sparse3DMatrix.copy(self)
+        dmat.count = copy.copy(self.count)
         dmat.num_loci, dmat.num_haplotypes, dmat.num_reads = dmat.shape
         if not shallow:
             dmat.__copy_names(self)
@@ -198,6 +204,34 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
     # Helper functions
     #
 
+    def sum(self, axis):
+        if self.finalized:
+            if axis == self.Axis.LOCUS:
+                sum_mat = []  # sum along loci
+                for hid in xrange(self.num_haplotypes):
+                    sum_mat.append(self.data[hid].sum(axis=1).A)
+                sum_mat = np.hstack(sum_mat)
+            elif axis == self.Axis.HAPLOTYPE:  # sum along haplotypes
+                sum_mat = self.data[0]
+                for hid in xrange(1, self.num_haplotypes):
+                    sum_mat = sum_mat + self.data[hid]  # Unlike others, this sum_mat is still sparse matrix
+            elif axis == self.Axis.READ:  # sum along reads
+                sum_mat = []
+                for hid in xrange(self.num_haplotypes):
+                    if self.count is None:
+                        sum_hap = self.data[hid].sum(axis=0).A
+                    else:
+                        hap_mat = self.data[hid].copy()
+                        hap_mat.data *= self.count[hap_mat.indices]
+                        sum_hap = hap_mat.sum(axis=0).A
+                    sum_mat.append(sum_hap)
+                sum_mat = np.vstack(sum_mat)
+            else:
+                raise RuntimeError('The axis should be 0, 1, or 2.')
+            return sum_mat
+        else:
+            raise RuntimeError('The original matrix must be finalized.')
+
     def normalize_reads(self, axis, grouping_mat=None):
         """
         Read-wise normalization
@@ -273,8 +307,12 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 summat = self.sum(axis=self.Axis.HAPLOTYPE)
                 #nnz_readwise = summat.getnnz(axis=1)
                 nnz_readwise = np.diff(summat.tocsr().indptr)
-                unique_reads = summat[nnz_readwise < 2]
-                unique_reads.data = np.ones(unique_reads.nnz)
+                unique_locs = nnz_readwise < 2
+                unique_reads = summat[unique_locs]
+                if self.count is None:
+                    unique_reads.data = np.ones(unique_reads.nnz)
+                else:
+                    unique_reads.data = self.count[unique_locs]
                 return unique_reads.sum(axis=self.Axis.LOCUS).A.ravel()
             else:
                 unique_reads = self.get_unique_reads()
@@ -307,6 +345,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         if self.finalized and other.finalized:
             dmat = Sparse3DMatrix.combine(self, other)
             dmat.num_loci, dmat.num_haplotypes, dmat.num_reads = dmat.shape
+            if self.count is not None and other.count is not None:
+                dmat.count = np.concatenate((self.count, other.count))
             if not shallow:
                 dmat.hname = self.hname
                 dmat.lname = copy.copy(self.lname)
@@ -320,14 +360,15 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
     def save(self, h5file, title=None, index_dtype='uint32', data_dtype=float, incidence_only=True, complib='zlib', shallow=False):
         Sparse3DMatrix.save(self, h5file=h5file, title=title, index_dtype=index_dtype, data_dtype=data_dtype, incidence_only=incidence_only, complib=complib)
+        h5fh = tables.open_file(h5file, 'a')
+        fil  = tables.Filters(complevel=1, complib=complib)
+        h5fh.create_carray(h5fh.root, 'count', obj=self.count, title='Equivalence Class Counts', filters=fil)
         if not shallow:
-            h5fh = tables.open_file(h5file, 'a')
-            fil  = tables.Filters(complevel=1, complib=complib)
             h5fh.set_node_attr(h5fh.root, 'hname', self.hname)
             h5fh.create_carray(h5fh.root, 'lname', obj=self.lname, title='Locus Names', filters=fil)
             h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
-            h5fh.flush()
-            h5fh.close()
+        h5fh.flush()
+        h5fh.close()
 
     def get_read_data(self, rid):
         return self.get_cross_section(index=rid, axis=self.Axis.READ)
