@@ -30,16 +30,16 @@ class EMfactory:
             for i in xrange(self.probability.num_groups):
                 self.grp_conv_mat[self.probability.groups[i], i] = 1.0
             self.grp_conv_mat = self.grp_conv_mat.tocsc()
-        self.t2t_mat = eye(self.probability.num_loci, self.probability.num_loci)
-        self.t2t_mat = self.t2t_mat.tolil()
-        for tid_list in self.probability.groups:
-            for ii in xrange(len(tid_list)):
-                for jj in xrange(ii):
-                    i = tid_list[ii]
-                    j = tid_list[jj]
-                    self.t2t_mat[i, j] = 1
-                    self.t2t_mat[j, i] = 1
-        self.t2t_mat = self.t2t_mat.tocsc()
+            self.t2t_mat = eye(self.probability.num_loci, self.probability.num_loci)
+            self.t2t_mat = self.t2t_mat.tolil()
+            for tid_list in self.probability.groups:
+                for ii in xrange(len(tid_list)):
+                    for jj in xrange(ii):
+                        i = tid_list[ii]
+                        j = tid_list[jj]
+                        self.t2t_mat[i, j] = 1
+                        self.t2t_mat[j, i] = 1
+            self.t2t_mat = self.t2t_mat.tocsc()
         if lenfile is not None:
             hid = dict(zip(self.probability.hname, np.arange(len(self.probability.hname))))
             self.target_lengths = np.zeros((self.probability.num_loci, self.probability.num_haplotypes))

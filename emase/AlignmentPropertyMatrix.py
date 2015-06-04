@@ -362,7 +362,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         Sparse3DMatrix.save(self, h5file=h5file, title=title, index_dtype=index_dtype, data_dtype=data_dtype, incidence_only=incidence_only, complib=complib)
         h5fh = tables.open_file(h5file, 'a')
         fil  = tables.Filters(complevel=1, complib=complib)
-        h5fh.create_carray(h5fh.root, 'count', obj=self.count, title='Equivalence Class Counts', filters=fil)
+        if self.count is not None:
+            h5fh.create_carray(h5fh.root, 'count', obj=self.count, title='Equivalence Class Counts', filters=fil)
         if not shallow:
             h5fh.set_node_attr(h5fh.root, 'hname', self.hname)
             h5fh.create_carray(h5fh.root, 'lname', obj=self.lname, title='Locus Names', filters=fil)
