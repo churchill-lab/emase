@@ -117,6 +117,14 @@ class EMfactory:
         elif model == 4:
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.READ)
+        elif model == 5:
+            self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.probability.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
+            haplogroup_sum_mat = self.allelic_expression * self.t2t_mat
+            self.probability.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
+            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
+            self.probability.multiply(haplogroup_sum_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.probability.normalize_reads(axis=APM.Axis.READ)
         else:
             raise RuntimeError('The read normalization model should be 1, 2, 3, or 4.')
 
