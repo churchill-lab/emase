@@ -99,12 +99,12 @@ def main(argv=None):
             curline = fh.next()  # The first fasta header
             curline = curline.rstrip().split()[0] + '_' + hapname
             seqout.write('%s\n' % curline)
-            lenout.write('%s\t' % curline)
+            lenout.write('%s\t' % curline[1:])
             seqlen = 0
             for curline in fh:
                 if curline[0] == '>':
                     curline = curline.rstrip().split()[0] + '_' + hapname + "\n"
-                    lenout.write('%d\n%s\t' % (seqlen, curline.rstrip()))
+                    lenout.write('%d\n%s\t' % (seqlen, curline[1:].rstrip()))
                     seqlen = 0
                 else:
                     seqlen += len(curline.rstrip())
