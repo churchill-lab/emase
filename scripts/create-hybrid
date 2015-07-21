@@ -92,9 +92,9 @@ def main(argv=None):
         lenout = open(lenfile, 'w')
         for hid in xrange(num_haps):
             fasta = fastalist[hid]
-            fastaname = os.path.splitext(os.path.basename(fasta))[0]
+            #fastaname = os.path.splitext(os.path.basename(fasta))[0]
             hapname = haplist[hid]
-            print >> sys.stderr, "Adding suffix \'_%s\' to the sequence ID's of %s..." % (hapname, fastaname)
+            print >> sys.stderr, "Adding suffix \'_%s\' to the sequence ID's of %s..." % (hapname, fasta)
             fh = open(fasta)
             curline = fh.next()  # The first fasta header
             curline = curline.rstrip().split()[0] + '_' + hapname
