@@ -45,6 +45,7 @@ setup(
     include_package_data=True,
     scripts=[
         'scripts/prepare-emase',
+        'scripts/create-hybrid',
         'scripts/bam-to-emase',
         'scripts/combine-emase-files',
         'scripts/run-emase',
