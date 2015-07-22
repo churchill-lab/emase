@@ -39,7 +39,7 @@ class AlignmentMatrixFactory():
             outdir = os.path.dirname(self.alnfile)
         fhout = dict.fromkeys(self.hname)
         for hap in self.hname:
-            outfile = os.path.join(outdir, "%s.bin" % hap)
+            outfile = os.path.join(outdir, "%s_%d.bin" % (hap, os.getpid()))
             self.tmpfiles[hap] = outfile
             fhout[hap] = open(outfile, "wb")
         fh = pysam.Samfile(self.alnfile, 'rb')
