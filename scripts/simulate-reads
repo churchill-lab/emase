@@ -137,7 +137,7 @@ def main(argv=None):
             for curline in fh:
                 item = curline.rstrip().split('\t')
                 tacount[tid[item[0]], :] = map(float, item[1:(1+num_haps)])
-        tacount.shape, tacount.sum()
+        print tacount.shape
 
         trange = np.zeros(tacount.shape)
         with open(target_info_file) as fh:
@@ -151,6 +151,7 @@ def main(argv=None):
         # Generate read counts
         if model == 1:
             gacount = grp_conv_mat.transpose() * tacount
+            print gacount.shape
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
             gcount_sim = multinomial(total_simreads, theta)[0]
