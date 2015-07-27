@@ -127,13 +127,13 @@ def main(argv=None):
             grp_conv_mat[groups[i], i] = 1.0
         grp_conv_mat = grp_conv_mat.tocsc()
 
-        tacount = np.zeros((num_transcripts, num_haps))
         with open(param_file) as fh:
             curline = fh.next()
             item = curline.rstrip().split('\t')
             hname = item[1:-1]
             num_haps = len(hname)
             hid = dict(zip(hname, np.arange(num_haps)))
+            tacount = np.zeros((num_transcripts, num_haps))
             for curline in fh:
                 item = curline.rstrip().split('\t')
                 tacount[tid[item[0]], :] = map(float, item[1:(1+num_haps)])
