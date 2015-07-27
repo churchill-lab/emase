@@ -81,15 +81,15 @@ def main(argv=None):
         # Check if the required options are all given
         grouping_file = os.path.join(ref_dir, 'emase.gene2transcripts.tsv')
         if not os.path.exists(grouping_file):
-            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %d.' % (grouping_file, ref_dir)
+            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %s.' % (grouping_file, ref_dir)
             return 2
         target_file = os.path.join(hyb_dir, 'emase.pooled.transcripts.fa')
         if not os.path.exists(target_file):
-            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %d.' % (target_file, hyb_dir)
+            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %s.' % (target_file, hyb_dir)
             return 2
         target_info_file = os.path.join(hyb_dir, 'emase.pooled.transcripts.info')
         if not os.path.exists(target_info_file):
-            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %d.' % (target_info_file, hyb_dir)
+            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %s.' % (target_info_file, hyb_dir)
             return 2
         if model not in (1, 2, 3, 4):
             print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + 'Simulation model should be either 1, 2, 3 or 4.'
