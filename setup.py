@@ -51,7 +51,8 @@ setup(
         'scripts/combine-emase-files',
         'scripts/run-emase',
         'scripts/count-alignments',
-        'scripts/count-shared-multireads-pairwise'
+        'scripts/count-shared-multireads-pairwise',
+        'scripts/simulate-reads'
     ],
     install_requires=requirements,
     license="GPLv3",
