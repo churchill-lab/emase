@@ -154,7 +154,7 @@ def main(argv=None):
             print gcount.shape, gcount.sum()
             theta = gcount / gcount.sum()
             print theta.shape
-            gcount_sim = multinomial(total_simreads, theta)[0]
+            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
             print gcount_sim.shape
             phi = np.zeros(gacount.shape)
             gexpr = gcount > 0
