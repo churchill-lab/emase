@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import os
+import sys
 import pysam
 import numpy as np
 from scipy.sparse import lil_matrix
 from numpy.random import multinomial, randint, poisson, choice
+import getopt
 
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
@@ -38,7 +41,8 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hF:s:o:", ["help", "create-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hF:g:p:m:N:r:e:", \
+                                       ["help", "grouping-file", "parameter-file", "total-count", "error-rate"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -55,36 +59,99 @@ def main(argv=None):
             if option in ("-h", "--help"):
                 raise Usage(help_message)
             if option == "-F":
-                fastalist = value.split(',')
-                num_haps = len(fastalist)
-            if option == "-s":
-                haplist = value.split(',')
-            if option == "--create-bowtie-index":
-                build_bowtie_index = True
+                target_file = value
+            if option in ("-g", "--grouping-file"):
+                grouping_file = value
+            if option in ("-p", "--parameter-file"):
+                param_file = value
+            if option == "-m":
+                model = int(value)
+            if option in ("-N", "--total-count"):
+                model = int(value)
+            if option == "-r":
+                model = int(value)
+            if option in ("-e", "--error-rate"):
+                model = int(value)
             if option == "-o":
                 outfile = value
 
         # Check if the required options are given
+        if model not in (1, 2, 3, 4):
+            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + 'Simulation model should be either 1, 2, 3 or 4.'
+            return 2
 
 
         #
         # Main body
         #
 
+        gname  = list()
+        groups = list()
+        with open(grouping_file) as fh:
+            for curline in fh:
+                item = curline.rstrip().split("\t")
+                gname.append(item[0])
+                tid_list = [ tid[t] for t in item[1:] ]
+                groups.append(tid_list)
+        gname = np.array(gname)
+        gid = dict(zip(gname, np.arange(len(gname))))
+        grp_conv_mat = lil_matrix((len(tname), len(gname)))
+        for i in xrange(len(gname)):
+            grp_conv_mat[groups[i], i] = 1.0
+        grp_conv_mat = grp_conv_mat.tocsc()
+
         # Generate read counts
+
         emase_count_transcript = np.zeros((len(tname), 2))
         with open(param_file) as fh:
-            fh.next()
+            curline = fh.next()
+            item = curline.rstrip().split('\t')
+            hname = item[1:]
+            num_haps = len(hname)
+            hid = dict(zip(hname, np.arange(num_haps)))
             for curline in fh:
                 item = curline.rstrip().split('\t')
                 emase_count_transcript[tid[item[0]], :] = map(float, item[1:3])
         emase_count_transcript.shape, emase_count_transcript.sum()
 
-        # Simulate reads
+        if model == 1:
+            gacount = grp_conv_mat.transpose() * emase_count_transcript
+            gcount = gacount.sum(axis=1)
+            theta = gcount / gcount.sum()
+            gexpr = gcount > 0
+            gcount_sim = multinomial(N, theta)[0]
+            phi = np.zeros(gacount.shape)
+            phi[gexpr, :] = gacount[gexpr, :] / gcount[gexpr, np.newaxis]
+            phi[np.logical_not(gexpr), :] = np.ones(num_haps) / num_haps
+            gacount_sim = np.zeros(gacount.shape)
+            for g in xrange(num_genes):
+                gacount_sim[g] = multinomial(gcount_sim[g], phi[g])
+            tacount_sim = np.zeros(emase_count_transcript.shape)
+            for g in xrange(num_genes):
+                tindex = groups[g]
+                num_isoforms = len(tindex)
+                for h in xrange(num_haps):
+                    delta = emase_count_transcript[tindex, h]
+                    delta_sum = delta.sum()
+                    if delta_sum > 0:
+                        delta /= delta_sum
+                    else:
+                        delta = np.ones(num_isoforms) / num_isoforms
+                    tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta)
+        elif model == 2:
+            pass
+        elif model == 3:
+            pass
+        else:  # if model == 4:
+            pass
 
-        f = pysam.FastaFile(target)
+
+        # Generate reads
+
+        f = pysam.FastaFile(target_file)
+        target_info_file = os.path.splitext(target_file)[0] + '.info'
         trange = np.zeros(emase_count_transcript.shape)
-        with open('/data/kbchoi/data/mm10/R75-REL1410/B6xCAST/emase.pooled.transcriptome.info') as fh:
+        with open(target_info_file) as fh:
             for curline in fh:
                 item = curline.rstrip().split('\t')
                 t, h = item[0].split('_')
