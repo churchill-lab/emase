@@ -131,7 +131,7 @@ def main(argv=None):
         with open(param_file) as fh:
             curline = fh.next()
             item = curline.rstrip().split('\t')
-            hname = item[1:]
+            hname = item[1:-1]
             num_haps = len(hname)
             hid = dict(zip(hname, np.arange(num_haps)))
             for curline in fh:
