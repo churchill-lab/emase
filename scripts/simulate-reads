@@ -172,6 +172,7 @@ def main(argv=None):
                     else:
                         delta = np.ones(num_isoforms) / num_isoforms
                     tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
+            print gcount_sim.sum(), gacount_sim.sum(), tacount_sim.sum()
         elif model == 2:
             pass
         elif model == 3:
