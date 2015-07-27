@@ -173,7 +173,32 @@ def main(argv=None):
                         delta = np.ones(num_isoforms) / num_isoforms
                     tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
         elif model == 2:
-            pass
+            total_read_counts = emase_count_gene.sum()
+            gcount = emase_count_gene.sum(axis=1)
+            theta = gcount / total_read_counts
+            gexpr = gcount > 1
+            gcount_sim = multinomial(N, theta, size=1)[0]
+            gcount_sim
+            tcount_sim = np.zeros(num_transcripts)
+            for g in xrange(num_genes):
+                tindex = groups[g]
+                num_isoforms = len(tindex)
+                delta = emase_count_transcript[tindex].sum(axis=1)
+                delta_sum = delta.sum()
+                if delta_sum > 0:
+                    delta /= delta_sum
+                else:
+                    delta = np.ones(num_isoforms) / num_isoforms
+                tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
+            tcount = emase_count_transcript.sum(axis=1)
+            texpr = tcount > 1
+            phi = np.zeros(emase_count_transcript.shape)
+            phi[texpr, :] = emase_count_transcript[texpr, :] / tcount[texpr, np.newaxis]
+            phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
+            acount_sim = np.zeros(emase_count_transcript.shape)
+            for t in xrange(num_transcripts):
+                acount_sim[t] = multinomial(tcount_sim[t], phi[t])
+            acount_sim
         elif model == 3:
             pass
         else:  # elif model == 4:
