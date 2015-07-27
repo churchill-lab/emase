@@ -195,21 +195,22 @@ def main(argv=None):
                 for h in xrange(num_haps):
                     theader = '%s_%s' % (tname[t], hname[h])
                     trange_max = trange[t, h]
-                    for cnt in xrange(tacount_sim[t, h]):
-                        start = randint(0, trange_max)
-                        end = start + read_len
-                        seq = f.fetch(theader, start, end)
-                        nerr = poisson(error_rate)
-                        errstr = ''
-                        if nerr > 0:
-                            errloc = sorted(choice(read_len, nerr, replace=False))
-                            errstr = ':'
-                            for epos in errloc:
-                                from_base = seq[epos]
-                                to_base = mut[from_base][randint(3)]
-                                seq = introduce_mutation(seq, epos, to_base)
-                                errstr += '[%d]%s->%s;' % (epos+1, from_base, to_base)
-                        fhout.write(">%s:%d-%d%s\n%s\n" % (theader, start+1, end, errstr, seq))
+                    if trange_max > 0:  # We cannot generate reads from a transcript shorter than read_len
+                        for cnt in xrange(tacount_sim[t, h]):
+                            start = randint(0, trange_max)
+                            end = start + read_len
+                            seq = f.fetch(theader, start, end)
+                            nerr = poisson(error_rate)
+                            errstr = ''
+                            if nerr > 0:
+                                errloc = sorted(choice(read_len, nerr, replace=False))
+                                errstr = ':'
+                                for epos in errloc:
+                                    from_base = seq[epos]
+                                    to_base = mut[from_base][randint(3)]
+                                    seq = introduce_mutation(seq, epos, to_base)
+                                    errstr += '[%d]%s->%s;' % (epos+1, from_base, to_base)
+                            fhout.write(">%s:%d-%d%s\n%s\n" % (theader, start+1, end, errstr, seq))
 
         #
         # End of Main body
