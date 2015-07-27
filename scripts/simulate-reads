@@ -154,7 +154,7 @@ def main(argv=None):
             theta = gcount / gcount.sum()
             gcount_sim = multinomial(total_simreads, theta, size=1)[0]
             phi = np.zeros(gacount.shape)
-            gexpr = gcount > 0
+            gexpr = gcount > 1  # > 0??
             phi[gexpr, :] = gacount[gexpr, :] / gcount[gexpr, np.newaxis]
             phi[np.logical_not(gexpr), :] = np.ones(num_haps) / num_haps
             gacount_sim = np.zeros(gacount.shape, dtype=int)
