@@ -151,7 +151,9 @@ def main(argv=None):
         if model == 1:
             gacount = grp_conv_mat.transpose() * tacount
             gcount = gacount.sum(axis=1)
+            print gcount.shape, gcount.sum()
             theta = gcount / gcount.sum()
+            print theta.shape
             gcount_sim = multinomial(total_simreads, theta)[0]
             print gcount_sim.shape
             phi = np.zeros(gacount.shape)
