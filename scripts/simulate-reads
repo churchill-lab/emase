@@ -79,6 +79,10 @@ def main(argv=None):
                 outfile = value
 
         # Check if the required options are all given
+        transcript_info_file = os.path.join(ref_dir, 'emase.transcripts.info')
+        if not os.path.exists(transcript_info_file):
+            print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %s.' % (transcript_info_file, ref_dir)
+            return 2
         grouping_file = os.path.join(ref_dir, 'emase.gene2transcripts.tsv')
         if not os.path.exists(grouping_file):
             print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '%s does not exist at %s.' % (grouping_file, ref_dir)
@@ -103,7 +107,7 @@ def main(argv=None):
 
         #
         # Load parameters and other required information
-        tname = np.loadtxt(target_info_file, dtype='string', usecols=(0,))
+        tname = np.loadtxt(transcript_info_file, dtype='string', usecols=(0,))
         num_transcripts = len(tname)
         tid = dict(zip(tname, np.arange(num_transcripts)))
 
