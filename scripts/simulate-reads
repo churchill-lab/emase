@@ -14,7 +14,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 help_message = '''
 Usage:
     simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> \\
-                   -m <simulation_model> -N <total_count> -o <out_file> \\
+                   -m <simulation_model> -N <total_count> -M <num_sims> -o <out_base> \\
                  [ -r <read_len> -e <err_rate> ]
 
 Input:
@@ -23,6 +23,7 @@ Input:
     -p, --parameter-file <param_file> : Expression abundance we want to simulate (Usually a result from EMASE)
     -m <simulation_model>             : Read sampling model
     -N, --total-count <total_count>   : Total read count we want to simulate
+    -M, --num-sims <num_sims>         : The number of simulations
     -r <read_len>                     : The length of the simulated reads
     -e, --error-rate <error_rate>     : Mutation rate given by Poisson model
     -o <out_file>                     : The output file name (fasta format)
@@ -72,6 +73,47 @@ def simulate_isoform_count(tcount, gcount_sim, groups):
     return tcount_sim
 
 
+def simulate_read_count(total_simreads, model, param_count, t2gmat):
+    num_transcripts, num_haps = param_count.shape
+    num_transcripts_chk, num_genes = t2gmat.shape
+    if num_transcripts != num_transcripts_chk:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + '[Error] Dimension mismatch.'
+        return 2
+    if model == 1:  # Gene->Alleles->Isoforms
+        gacount = t2gmat.transpose() * param_count
+        gcount_sim = simulate_total_count(gacount, total_simreads)
+        gacount_sim = simulate_allele_count(gacount, gcount_sim)
+        tacount_sim = np.zeros(param_count.shape, dtype=int)
+        for h in xrange(num_haps):
+            tacount_sim[:, h] = simulate_isoform_count(param_count[:, h], gacount_sim[:, h], groups)
+    elif model == 2:  # Gene->Isoforms->Alleles
+        gacount = t2gmat.transpose() * param_count
+        gcount_sim = simulate_total_count(gacount, total_simreads)
+        tcount_sim = simulate_isoform_count(param_count.sum(axis=1), gcount_sim, groups)
+        tacount_sim = simulate_allele_count(param_count, tcount_sim)
+    elif model == 3:  # Gene->(Alleles*Isoforms)
+        gacount = t2gmat.transpose() * param_count
+        gcount_sim = simulate_total_count(gacount, total_simreads)
+        tacount_sim = np.zeros(param_count.shape, dtype=int)
+        for g in xrange(num_genes):
+            tindex = t2gmat[:, g].nonzero()[0]
+            num_isoforms = len(tindex)
+            num_isoform_alleles = num_isoforms * num_haps
+            xi = param_count[tindex]
+            xi_sum = xi.sum()
+            if xi_sum > 0:
+                xi /= xi_sum
+            else:
+                xi = np.ones((num_isoforms, num_haps)) / num_isoform_alleles
+            tacount_sim_vector = multinomial(gcount_sim[g], xi.reshape((1, num_isoform_alleles))[0])
+            tacount_sim[tindex] = tacount_sim_vector.reshape((num_isoforms, num_haps))
+    else:  # elif model == 4:
+        zeta = param_count / param_count.sum()
+        tacount_sim_vector = multinomial(total_simreads, zeta.reshape((1, num_transcripts * num_haps))[0])
+        tacount_sim = tacount_sim_vector.reshape((num_transcripts, num_haps))
+    return tacount_sim
+
+
 def introduce_mutation(seq, pos, new_base):
     return seq[:pos] + new_base + seq[pos+1:]
 
@@ -81,14 +123,17 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:r:e:", \
-                                       ["help", "ref-dir", "hybrid-dir", "parameter-file", "total-count", "error-rate"])
+            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:M:r:e:", \
+                                       ["help", "ref-dir", "hybrid-dir", "parameter-file", \
+                                        "total-count", "num-sims", "error-rate"])
         except getopt.error, msg:
             raise Usage(msg)
 
         # Default values of vars
-        ref_dir = os.getenv('EMASE_INDEX_BASE', '.')
+        ref_dir = os.getenv('EMASE_TARGET_BASE', '.')
         hyb_dir = '.'
+        outbase = './emase.simulated'
+        model = 1
         read_len = 100
         error_rate = 0.1
         mut = {'A':('T', 'G', 'C'), \
@@ -110,12 +155,14 @@ def main(argv=None):
                 model = int(value)
             if option in ("-N", "--total-count"):
                 total_simreads = int(value)
+            if option in ("-M", "--num-sims"):
+                num_simulations = int(value)
             if option == "-r":
                 read_len = int(value)
             if option in ("-e", "--error-rate"):
                 error_rate = int(value)
             if option == "-o":
-                outfile = value
+                outbase = value
 
         # Check if the required options are all given
         transcript_info_file = os.path.join(ref_dir, 'emase.transcripts.info')
@@ -137,7 +184,6 @@ def main(argv=None):
         if model not in (1, 2, 3, 4):
             print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + 'Simulation model should be either 1, 2, 3 or 4.'
             return 2
-        outfile = './emase.M%d.simulated.fa' % model
 
 
         #
@@ -160,7 +206,7 @@ def main(argv=None):
                 groups.append(tid_list)
         gname = np.array(gname)
         num_genes = len(gname)
-        gid = dict(zip(gname, np.arange(num_genes)))
+        #gid = dict(zip(gname, np.arange(num_genes)))
         grp_conv_mat = lil_matrix((num_transcripts, num_genes))
         for i in xrange(num_genes):
             grp_conv_mat[groups[i], i] = 1.0
@@ -177,6 +223,8 @@ def main(argv=None):
                 item = curline.rstrip().split('\t')
                 tacount[tid[item[0]], :] = map(float, item[1:(1+num_haps)])
 
+        f = pysam.FastaFile(target_file)
+
         trange = np.zeros(tacount.shape, dtype=int)
         with open(target_info_file) as fh:
             for curline in fh:
@@ -185,122 +233,42 @@ def main(argv=None):
                 trange[tid[t], hid[h]] = np.int(item[1])
         trange = trange - read_len + 1
 
-        #
-        # Generate read counts
-        if model == 1:  # Gene->Alleles->Isoforms
-            gacount = grp_conv_mat.transpose() * tacount
-            #gcount = gacount.sum(axis=1)
-            #theta = gcount / gcount.sum()
-            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            gcount_sim = simulate_total_count(gacount, total_simreads)
-            #phi = np.zeros(gacount.shape)
-            #gexpr = gcount > 0  # > 0??
-            #phi[gexpr, :] = gacount[gexpr, :] / gcount[gexpr, np.newaxis]
-            #phi[np.logical_not(gexpr), :] = np.ones(num_haps) / num_haps
-            #gacount_sim = np.zeros(gacount.shape, dtype=int)
-            #for g in xrange(num_genes):
-            #    gacount_sim[g] = multinomial(gcount_sim[g], phi[g], size=1)[0]
-            gacount_sim = simulate_allele_count(gacount, gcount_sim)
-            tacount_sim = np.zeros(tacount.shape, dtype=int)
-            #for g in xrange(num_genes):
-            #    tindex = groups[g]
-            #    num_isoforms = len(tindex)
-            #    for h in xrange(num_haps):
-            #        delta = tacount[tindex, h]
-            #        delta_sum = delta.sum()
-            #        if delta_sum > 0:
-            #            delta /= delta_sum
-            #        else:
-            #            delta = np.ones(num_isoforms) / num_isoforms
-            #        tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
-            for h in xrange(num_haps):
-                tacount_sim[:, h] = simulate_isoform_count(tacount[:, h], gacount_sim[:, h], groups)
-        elif model == 2:  # Gene->Isoforms->Alleles
-            gacount = grp_conv_mat.transpose() * tacount
-            #gcount = gacount.sum(axis=1)
-            #theta = gcount / gcount.sum()
-            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            gcount_sim = simulate_total_count(gacount, total_simreads)
-            #tcount_sim = np.zeros(num_transcripts, dtype=int)
-            #for g in xrange(num_genes):
-            #    tindex = groups[g]
-            #    num_isoforms = len(tindex)
-            #    delta = tacount[tindex].sum(axis=1)
-            #    delta_sum = delta.sum()
-            #    if delta_sum > 0:
-            #        delta /= delta_sum
-            #    else:
-            #        delta = np.ones(num_isoforms) / num_isoforms
-            #    tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
-            tcount_sim = simulate_isoform_count(tacount.sum(axis=1), gcount_sim, groups)
-            #tcount = tacount.sum(axis=1)
-            #texpr = tcount > 0
-            #phi = np.zeros(tacount.shape)
-            #phi[texpr, :] = tacount[texpr, :] / tcount[texpr, np.newaxis]
-            #phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
-            #tacount_sim = np.zeros(tacount.shape, dtype=int)
-            #for t in xrange(num_transcripts):
-            #    tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
-            tacount_sim = simulate_allele_count(tacount, tcount_sim)
-            gacount_sim = grp_conv_mat.transpose() * tacount_sim
-        elif model == 3:  # Gene->(Alleles*Isoforms)
-            gacount = grp_conv_mat.transpose() * tacount
-            #gcount = gacount.sum(axis=1)
-            #theta = gcount / gcount.sum()
-            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            gcount_sim = simulate_total_count(gacount, total_simreads)
-            tacount_sim = np.zeros(tacount.shape, dtype=int)
-            for g in xrange(num_genes):
-                tindex = groups[g]
-                num_isoforms = len(tindex)
-                num_isoform_alleles = num_isoforms * num_haps
-                xi = tacount[tindex]
-                xi_sum = xi.sum()
-                if xi_sum > 0:
-                    xi /= xi_sum
-                else:
-                    xi = np.ones((num_isoforms, num_haps)) / num_isoform_alleles
-                tacount_sim_vector = multinomial(gcount_sim[g], xi.reshape((1, num_isoform_alleles))[0])
-                tacount_sim[tindex] = tacount_sim_vector.reshape((num_isoforms, num_haps))
-            gacount_sim = grp_conv_mat.transpose() * tacount_sim
-        else:  # elif model == 4:
-            zeta = tacount / tacount.sum()
-            tacount_sim_vector = multinomial(total_simreads, zeta.reshape((1, num_transcripts * num_haps))[0])
-            tacount_sim = tacount_sim_vector.reshape((num_transcripts, num_haps))
+        for k in xrange(num_simulations):
+            # Simulate read counts
+            tacount_sim = simulate_read_count(total_simreads, model, tacount, grp_conv_mat)
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
-        out_dir = os.path.dirname(outfile)
-        true_gaout = os.path.join(out_dir, 'emase.M%d.simulated.genes.read_counts' % model)
-        np.savetxt(true_gaout, np.column_stack((gname, np.char.mod('%d', gacount_sim))), \
-                   header='Gene_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
-        true_taout = os.path.join(out_dir, 'emase.M%d.simulated.transcripts.read_counts' % model)
-        np.savetxt(true_taout, np.column_stack((tname, np.char.mod('%d', tacount_sim))), \
-                   header='Transcript_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
+            # Write the true read counts
+            true_gaout = os.path.join(outbase, '.%3d.genes.read_counts' % (k+1))
+            np.savetxt(true_gaout, np.column_stack((gname, np.char.mod('%d', gacount_sim))), \
+                       header='Gene_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
+            true_taout = os.path.join(outbase, '.%3d.transcripts.read_counts' % (k+1))
+            np.savetxt(true_taout, np.column_stack((tname, np.char.mod('%d', tacount_sim))), \
+                       header='Transcript_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
 
-        #
-        # Generate reads
-        f = pysam.FastaFile(target_file)
-        with open(outfile, 'w') as fhout:
-            for t in xrange(num_transcripts):
-                for h in xrange(num_haps):
-                    theader = '%s_%s' % (tname[t], hname[h])
-                    trange_max = trange[t, h]
-                    if trange_max > 0:  # We cannot generate reads from a transcript shorter than read_len
-                        for cnt in xrange(tacount_sim[t, h]):
-                            start = randint(0, trange_max)
-                            end = start + read_len
-                            seq = f.fetch(theader, start, end)
-                            nerr = poisson(error_rate)
-                            errstr = ''
-                            if nerr > 0:
-                                errloc = sorted(choice(read_len, nerr, replace=False))
-                                errstr = ':'
-                                for epos in errloc:
-                                    from_base = seq[epos]
-                                    to_base = mut[from_base][randint(3)]
-                                    seq = introduce_mutation(seq, epos, to_base)
-                                    errstr += '[%d]%s->%s;' % (epos+1, from_base, to_base)
-                            fhout.write(">%s:%d-%d%s\n%s\n" % (theader, start+1, end, errstr, seq))
+            # Generate reads
+            outfile = os.path.join(outbase, '.%3d.fa' % (k+1))
+            with open(outfile, 'w') as fhout:
+                for t in xrange(num_transcripts):
+                    for h in xrange(num_haps):
+                        theader = '%s_%s' % (tname[t], hname[h])
+                        trange_max = trange[t, h]
+                        if trange_max > 0:  # We cannot generate reads from a transcript shorter than read_len
+                            for cnt in xrange(tacount_sim[t, h]):
+                                start = randint(0, trange_max)
+                                end = start + read_len
+                                seq = f.fetch(theader, start, end)
+                                nerr = poisson(error_rate)
+                                errstr = ''
+                                if nerr > 0:
+                                    errloc = sorted(choice(read_len, nerr, replace=False))
+                                    errstr = ':'
+                                    for epos in errloc:
+                                        from_base = seq[epos]
+                                        to_base = mut[from_base][randint(3)]
+                                        seq = introduce_mutation(seq, epos, to_base)
+                                        errstr += '[%d]%s->%s;' % (epos+1, from_base, to_base)
+                                fhout.write(">%s:%d-%d%s\n%s\n" % (theader, start+1, end, errstr, seq))
 
         #
         # End of Main body
