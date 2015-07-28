@@ -26,7 +26,7 @@ Input:
     -M, --num-sims <num_sims>         : The number of simulations
     -r <read_len>                     : The length of the simulated reads
     -e, --error-rate <error_rate>     : Mutation rate given by Poisson model
-    -o <out_file>                     : The output file name (fasta format)
+    -o, --outfile-basename <out_base> : The base name for output files
 
 Parameters:
     -h, --help                        : shows this help message
@@ -123,9 +123,9 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:M:r:e:", \
+            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:M:r:e:o:", \
                                        ["help", "ref-dir", "hybrid-dir", "parameter-file", \
-                                        "total-count", "num-sims", "error-rate"])
+                                        "total-count", "num-sims", "error-rate", "outfile-basename"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -161,7 +161,7 @@ def main(argv=None):
                 read_len = int(value)
             if option in ("-e", "--error-rate"):
                 error_rate = int(value)
-            if option == "-o":
+            if option in ("-o", "--outfile-basename"):
                 outbase = value
 
         # Check if the required options are all given
