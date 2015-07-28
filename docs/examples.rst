@@ -16,7 +16,7 @@ EMASE requires the list of transcript ID's and which gene each transcript belong
 
     ${REF_DIR}/emase.transcriptome.fa
     ${REF_DIR}/emase.transcriptome.info
-    ${REF_DIR}/emase.gene2transcript.tsv
+    ${REF_DIR}/emase.gene2transcripts.tsv
 
 **2. Build an individualized genome**
 
@@ -96,7 +96,7 @@ the EMASE format using the following script::
 Now we are ready to run EMASE::
 
     run-emase -i ${SAMPLE_DIR}/bowtie.transcriptome.h5 \
-              -g ${REF_DIR}/emase.gene2transcript.tsv \
+              -g ${REF_DIR}/emase.gene2transcripts.tsv \
               -L ${SAMPLE_DIR}/emase.pooled.transcriptome.info \
               -M ${MODEL} \
               -o ${SAMPLE_DIR}/emase \

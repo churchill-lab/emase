@@ -249,7 +249,7 @@ def main(argv=None):
         lenout.close()
 
         if save_g2tmap:
-            with open(os.path.join(outdir, 'emase.gene2transcript.tsv'), 'w') as fhout:
+            with open(os.path.join(outdir, 'emase.gene2transcripts.tsv'), 'w') as fhout:
                 print >> sys.stderr, "Recording mapping of gene id to transcript id's..."
                 glist = gdb.keys()
                 glist.sort()
