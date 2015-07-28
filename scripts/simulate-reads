@@ -181,7 +181,7 @@ def main(argv=None):
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
             gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            tcount_sim = np.zeros(num_transcripts)
+            tcount_sim = np.zeros(num_transcripts, dtype=int)
             for g in xrange(num_genes):
                 tindex = groups[g]
                 num_isoforms = len(tindex)
@@ -197,7 +197,7 @@ def main(argv=None):
             phi = np.zeros(tacount.shape)
             phi[texpr, :] = tacount[texpr, :] / tcount[texpr, np.newaxis]
             phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
-            tacount_sim = np.zeros(tacount.shape)
+            tacount_sim = np.zeros(tacount.shape, dtype=int)
             for t in xrange(num_transcripts):
                 tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
@@ -206,7 +206,7 @@ def main(argv=None):
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
             gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            tacount_sim = np.zeros(tacount.shape)
+            tacount_sim = np.zeros(tacount.shape, dtype=int)
             for g in xrange(num_genes):
                 tindex = groups[g]
                 num_isoforms = len(tindex)
