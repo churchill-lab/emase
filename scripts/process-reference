@@ -16,7 +16,7 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 help_message = '''
     Usage:
-        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
+        process-reference -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
 
     Input:
         <genome_files> : List of Genome files (comma delimited)
@@ -210,11 +210,11 @@ def main(argv=None):
         #
         # Get pooled transcriptome
         if num_haps > 1:
-            transcriptomefile = os.path.join(outdir, 'emase.pooled.transcriptome.fa')
-            lenfile = os.path.join(outdir, 'emase.pooled.transcriptome.info')
+            transcriptomefile = os.path.join(outdir, 'emase.pooled.transcripts.fa')
+            lenfile = os.path.join(outdir, 'emase.pooled.transcripts.info')
         else:
-            transcriptomefile = os.path.join(outdir, 'emase.transcriptome.fa')
-            lenfile = os.path.join(outdir, 'emase.transcriptome.info')
+            transcriptomefile = os.path.join(outdir, 'emase.transcripts.fa')
+            lenfile = os.path.join(outdir, 'emase.transcripts.info')
         seqout = open(transcriptomefile, 'w')
         lenout = open(lenfile, 'w')
         for hid in xrange(num_haps):
@@ -234,8 +234,8 @@ def main(argv=None):
             tlist.sort()
             for tid in tlist:
                 tinfo = tdb[tid]
-                if genome.has_key(tinfo['chr']):  # Filter out transcripts from chromosome that the input genome does not contain
-                    if num_haps > 1: # No need to add suffix if we deal with a single genome
+                if genome.has_key(tinfo['chr']):
+                    if num_haps > 1:  # No need to add suffix if we deal with a single genome
                         tid = tid + "_%s" % hapname
                     fragment = Seq("", generic_dna)
                     for exon in tinfo['exon']:
@@ -262,7 +262,7 @@ def main(argv=None):
         #
         # Build bowtie index for the pooled transcriptome
         if build_bowtie_index:
-            out_index = os.path.join(os.path.dirname(transcriptomefile), 'bowtie.transcriptome')
+            out_index = os.path.join(os.path.dirname(transcriptomefile), 'bowtie.transcripts')
             print >> sys.stderr, "Building bowtie index..."
             status = subprocess.call("bowtie-build %s %s" % (transcriptomefile, out_index), shell=True)
 

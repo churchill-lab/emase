@@ -173,36 +173,54 @@ def main(argv=None):
                         delta = np.ones(num_isoforms) / num_isoforms
                     tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
         elif model == 2:
-            total_read_counts = emase_count_gene.sum()
-            gcount = emase_count_gene.sum(axis=1)
-            theta = gcount / total_read_counts
-            gexpr = gcount > 1
-            gcount_sim = multinomial(N, theta, size=1)[0]
-            gcount_sim
+            gacount = grp_conv_mat.transpose() * tacount
+            gcount = gacount.sum(axis=1)
+            theta = gcount / gcount.sum()
+            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
             tcount_sim = np.zeros(num_transcripts)
             for g in xrange(num_genes):
                 tindex = groups[g]
                 num_isoforms = len(tindex)
-                delta = emase_count_transcript[tindex].sum(axis=1)
+                delta = tacount[tindex].sum(axis=1)
                 delta_sum = delta.sum()
                 if delta_sum > 0:
                     delta /= delta_sum
                 else:
                     delta = np.ones(num_isoforms) / num_isoforms
                 tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
-            tcount = emase_count_transcript.sum(axis=1)
-            texpr = tcount > 1
-            phi = np.zeros(emase_count_transcript.shape)
-            phi[texpr, :] = emase_count_transcript[texpr, :] / tcount[texpr, np.newaxis]
+            tcount = tacount.sum(axis=1)
+            texpr = tcount > 0
+            phi = np.zeros(tacount.shape)
+            phi[texpr, :] = tacount[texpr, :] / tcount[texpr, np.newaxis]
             phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
-            acount_sim = np.zeros(emase_count_transcript.shape)
+            tacount_sim = np.zeros(tacount.shape)
             for t in xrange(num_transcripts):
-                acount_sim[t] = multinomial(tcount_sim[t], phi[t])
-            acount_sim
+                tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
+            gacount_sim = grp_conv_mat.transpose() * tacount_sim
         elif model == 3:
-            pass
+            gacount = grp_conv_mat.transpose() * tacount
+            gcount = gacount.sum(axis=1)
+            theta = gcount / gcount.sum()
+            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
+            tacount_sim = np.zeros(tacount.shape)
+            for g in xrange(num_genes):
+                tindex = groups[g]
+                num_isoforms = len(tindex)
+                num_isoform_alleles = num_isoforms * num_haps
+                xi = tacount[tindex]
+                xi_sum = xi.sum()
+                if xi_sum > 0:
+                    xi /= xi_sum
+                else:
+                    xi = np.ones((num_isoforms, num_haps)) / num_isoform_alleles
+                tacount_sim_vector = multinomial(gcount_sim[g], xi.reshape((1, num_isoform_alleles))[0])
+                tacount_sim[tindex] = tacount_sim_vector.reshape((num_isoforms, num_haps))
+            gacount_sim = grp_conv_mat.transpose() * tacount_sim
         else:  # elif model == 4:
-            pass
+            zeta = tacount / tacount.sum()
+            tacount_sim_vector = multinomial(total_simreads, zeta.reshape((1, num_transcripts * num_haps))[0])
+            tacount_sim = tacount_sim_vector.reshape((num_transcripts, num_haps))
+            gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
         out_dir = os.path.dirname(outfile)
         true_gaout = os.path.join(out_dir, 'emase.M%d.simulated.genes.read_counts' % model)
