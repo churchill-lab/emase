@@ -73,7 +73,7 @@ def simulate_isoform_count(tcount, gcount_sim, groups):
     return tcount_sim
 
 
-def simulate_read_count(total_simreads, model, param_count, t2gmat):
+def simulate_read_count(total_simreads, model, param_count, groups, t2gmat):
     num_transcripts, num_haps = param_count.shape
     num_transcripts_chk, num_genes = t2gmat.shape
     if num_transcripts != num_transcripts_chk:
@@ -236,7 +236,7 @@ def main(argv=None):
 
         for k in xrange(num_simulations):
             # Simulate read counts
-            tacount_sim = simulate_read_count(total_simreads, model, tacount, grp_conv_mat)
+            tacount_sim = simulate_read_count(total_simreads, model, tacount, groups, grp_conv_mat)
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
             # Write the true read counts
