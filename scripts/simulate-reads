@@ -14,19 +14,19 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 help_message = '''
 Usage:
     simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> \\
-                   -m <simulation_model> -N <total_count> -M <num_sims> -o <out_base> \\
+                   -m <simulation_model> -N <total_count> -X <num_sims> -o <out_base> \\
                  [ -r <read_len> -e <err_rate> ]
 
 Input:
     -R, --ref-dir <reference_dir>     : Directory where EMASE reference data resides
     -H, --hyb-dir <hybrid_dir>        : Directory where EMASE hybrid data resides
     -p, --parameter-file <param_file> : Expression abundance we want to simulate (Usually a result from EMASE)
-    -m <simulation_model>             : Read sampling model
-    -N, --total-count <total_count>   : Total read count we want to simulate
-    -M, --num-sims <num_sims>         : The number of simulations
-    -r <read_len>                     : The length of the simulated reads
-    -e, --error-rate <error_rate>     : Mutation rate given by Poisson model
-    -o, --outfile-basename <out_base> : The base name for output files
+    -m <simulation_model>             : Read sampling model (default: 1)
+    -N, --total-count <total_count>   : Total read count we want to simulate (default: 1,000,000)
+    -X, --num-sims <num_sims>         : The number of simulations (default: 1)
+    -r <read_len>                     : The length of the simulated reads (default: 100)
+    -e, --error-rate <error_rate>     : Mutation rate given by Poisson model (default: 0.1)
+    -o, --outfile-basename <out_base> : The base name for output files (default: './emase.simulated')
 
 Parameters:
     -h, --help                        : shows this help message
@@ -123,7 +123,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:M:r:e:o:", \
+            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:X:r:e:o:", \
                                        ["help", "ref-dir", "hybrid-dir", "parameter-file", \
                                         "total-count", "num-sims", "error-rate", "outfile-basename"])
         except getopt.error, msg:
@@ -134,6 +134,7 @@ def main(argv=None):
         hyb_dir = '.'
         outbase = './emase.simulated'
         model = 1
+        total_simreads = 1000000
         num_simulations = 1
         read_len = 100
         error_rate = 0.1
@@ -156,7 +157,7 @@ def main(argv=None):
                 model = int(value)
             if option in ("-N", "--total-count"):
                 total_simreads = int(value)
-            if option in ("-M", "--num-sims"):
+            if option in ("-X", "--num-sims"):
                 num_simulations = int(value)
             if option == "-r":
                 read_len = int(value)
