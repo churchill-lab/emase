@@ -239,16 +239,19 @@ def main(argv=None):
             tacount_sim = simulate_read_count(total_simreads, model, tacount, groups, grp_conv_mat)
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
-            # Write the true read counts
-            true_gaout = outbase + '.%03d.genes.read_counts' % (k+1)
+            # Write the true read counts and simulated reads
+            if num_simulations > 1:
+                true_gaout = outbase + '.%03d.genes.read_counts' % (k+1)
+                true_taout = outbase + '.%03d.transcripts.read_counts' % (k+1)
+                outfile = outbase + '.%03d.fa' % (k+1)
+            else:
+                true_gaout = outbase + '.genes.read_counts'
+                true_taout = outbase + '.transcripts.read_counts'
+                outfile = outbase + '.fa'
             np.savetxt(true_gaout, np.column_stack((gname, np.char.mod('%d', gacount_sim))), \
                        header='Gene_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
-            true_taout = outbase + '.%03d.transcripts.read_counts' % (k+1)
             np.savetxt(true_taout, np.column_stack((tname, np.char.mod('%d', tacount_sim))), \
                        header='Transcript_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
-
-            # Generate reads
-            outfile = outbase + '.%03d.fa' % (k+1)
             with open(outfile, 'w') as fhout:
                 for t in xrange(num_transcripts):
                     for h in xrange(num_haps):
