@@ -37,6 +37,41 @@ class Usage(Exception):
         self.msg = msg
 
 
+def simulate_total_count(acount, N):
+    rowsum = acount.sum(axis=1)
+    theta = rowsum / rowsum.sum()
+    total_count_sim = multinomial(N, theta, size=1)[0]
+    return total_count_sim
+
+
+def simulate_allele_count(acount, tcount_sim):
+    num_haps = acount.shape[1]
+    rowsum = acount.sum(axis=1)
+    phi = np.zeros(acount.shape)
+    expr = rowsum > 0
+    phi[expr, :] = acount[expr, :] / rowsum[expr, np.newaxis]
+    phi[np.logical_not(expr), :] = np.ones(num_haps) / num_haps
+    acount_sim = np.zeros(acount.shape, dtype=int)
+    for k in xrange(acount.shape[0]):
+        acount_sim[k] = multinomial(tcount_sim[k], phi[k], size=1)[0]
+    return acount_sim
+
+
+def simulate_isoform_count(tcount, gcount_sim, groups):
+    tcount_sim = np.zeros(len(tcount), dtype=int)
+    for g in xrange(len(groups)):
+        tindex = groups[g]
+        num_isoforms = len(tindex)
+        delta = tcount[tindex].sum()
+        delta_sum = delta.sum()
+        if delta_sum > 0:
+            delta /= delta_sum
+        else:
+            delta = np.ones(num_isoforms) / num_isoforms
+        tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
+    return tcount_sim
+
+
 def introduce_mutation(seq, pos, new_base):
     return seq[:pos] + new_base + seq[pos+1:]
 
@@ -154,58 +189,66 @@ def main(argv=None):
         # Generate read counts
         if model == 1:  # Gene->Alleles->Isoforms
             gacount = grp_conv_mat.transpose() * tacount
-            gcount = gacount.sum(axis=1)
-            theta = gcount / gcount.sum()
-            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            phi = np.zeros(gacount.shape)
-            gexpr = gcount > 0  # > 0??
-            phi[gexpr, :] = gacount[gexpr, :] / gcount[gexpr, np.newaxis]
-            phi[np.logical_not(gexpr), :] = np.ones(num_haps) / num_haps
-            gacount_sim = np.zeros(gacount.shape, dtype=int)
-            for g in xrange(num_genes):
-                gacount_sim[g] = multinomial(gcount_sim[g], phi[g], size=1)[0]
+            #gcount = gacount.sum(axis=1)
+            #theta = gcount / gcount.sum()
+            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
+            gcount_sim = simulate_total_count(gacount, total_simreads)
+            #phi = np.zeros(gacount.shape)
+            #gexpr = gcount > 0  # > 0??
+            #phi[gexpr, :] = gacount[gexpr, :] / gcount[gexpr, np.newaxis]
+            #phi[np.logical_not(gexpr), :] = np.ones(num_haps) / num_haps
+            #gacount_sim = np.zeros(gacount.shape, dtype=int)
+            #for g in xrange(num_genes):
+            #    gacount_sim[g] = multinomial(gcount_sim[g], phi[g], size=1)[0]
+            gacount_sim = simulate_allele_count(gacount, gcount_sim)
             tacount_sim = np.zeros(tacount.shape, dtype=int)
-            for g in xrange(num_genes):
-                tindex = groups[g]
-                num_isoforms = len(tindex)
-                for h in xrange(num_haps):
-                    delta = tacount[tindex, h]
-                    delta_sum = delta.sum()
-                    if delta_sum > 0:
-                        delta /= delta_sum
-                    else:
-                        delta = np.ones(num_isoforms) / num_isoforms
-                    tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
+            #for g in xrange(num_genes):
+            #    tindex = groups[g]
+            #    num_isoforms = len(tindex)
+            #    for h in xrange(num_haps):
+            #        delta = tacount[tindex, h]
+            #        delta_sum = delta.sum()
+            #        if delta_sum > 0:
+            #            delta /= delta_sum
+            #        else:
+            #            delta = np.ones(num_isoforms) / num_isoforms
+            #        tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
+            for h in xrange(num_haps):
+                tacount_sim[:, h] = simulate_isoform_count(tacount[:, h], gacount_sim[:, h], groups)
         elif model == 2:  # Gene->Isoforms->Alleles
             gacount = grp_conv_mat.transpose() * tacount
-            gcount = gacount.sum(axis=1)
-            theta = gcount / gcount.sum()
-            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
-            tcount_sim = np.zeros(num_transcripts, dtype=int)
-            for g in xrange(num_genes):
-                tindex = groups[g]
-                num_isoforms = len(tindex)
-                delta = tacount[tindex].sum(axis=1)
-                delta_sum = delta.sum()
-                if delta_sum > 0:
-                    delta /= delta_sum
-                else:
-                    delta = np.ones(num_isoforms) / num_isoforms
-                tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
-            tcount = tacount.sum(axis=1)
-            texpr = tcount > 0
-            phi = np.zeros(tacount.shape)
-            phi[texpr, :] = tacount[texpr, :] / tcount[texpr, np.newaxis]
-            phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
-            tacount_sim = np.zeros(tacount.shape, dtype=int)
-            for t in xrange(num_transcripts):
-                tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
+            #gcount = gacount.sum(axis=1)
+            #theta = gcount / gcount.sum()
+            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
+            gcount_sim = simulate_total_count(gacount, total_simreads)
+            #tcount_sim = np.zeros(num_transcripts, dtype=int)
+            #for g in xrange(num_genes):
+            #    tindex = groups[g]
+            #    num_isoforms = len(tindex)
+            #    delta = tacount[tindex].sum(axis=1)
+            #    delta_sum = delta.sum()
+            #    if delta_sum > 0:
+            #        delta /= delta_sum
+            #    else:
+            #        delta = np.ones(num_isoforms) / num_isoforms
+            #    tcount_sim[tindex] = multinomial(gcount_sim[g], delta)
+            tcount_sim = simulate_isoform_count(tacount.sum(axis=1), gcount_sim, groups)
+            #tcount = tacount.sum(axis=1)
+            #texpr = tcount > 0
+            #phi = np.zeros(tacount.shape)
+            #phi[texpr, :] = tacount[texpr, :] / tcount[texpr, np.newaxis]
+            #phi[np.logical_not(texpr), :] = np.ones(num_haps) / num_haps
+            #tacount_sim = np.zeros(tacount.shape, dtype=int)
+            #for t in xrange(num_transcripts):
+            #    tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
+            tacount_sim = simulate_allele_count(tacount, tcount_sim)
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
-        elif model == 3:  # Gene->Alleles*Isoforms
+        elif model == 3:  # Gene->(Alleles*Isoforms)
             gacount = grp_conv_mat.transpose() * tacount
-            gcount = gacount.sum(axis=1)
-            theta = gcount / gcount.sum()
-            gcount_sim = multinomial(total_simreads, theta, size=1)[0]
+            #gcount = gacount.sum(axis=1)
+            #theta = gcount / gcount.sum()
+            #gcount_sim = multinomial(total_simreads, theta, size=1)[0]
+            gcount_sim = simulate_total_count(gacount, total_simreads)
             tacount_sim = np.zeros(tacount.shape, dtype=int)
             for g in xrange(num_genes):
                 tindex = groups[g]
