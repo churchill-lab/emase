@@ -62,7 +62,7 @@ def simulate_isoform_count(tcount, gcount_sim, groups):
     for g in xrange(len(groups)):
         tindex = groups[g]
         num_isoforms = len(tindex)
-        delta = tcount[tindex].sum()
+        delta = tcount[tindex]
         delta_sum = delta.sum()
         if delta_sum > 0:
             delta /= delta_sum
