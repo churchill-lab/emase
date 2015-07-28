@@ -134,6 +134,7 @@ def main(argv=None):
         hyb_dir = '.'
         outbase = './emase.simulated'
         model = 1
+        num_simulations = 1
         read_len = 100
         error_rate = 0.1
         mut = {'A':('T', 'G', 'C'), \
