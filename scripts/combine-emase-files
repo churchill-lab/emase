@@ -5,12 +5,12 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
 help_message = '''
-    Usage:
-        combine-emase-files -i <h5_file_list> -o <out_file>
+Usage:
+    combine-emase-files -i <h5_file_list> -o <out_file>
 
-    Input:
-        <h5_file_list> : comma(,) separated list of emase format (PyTables) files
-        <out_file> : output file name
+Input:
+    -i <h5_file_list> : comma(,) separated list of emase format (PyTables) files
+    -o <out_file>     : output file name
 '''
 
 

@@ -8,17 +8,17 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 help_message = '''
-    Usage:
-        bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
+Usage:
+    bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
 
-    Input:
-        <aln_file>   : Sam/Bam file
-        <lid_file>   : Text file that lists all the locus IDs
-        <out_file>   : PyTables file that stores the data
-        <haplotypes> : Haplotype names listed using comma(,)
+Input:
+    -a <aln_file>   : Sam/Bam file
+    -i <lid_file>   : Text file that lists all the locus IDs
+    -s <haplotypes> : Haplotype names listed using comma(,)
+    -o <out_file>   : PyTables file that stores the data
 
-    Parameters:
-        -h, --help: shows this help message
+Parameters:
+    -h, --help      : shows this help message
 '''
 
 

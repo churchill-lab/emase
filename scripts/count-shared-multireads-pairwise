@@ -8,16 +8,16 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 help_message = '''
-    Usage:
-        count-shared-multireads-pairwise -i <infile> -g <grpfile> -o <outbase>
+Usage:
+    count-shared-multireads-pairwise -i <infile> -g <grpfile> -o <outbase>
 
-    Input:
-        <infile>  : Alignments stored in an EMASE format (PyTables HDF5)
-        <grpfile> : Gene to isoform map if counting at gene level
-        <outbase> : The name of output result file. (default: 'emase')
+Input:
+    -i <infile>  : Alignments stored in an EMASE format (PyTables HDF5)
+    -g <grpfile> : Gene to isoform map if counting at gene level
+    -o <outbase> : The name of output result file. (default: 'emase')
 
-    Parameters:
-        -h, --help: shows this help message
+Parameters:
+    -h, --help   : shows this help message
 '''
 
 

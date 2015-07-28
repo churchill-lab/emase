@@ -8,28 +8,27 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 help_message = '''
-    Usage:
-        run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
-                  -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
-    Input:
-        <h5_file>        : Alignments stored in a PyTables HDF5 format
-        <grp_file>       : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
-        <len_file>       : File that contains transcript lengths (default: 100)
-        <multiread_model>: Multiread model ID
-                              1: Gene->Isoform->Allele,
-                              2: Gene->Allele->Isoform,
-                              3: Gene->Isoform*Allele,  (default model)
-                              4: Gene*Isoform*Allele
-        <outbase>        : EMASE outputs the result to <folder/basename> (default: './emase')
-        <pseudocount>    : Pseudocount for allele specificity (default: 0.0)
-        <max_iters>      : The number of maximum iterations for EM (default: 999)
-        <tolerance>      : Tolerance for the termination of EM. (default: 0.0001)
-    Parameters:
-        -h, --help: shows this help message
-        -G: reports gene level result too (Not yet implemented: Use '-g' for now.)
-        -D: performs length normalization for apportioning information per read (Not yet implemented: Use '-L' for now.)
-        -c: reports the alignment counts (Consider using another script 'count-alignments' instead.)
-        -w: reports the posterior probability for each read
+Usage:
+    run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
+              -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
+Input:
+    -i <h5_file>         : Alignments stored in a PyTables HDF5 format
+    -g <grp_file>        : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
+    -L <len_file>        : File that contains transcript lengths
+    -M <multiread_model> : Multiread model ID
+                           1: Gene->Isoform->Allele,
+                           2: Gene->Allele->Isoform,
+                           3: Gene->(Isoform*Allele), (default model)
+                           4: Gene*Isoform*Allele
+    -o <outbase>         : EMASE outputs the result to <folder/basename> (default: './emase')
+    -p <pseudocount>     : Pseudocount for allele specificity (default: 0.0)
+    -r <read_length>     : Read length (default: 100)
+    -m <max_iters>       : The number of maximum iterations for EM (default: 999)
+    -t <tolerance>       : Tolerance for the termination of EM. (default: 0.0001)
+Parameters:
+    -h, --help : shows this help message
+    -c         : reports the alignment counts (Consider using another script 'count-alignments' instead.)
+    -w         : reports the posterior probability for each read
 '''
 
 
