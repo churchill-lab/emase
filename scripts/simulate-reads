@@ -12,19 +12,23 @@ __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 help_message = '''
-    Usage:
-        simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> -m <simulation_model> -N <total_count> \\
-                     [ -r <read_len> -e <err_rate> ]
+Usage:
+    simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> \\
+                   -m <simulation_model> -N <total_count> -o <out_file> \\
+                 [ -r <read_len> -e <err_rate> ]
 
-    Input:
-        <target_fasta> : A target fasta file
-        <hap_list>    : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
-        <out_file>    : Output file name (default: './emase.pooled.targets.fa')
+Input:
+    -R, --ref-dir <reference_dir>     : Directory where EMASE reference data resides
+    -H, --hyb-dir <hybrid_dir>        : Directory where EMASE hybrid data resides
+    -p, --parameter-file <param_file> : Expression abundance we want to simulate (Usually a result from EMASE)
+    -m <simulation_model>             : Read sampling model
+    -N, --total-count <total_count>   : Total read count we want to simulate
+    -r <read_len>                     : The length of the simulated reads
+    -e, --error-rate <error_rate>     : Mutation rate given by Poisson model
+    -o <out_file>                     : The output file name (fasta format)
 
-    Parameters:
-        --help, -h : shows this help message
-        --create-bowtie-index : builds bowtie1 index
-
+Parameters:
+    -h, --help                        : shows this help message
 '''
 
 
@@ -148,7 +152,7 @@ def main(argv=None):
 
         #
         # Generate read counts
-        if model == 1:
+        if model == 1:  # Gene->Alleles->Isoforms
             gacount = grp_conv_mat.transpose() * tacount
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
@@ -172,7 +176,7 @@ def main(argv=None):
                     else:
                         delta = np.ones(num_isoforms) / num_isoforms
                     tacount_sim[tindex, h] = multinomial(gacount_sim[g, h], delta, size=1)[0]
-        elif model == 2:
+        elif model == 2:  # Gene->Isoforms->Alleles
             gacount = grp_conv_mat.transpose() * tacount
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
@@ -197,7 +201,7 @@ def main(argv=None):
             for t in xrange(num_transcripts):
                 tacount_sim[t] = multinomial(tcount_sim[t], phi[t])
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
-        elif model == 3:
+        elif model == 3:  # Gene->Alleles*Isoforms
             gacount = grp_conv_mat.transpose() * tacount
             gcount = gacount.sum(axis=1)
             theta = gcount / gcount.sum()
