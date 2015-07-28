@@ -240,15 +240,15 @@ def main(argv=None):
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
             # Write the true read counts
-            true_gaout = os.path.join(outbase, '.%3d.genes.read_counts' % (k+1))
+            true_gaout = outbase + '.%03d.genes.read_counts' % (k+1)
             np.savetxt(true_gaout, np.column_stack((gname, np.char.mod('%d', gacount_sim))), \
                        header='Gene_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
-            true_taout = os.path.join(outbase, '.%3d.transcripts.read_counts' % (k+1))
+            true_taout = outbase + '.%03d.transcripts.read_counts' % (k+1)
             np.savetxt(true_taout, np.column_stack((tname, np.char.mod('%d', tacount_sim))), \
                        header='Transcript_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
 
             # Generate reads
-            outfile = os.path.join(outbase, '.%3d.fa' % (k+1))
+            outfile = outbase + '.%03d.fa' % (k+1)
             with open(outfile, 'w') as fhout:
                 for t in xrange(num_transcripts):
                     for h in xrange(num_haps):
