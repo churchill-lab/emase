@@ -38,14 +38,14 @@ class Usage(Exception):
         self.msg = msg
 
 
-def simulate_total_count(acount, N):
+def simulate_total_counts(acount, N):
     rowsum = acount.sum(axis=1)
     theta = rowsum / rowsum.sum()
     total_count_sim = multinomial(N, theta, size=1)[0]
     return total_count_sim
 
 
-def simulate_allele_count(acount, tcount_sim):
+def simulate_allele_counts(acount, tcount_sim):
     num_haps = acount.shape[1]
     rowsum = acount.sum(axis=1)
     phi = np.zeros(acount.shape)
@@ -58,7 +58,7 @@ def simulate_allele_count(acount, tcount_sim):
     return acount_sim
 
 
-def simulate_isoform_count(tcount, gcount_sim, groups):
+def simulate_isoform_counts(tcount, gcount_sim, groups):
     tcount_sim = np.zeros(len(tcount), dtype=int)
     for g in xrange(len(groups)):
         tindex = groups[g]
@@ -73,7 +73,7 @@ def simulate_isoform_count(tcount, gcount_sim, groups):
     return tcount_sim
 
 
-def simulate_read_count(total_simreads, model, param_count, groups, t2gmat):
+def simulate_read_counts(total_simreads, model, param_count, groups, t2gmat):
     num_transcripts, num_haps = param_count.shape
     num_transcripts_chk, num_genes = t2gmat.shape
     if num_transcripts != num_transcripts_chk:
@@ -81,19 +81,19 @@ def simulate_read_count(total_simreads, model, param_count, groups, t2gmat):
         return 2
     if model == 1:  # Gene->Alleles->Isoforms
         gacount = t2gmat.transpose() * param_count
-        gcount_sim = simulate_total_count(gacount, total_simreads)
-        gacount_sim = simulate_allele_count(gacount, gcount_sim)
+        gcount_sim = simulate_total_counts(gacount, total_simreads)
+        gacount_sim = simulate_allele_counts(gacount, gcount_sim)
         tacount_sim = np.zeros(param_count.shape, dtype=int)
         for h in xrange(num_haps):
-            tacount_sim[:, h] = simulate_isoform_count(param_count[:, h], gacount_sim[:, h], groups)
+            tacount_sim[:, h] = simulate_isoform_counts(param_count[:, h], gacount_sim[:, h], groups)
     elif model == 2:  # Gene->Isoforms->Alleles
         gacount = t2gmat.transpose() * param_count
-        gcount_sim = simulate_total_count(gacount, total_simreads)
-        tcount_sim = simulate_isoform_count(param_count.sum(axis=1), gcount_sim, groups)
-        tacount_sim = simulate_allele_count(param_count, tcount_sim)
+        gcount_sim = simulate_total_counts(gacount, total_simreads)
+        tcount_sim = simulate_isoform_counts(param_count.sum(axis=1), gcount_sim, groups)
+        tacount_sim = simulate_allele_counts(param_count, tcount_sim)
     elif model == 3:  # Gene->(Alleles*Isoforms)
         gacount = t2gmat.transpose() * param_count
-        gcount_sim = simulate_total_count(gacount, total_simreads)
+        gcount_sim = simulate_total_counts(gacount, total_simreads)
         tacount_sim = np.zeros(param_count.shape, dtype=int)
         for g in xrange(num_genes):
             tindex = t2gmat[:, g].nonzero()[0]
@@ -237,7 +237,7 @@ def main(argv=None):
 
         for k in xrange(num_simulations):
             # Simulate read counts
-            tacount_sim = simulate_read_count(total_simreads, model, tacount, groups, grp_conv_mat)
+            tacount_sim = simulate_read_counts(total_simreads, model, tacount, groups, grp_conv_mat)
             gacount_sim = grp_conv_mat.transpose() * tacount_sim
 
             # Write the true read counts and simulated reads
