@@ -22,7 +22,7 @@ Input:
     -H, --hyb-dir <hybrid_dir>        : Directory where EMASE hybrid data resides
     -p, --parameter-file <param_file> : Expression abundance we want to simulate (Usually a result from EMASE)
     -m <simulation_model>             : Read sampling model (default: 1)
-    -N, --total-count <total_count>   : Total read count we want to simulate (default: 1,000,000)
+    -N, --total-count <total_count>   : Total read count we want to simulate (default: 10,000,000)
     -X, --num-sims <num_sims>         : The number of simulations (default: 1)
     -r <read_len>                     : The length of the simulated reads (default: 100)
     -e, --error-rate <error_rate>     : Mutation rate given by Poisson model (default: 0.1)
@@ -134,7 +134,7 @@ def main(argv=None):
         hyb_dir = '.'
         outbase = './emase.simulated'
         model = 1
-        total_simreads = 1000000
+        total_simreads = 10000000
         num_simulations = 1
         read_len = 100
         error_rate = 0.1
@@ -162,7 +162,7 @@ def main(argv=None):
             if option == "-r":
                 read_len = int(value)
             if option in ("-e", "--error-rate"):
-                error_rate = int(value)
+                error_rate = float(value)
             if option in ("-o", "--outfile-basename"):
                 outbase = value
 
