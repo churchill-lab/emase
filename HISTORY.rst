@@ -3,6 +3,11 @@
 History
 -------
 
+0.9.7 (2015-07-28)
+~~~~~~~~~~~~~~~~~~
+* Added create-hybrid
+* Added simulate-reads
+
 0.9.6 (2015-06-02)
 ~~~~~~~~~~~~~~~~~~
 * AlignmentPropertyMatrix can represent Equivalence Classes
