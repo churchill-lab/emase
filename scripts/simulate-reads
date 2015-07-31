@@ -15,7 +15,7 @@ help_message = '''
 Usage:
     simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> \\
                    -m <simulation_model> -N <total_count> -X <num_sims> -o <out_base> \\
-                 [ -r <read_len> -e <err_rate> ]
+                 [ -r <read_len> -e <err_rate> -L ]
 
 Input:
     -R, --ref-dir <reference_dir>     : Directory where EMASE reference data resides
@@ -30,6 +30,7 @@ Input:
 
 Parameters:
     -h, --help                        : shows this help message
+    -L, --long-read-name              : outputs more informative read name (origin & mutation)
 '''
 
 
@@ -123,9 +124,9 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:X:r:e:o:", \
-                                       ["help", "ref-dir", "hybrid-dir", "parameter-file", \
-                                        "total-count", "num-sims", "error-rate", "outfile-basename"])
+            opts, args = getopt.getopt(argv[1:], "hR:H:p:m:N:X:r:e:o:L", \
+                                       ["help", "ref-dir", "hybrid-dir", "parameter-file", "total-count", \
+                                        "num-sims", "error-rate", "outfile-basename", "long-read-name"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -138,6 +139,7 @@ def main(argv=None):
         num_simulations = 1
         read_len = 100
         error_rate = 0.1
+        use_long_id = False
         mut = {'A':('T', 'G', 'C'), \
                'T':('G', 'C', 'A'), \
                'G':('C', 'A', 'T'), \
@@ -165,6 +167,8 @@ def main(argv=None):
                 error_rate = float(value)
             if option in ("-o", "--outfile-basename"):
                 outbase = value
+            if option in ("-L", "--long-read-name"):
+                use_long_id = True
 
         # Check if the required options are all given
         transcript_info_file = os.path.join(ref_dir, 'emase.transcripts.info')
@@ -254,12 +258,15 @@ def main(argv=None):
             np.savetxt(true_taout, np.column_stack((tname, np.char.mod('%d', tacount_sim))), \
                        header='Transcript_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
             with open(outfile, 'w') as fhout:
+                num_digits = len(str(total_simreads))
+                runum = 1
                 for t in xrange(num_transcripts):
                     for h in xrange(num_haps):
                         theader = '%s_%s' % (tname[t], hname[h])
                         trange_max = trange[t, h]
                         if trange_max > 0:  # We cannot generate reads from a transcript shorter than read_len
                             for cnt in xrange(tacount_sim[t, h]):
+                                ruid = 'r{unum:{fill}{width}}'.format(unum=runum, fill='0', width=num_digits)
                                 start = randint(0, trange_max)
                                 end = start + read_len
                                 seq = f.fetch(theader, start, end)
@@ -273,7 +280,11 @@ def main(argv=None):
                                         to_base = mut[from_base][randint(3)]
                                         seq = introduce_mutation(seq, epos, to_base)
                                         errstr += '[%d]%s->%s;' % (epos+1, from_base, to_base)
-                                fhout.write(">%s:%d-%d%s\n%s\n" % (theader, start+1, end, errstr, seq))
+                                if use_long_id:
+                                    fhout.write(">%s:%s:%d-%d%s\n%s\n" % (ruid, theader, start+1, end, errstr, seq))
+                                else:
+                                    fhout.write(">%s\n%s\n" % (ruid, seq))
+                                runum += 1
 
         #
         # End of Main body
