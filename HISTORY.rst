@@ -3,10 +3,14 @@
 History
 -------
 
+0.9.8 (2015-07-31)
+~~~~~~~~~~~~~~~~~~
+* Fixed a bug in simulate-reads: No more duplicate read ID's
+
 0.9.7 (2015-07-28)
 ~~~~~~~~~~~~~~~~~~
-* Added create-hybrid
-* Added simulate-reads
+* Added create-hybrid: Build hybrid target directly using custom transcripts
+* Added simulate-reads: Four nested models
 
 0.9.6 (2015-06-02)
 ~~~~~~~~~~~~~~~~~~
