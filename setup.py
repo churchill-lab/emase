@@ -21,7 +21,7 @@ requirements = [
     'numexpr==2.3.1',
     'pysam>=0.6',
     'cython>=0.13',
-    'tables>=3.1.0',
+    'pytables>=3.1.0',
     'biopython>=1.63'
 ]
 
@@ -50,7 +50,6 @@ setup(
         'scripts/combine-emase-files',
         'scripts/run-emase',
         'scripts/count-alignments',
-        'scripts/count-shared-multireads-pairwise',
         'scripts/simulate-reads'
     ],
     install_requires=requirements,
