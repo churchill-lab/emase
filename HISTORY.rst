@@ -3,6 +3,10 @@
 History
 -------
 
+0.9.9 (2016-01-04)
+~~~~~~~~~~~~~~~~~~
+* AlignmentMatrixFactory can handle unmapped reads
+
 0.9.8 (2015-07-31)
 ~~~~~~~~~~~~~~~~~~
 * Fixed a bug in simulate-reads: No more duplicate read ID's

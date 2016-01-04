@@ -1,12 +1,26 @@
 #!/usr/bin/env python
+
+"""
+Copyright (c) 2015 Kwangbom Choi, The Jackson Laboratory
+This software was developed by Kwangbom "KB" Choi in Gary Churchill's Lab.
+This is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this software. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import os
 import pysam
 import tables
 from scipy.sparse import coo_matrix
 import numpy as np
 import struct
-
-__author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 class AlignmentMatrixFactory():
@@ -45,15 +59,17 @@ class AlignmentMatrixFactory():
         fh = pysam.Samfile(self.alnfile, 'rb')
         if len(haplotypes) > 0:  # Suffices given
             for aln in fh.fetch(until_eof=True):
-                locus, hap = fh.getrname(aln.tid).split(delim)
-                fhout[hap].write(struct.pack('>I', rid[aln.qname]))
-                fhout[hap].write(struct.pack('>I', lid[locus]))
+                if aln.flag != 4 and aln.flag != 8:
+                    locus, hap = fh.getrname(aln.tid).split(delim)
+                    fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                    fhout[hap].write(struct.pack('>I', lid[locus]))
         else:  # Suffix not given
             hap = self.hname[0]
             for aln in fh.fetch(until_eof=True):
-                locus = fh.getrname(aln.tid)
-                fhout[hap].write(struct.pack('>I', rid[aln.qname]))
-                fhout[hap].write(struct.pack('>I', lid[locus]))
+                if aln.flag != 4 and aln.flag != 8:
+                    locus = fh.getrname(aln.tid)
+                    fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                    fhout[hap].write(struct.pack('>I', lid[locus]))
         for hap in self.hname:
             fhout[hap].close()
 
