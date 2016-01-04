@@ -3,7 +3,7 @@
 History
 -------
 
-0.9.9 (2016-01-04)
+0.9.10 (2016-01-04)
 ~~~~~~~~~~~~~~~~~~
 * AlignmentMatrixFactory can handle unmapped reads
 
