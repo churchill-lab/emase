@@ -35,7 +35,7 @@ requirements = [
     'numexpr==2.3.1',
     'pysam>=0.6',
     'cython>=0.13',
-    'pytables>=3.1.0',
+    'tables>=3.1.0',
     'biopython>=1.63'
 ]
 
