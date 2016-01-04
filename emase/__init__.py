@@ -22,4 +22,4 @@ from .EMfactory import EMfactory
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D.'
 __email__ = 'kb.choi@jax.org'
-__version__ = '0.9.9'
+__version__ = '0.9.10'
