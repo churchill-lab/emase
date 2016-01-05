@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Copyright (c) 2015 Kwangbom Choi, The Jackson Laboratory
+This software was developed by Kwangbom "KB" Choi in Gary Churchill's Lab.
+This is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this software. If not, see <http://www.gnu.org/licenses/>.
+"""
 
 try:
     from setuptools import setup
@@ -21,7 +35,7 @@ requirements = [
     'numexpr==2.3.1',
     'pysam>=0.6',
     'cython>=0.13',
-    'tables>=3.1.0',
+    'tables==3.1.0',
     'biopython>=1.63'
 ]
 
@@ -36,7 +50,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Kwangbom \"KB\" Choi",
     author_email='kb.choi@jax.org',
-    url='https://github.com/jax-cgd/emase',
+    url='https://github.com/churchill-lab/emase',
     packages=[
         'emase',
     ],
@@ -45,12 +59,12 @@ setup(
     include_package_data=True,
     scripts=[
         'scripts/prepare-emase',
-        'scripts/process-reference',
         'scripts/create-hybrid',
         'scripts/bam-to-emase',
         'scripts/combine-emase-files',
         'scripts/run-emase',
         'scripts/count-alignments',
+        'scripts/get-common-alignments',
         'scripts/count-shared-multireads-pairwise',
         'scripts/simulate-reads'
     ],

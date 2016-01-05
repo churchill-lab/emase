@@ -3,6 +3,19 @@
 History
 -------
 
+0.9.10 (2016-01-04)
+~~~~~~~~~~~~~~~~~~
+* AlignmentMatrixFactory can handle unmapped reads
+
+0.9.8 (2015-07-31)
+~~~~~~~~~~~~~~~~~~
+* Fixed a bug in simulate-reads: No more duplicate read ID's
+
+0.9.7 (2015-07-28)
+~~~~~~~~~~~~~~~~~~
+* Added create-hybrid: Build hybrid target directly using custom transcripts
+* Added simulate-reads: Four nested models
+
 0.9.6 (2015-06-02)
 ~~~~~~~~~~~~~~~~~~
 * AlignmentPropertyMatrix can represent Equivalence Classes
