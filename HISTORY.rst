@@ -3,7 +3,7 @@
 History
 -------
 
-0.10.1 (2016-01-04)
+0.10.2 (2016-01-04)
 ~~~~~~~~~~~~~~~~~~
 * Added get-common-alignments: To compute intersection between each of paired ends
 
