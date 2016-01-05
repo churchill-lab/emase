@@ -209,7 +209,6 @@ def main(argv=None):
         # Main body
         #
 
-        #
         # Load parameters and other required information
         tname = np.loadtxt(transcript_info_file, dtype='string', usecols=(0,))
         num_transcripts = len(tname)
