@@ -50,7 +50,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Kwangbom \"KB\" Choi",
     author_email='kb.choi@jax.org',
-    url='https://github.com/jax-cgd/emase',
+    url='https://github.com/churchill-lab/emase',
     packages=[
         'emase',
     ],
@@ -64,6 +64,8 @@ setup(
         'scripts/combine-emase-files',
         'scripts/run-emase',
         'scripts/count-alignments',
+        'scripts/get-common-alignments',
+        'scripts/count-shared-multireads-pairwise',
         'scripts/simulate-reads'
     ],
     install_requires=requirements,

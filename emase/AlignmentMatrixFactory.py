@@ -43,7 +43,7 @@ class AlignmentMatrixFactory():
         fh = pysam.Samfile(self.alnfile, 'rb')
         for aln in fh.fetch(until_eof=True):
             self.rname.add(aln.qname)
-        self.rname = np.array(list(self.rname))
+        self.rname = np.array(sorted(list(self.rname)))
         num_loci = len(self.lname)
         num_reads = len(self.rname)
         lid = dict(zip(self.lname, np.arange(num_loci)))
