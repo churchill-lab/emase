@@ -3,6 +3,11 @@
 History
 -------
 
+0.10.1 (2016-01-04)
+~~~~~~~~~~~~~~~~~~
+* Added get-common-alignments: To compute intersection between each of paired ends
+
+
 0.9.10 (2016-01-04)
 ~~~~~~~~~~~~~~~~~~
 * AlignmentMatrixFactory can handle unmapped reads
