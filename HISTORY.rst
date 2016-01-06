@@ -3,13 +3,18 @@
 History
 -------
 
+0.10.3 (2016-01-06)
+~~~~~~~~~~~~~~~~~~~
+* Fixed a bug in run-emase on handling inbred (reference or one haplotype) alignments
+
+
 0.10.2 (2016-01-04)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 * Added get-common-alignments: To compute intersection between each of paired ends
 
 
 0.9.10 (2016-01-04)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 * AlignmentMatrixFactory can handle unmapped reads
 
 0.9.8 (2015-07-31)

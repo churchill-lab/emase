@@ -57,11 +57,19 @@ class EMfactory:
         if lenfile is not None:
             hid = dict(zip(self.probability.hname, np.arange(len(self.probability.hname))))
             self.target_lengths = np.zeros((self.probability.num_loci, self.probability.num_haplotypes))
-            with open(lenfile) as fh:
-                for curline in fh:
-                    item = curline.rstrip().split("\t")
-                    locus, hap = item[0].split("_")
-                    self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]) - read_length + 1.0, 1.0)
+            if self.probability.num_haplotypes > 1:
+                with open(lenfile) as fh:
+                    for curline in fh:
+                        item = curline.rstrip().split("\t")
+                        locus, hap = item[0].split("_")
+                        self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]) - read_length + 1.0, 1.0)
+            elif self.probability.num_haplotypes > 0:
+                with open(lenfile) as fh:
+                    for curline in fh:
+                        item = curline.rstrip().split("\t")
+                        self.target_lengths[self.probability.lid[item[0]], 0] = max(float(item[1]) - read_length + 1.0, 1.0)
+            else:
+                raise RuntimeError('There is something wrong with your emase-format alignment file.')
             self.target_lengths = self.target_lengths.transpose()
             #self.target_lengths = self.target_lengths.transpose() / read_length  # lengths in terms of read counts
             if not np.all(self.target_lengths > 0.0):
