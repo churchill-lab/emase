@@ -3,6 +3,11 @@
 History
 -------
 
+0.10.4 (2016-01-18)
+~~~~~~~~~~~~~~~~~~~
+* Added 'mask_reads' method in AlignmentPropertyMatrix class
+* Added a script 'get-genomic-unique-reads' that unsets emase pseudo-alignments that are not uniquely aligning
+
 0.10.3 (2016-01-06)
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug in run-emase on handling inbred (reference or one haplotype) alignments

@@ -65,6 +65,7 @@ setup(
         'scripts/run-emase',
         'scripts/count-alignments',
         'scripts/get-common-alignments',
+        'scripts/get-genomic-unique-reads',
         'scripts/count-shared-multireads-pairwise',
         'scripts/simulate-reads'
     ],

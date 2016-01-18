@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+
+"""
+Copyright (c) 2015 Kwangbom Choi, The Jackson Laboratory
+This software was developed by Kwangbom "KB" Choi in Gary Churchill's Lab.
+This is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this software. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import os
+import sys
+import getopt
+from from emase import AlignmentPropertyMatrix as APM
+
+
+help_message = '''
+Usage:
+    get-genomic-unique-reads -i <h5_file> -g <grp_file> -o <out_file> [ -s -a ]
+
+Input:
+    -a <aln_file>   : Align file in emase format
+    -g <grp_file>   : Text file that lists all the locus IDs
+    -o <out_file>   : PyTables file that stores the data
+
+Parameters:
+    -h, --help      : shows this help message
+    -s, --shallow   : return shallow emase file
+    -a, --ignore-alleles : do not require allele level uniqueness
+'''
+
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help", "shallow", "ignore-alleles"])
+        except getopt.error, msg:
+            raise Usage(msg)
+
+        # Default values of vars
+        alnfile = None
+        grpfile = None
+        outfile = None
+        shallow = False
+        ignore_alleles = False
+
+        # option processing (change this later with optparse)
+        for option, value in opts:
+            if option in ("-h", "--help"):
+                raise Usage(help_message)
+            if option == "-i":
+                alnfile = value
+            if option == "-g":
+                grpfile = value
+            if option == "-o":
+                outfile = value
+            if option in ("-s", "--shallow"):
+                shallow = True
+            if option in ("-a", "--ignore-alleles"):
+                ignore_alleles = True
+
+        # Check if the required options are given
+        if alnfile is None:
+            print >> sys.stderr, "[Error] No alignment file is given."
+            return 2
+        if grpfile is None:
+            print >> sys.stderr, "[Error] No locus group info file is given."
+            return 2
+
+        #
+        # Main body
+        #
+
+        alnmat_t = APM(h5file=alnfile, grpfile=grpfile)
+        alnmat_g = alnmat_t.bundle(reset=True, shallow=shallow)
+        alnmat_g_uniq = alnmat_g.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+        if ignore_alleles:
+            pass
+        else:
+            num_alns_g_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(axis=APM.Axis.HAPLOTYPE)
+            alnmat_t_guniq = alnmat_t.mask_reads((num_alns_g_per_read < 1), shallow=shallow)
+        alnmat_t_guniq.save(h5file=outfile, shallow=shallow)
+
+        #
+        # End of main body
+        #
+
+    except Usage, err:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
