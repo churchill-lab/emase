@@ -70,9 +70,9 @@ def main(argv=None):
                 groupwise = True
             if option == "-o":
                 outfile = value
-            if option in ("--shallow"):
+            if option == "--shallow":
                 shallow = True
-            if option in ("--ignore-alleles"):
+            if option == "--ignore-alleles":
                 ignore_alleles = True
 
         # Check if the required options are given
@@ -84,7 +84,7 @@ def main(argv=None):
             return 2
 
         print "[Parameter] --shallow: %d" % shallow
-        print "[Parameter] --ignore-allele: %d" % ignore_alleles
+        print "[Parameter] --ignore-alleles: %d" % ignore_alleles
         print "[Parameter] --group-wise: %d" % groupwise
 
         #
