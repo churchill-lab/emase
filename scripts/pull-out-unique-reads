@@ -23,17 +23,18 @@ from from emase import AlignmentPropertyMatrix as APM
 
 help_message = '''
 Usage:
-    get-genomic-unique-reads -i <h5_file> -g <grp_file> -o <out_file> [ -s -a ]
+    pull-out-unique-reads -i <h5_file> -g <grp_file> -o <out_file> [ --shallow --ignore-alleles ]
 
 Input:
-    -a <aln_file>   : Align file in emase format
-    -g <grp_file>   : Text file that lists all the locus IDs
-    -o <out_file>   : PyTables file that stores the data
+    -i <h5_file>  : Alignment profile (pseudo-alignment) in emase format
+    -g <grp_file> : Text file that lists all the locus groups. If <grp_file> is given, uniqueness is considered
+                    at group level (e.g., genes)
+    -o <out_file> : PyTables file that stores the final unique alignments
 
 Parameters:
-    -h, --help      : shows this help message
-    -s, --shallow   : return shallow emase file
-    -a, --ignore-alleles : do not require allele level uniqueness
+    -h, --help           : shows this help message
+        --shallow        : return shallow emase file
+        --ignore-alleles : do not require allele level uniqueness
 '''
 
 
@@ -47,7 +48,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help", "shallow", "ignore-alleles"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:o:", ["help", "shallow", "ignore-alleles"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -57,6 +58,7 @@ def main(argv=None):
         outfile = None
         shallow = False
         ignore_alleles = False
+        groupwise = False
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -66,11 +68,12 @@ def main(argv=None):
                 alnfile = value
             if option == "-g":
                 grpfile = value
+                groupwise = True
             if option == "-o":
                 outfile = value
-            if option in ("-s", "--shallow"):
+            if option in ("--shallow"):
                 shallow = True
-            if option in ("-a", "--ignore-alleles"):
+            if option in ("--ignore-alleles"):
                 ignore_alleles = True
 
         # Check if the required options are given
@@ -85,15 +88,15 @@ def main(argv=None):
         # Main body
         #
 
-        alnmat_t = APM(h5file=alnfile, grpfile=grpfile)
-        alnmat_g = alnmat_t.bundle(reset=True, shallow=shallow)
-        alnmat_g_uniq = alnmat_g.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
-        if ignore_alleles:
-            pass
+        alnmat = APM(h5file=alnfile, grpfile=grpfile)
+        if groupwise:
+            alnmat_g = alnmat.bundle(reset=True, shallow=shallow)
+            alnmat_g_uniq = alnmat_g.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+            num_alns_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(axis=APM.Axis.HAPLOTYPE)
+            alnmat_uniq = alnmat.pull_alignments_from((num_alns_per_read > 0), shallow=shallow)
         else:
-            num_alns_g_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(axis=APM.Axis.HAPLOTYPE)
-            alnmat_t_guniq = alnmat_t.mask_reads((num_alns_g_per_read < 1), shallow=shallow)
-        alnmat_t_guniq.save(h5file=outfile, shallow=shallow)
+            alnmat_uniq = alnmat.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+        alnmat_uniq.save(h5file=outfile, shallow=shallow)
 
         #
         # End of main body

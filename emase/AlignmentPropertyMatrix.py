@@ -311,6 +311,13 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         return new_alnmat
 
     def get_unique_reads(self, ignore_haplotype=False, shallow=False):
+        """
+        Pull out alignments of uniquely-aligning reads
+
+        :param ignore_haplotype: whether to regard allelic multiread as uniquely-aligning read
+        :param shallow: whether to copy sparse 3D matrix only or not
+        :return: a new AlignmentPropertyMatrix object that particular reads are
+        """
         if self.finalized:
             if ignore_haplotype:
                 summat = self.sum(axis=self.Axis.HAPLOTYPE)
@@ -327,9 +334,14 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         if self.finalized:
             unique_reads = self.get_unique_reads(ignore_haplotype=ignore_haplotype, shallow=True)
             if ignore_haplotype:
-                return unique_reads.sum(axis=self.Axis.LOCUS).A.ravel()
+                numaln_per_read = unique_reads.sum(axis=self.Axis.HAPLOTYPE)
+                if self.count is None:
+                    numaln_per_read.data = np.ones(numaln_per_read.nnz)
+                else:
+                    numaln_per_read.data = self.count[numaln_per_read.indices]
+                return numaln_per_read.sum(axis=0).A.ravel()  # An array of size |num_loci|
             else:
-                return unique_reads.sum(axis=self.Axis.READ)
+                return unique_reads.sum(axis=self.Axis.READ)  # An array of size |num_haplotypes|x|num_loci|
         else:
             raise RuntimeError('The matrix is not finalized.')
 
