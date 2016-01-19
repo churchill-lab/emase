@@ -47,7 +47,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:o:", ["help", "shallow", "ignore-alleles"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:o:v", ["help", "shallow", "ignore-alleles", "verbose"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -58,6 +58,7 @@ def main(argv=None):
         shallow = False
         ignore_alleles = False
         groupwise = False
+        verbose = False
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -74,6 +75,8 @@ def main(argv=None):
                 shallow = True
             if option == "--ignore-alleles":
                 ignore_alleles = True
+            if option in ("-v", "--verbose"):
+                verbose = True
 
         # Check if the required options are given
         if alnfile is None:
@@ -82,10 +85,14 @@ def main(argv=None):
         if outfile is None:
             print >> sys.stderr, "[Error] No output file name is given."
             return 2
-
-        print "[Parameter] --shallow: %d" % shallow
-        print "[Parameter] --ignore-alleles: %d" % ignore_alleles
-        print "[Parameter] --group-wise: %d" % groupwise
+        if verbose:
+            print "[Parameter] Input file: %s" % alnfile
+            print "[Parameter] Output file: %s" % outfile
+            if groupwise:
+                print "[Parameter] Group info: %s" % grpfile
+            print "[Parameter] --group-wise: %r" % groupwise
+            print "[Parameter] --ignore-alleles: %r" % ignore_alleles
+            print "[Parameter] --shallow: %r" % shallow
 
         #
         # Main body
