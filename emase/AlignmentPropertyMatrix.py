@@ -293,52 +293,61 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         else:
             raise RuntimeError('The original matrix must be finalized.')
 
-    def get_unique_reads(self, shallow=False):
+    def pull_alignments_from(self, reads_to_use, shallow=False):
+        """
+        Pull out alignments of certain reads
+
+        :param reads_to_use: numpy array of dtype=bool specifying which reads to use
+        :param shallow: whether to copy sparse 3D matrix only or not
+        :return: a new AlignmentPropertyMatrix object that particular reads are
+        """
+        new_alnmat = self.copy(shallow=shallow)
+        for hid in xrange(self.num_haplotypes):
+            hdata = new_alnmat.data[hid]
+            hdata.data *= reads_to_use[hdata.indices]
+            hdata.eliminate_zeros()
+        if new_alnmat.count is not None:
+            new_alnmat.count[np.logical_not(reads_to_use)] = 0
+        return new_alnmat
+
+    def get_unique_reads(self, ignore_haplotype=False, shallow=False):
+        """
+        Pull out alignments of uniquely-aligning reads
+
+        :param ignore_haplotype: whether to regard allelic multiread as uniquely-aligning read
+        :param shallow: whether to copy sparse 3D matrix only or not
+        :return: a new AlignmentPropertyMatrix object that particular reads are
+        """
         if self.finalized:
-            unique_reads = AlignmentPropertyMatrix()
-            unique_reads.shape = self.shape
-            unique_reads.num_loci, unique_reads.num_haplotypes, unique_reads.num_reads = self.shape
-            if not shallow:
-                unique_reads.__copy_names(self)
-                unique_reads.__copy_group_info(self)
-            factor = self.sum(axis=self.Axis.LOCUS).sum(axis=self.Axis.HAPLOTYPE)  # Read-level number of alignments
-            for hid in xrange(self.num_haplotypes):
-                hdata = self.data[hid].copy()
-                hdata.data *= factor[hdata.indices]  # Only unique reads will remain to be 1
-                hdata = hdata.tocoo()
-                uloc = np.where(abs(hdata.data - 1.0) < 0.000001)[0].ravel()
-                hdata.row = hdata.row[uloc]
-                hdata.col = hdata.col[uloc]
-                hdata.data = hdata.data[uloc]
-                unique_reads.data.append(hdata)
-            unique_reads.finalize()
-            return unique_reads
+            if ignore_haplotype:
+                summat = self.sum(axis=self.Axis.HAPLOTYPE)
+                nnz_per_read = np.diff(summat.tocsr().indptr)
+                unique_reads = np.logical_and(nnz_per_read > 0, nnz_per_read < 2)
+            else:  # allelic multireads should be removed
+                alncnt_per_read = self.sum(axis=self.Axis.LOCUS).sum(axis=self.Axis.HAPLOTYPE)
+                unique_reads = np.logical_and(alncnt_per_read > 0, alncnt_per_read < 2)
+            return self.pull_alignments_from(unique_reads, shallow=shallow)
         else:
             raise RuntimeError('The matrix is not finalized.')
 
     def count_unique_reads(self, ignore_haplotype=False):
         if self.finalized:
+            unique_reads = self.get_unique_reads(ignore_haplotype=ignore_haplotype, shallow=True)
             if ignore_haplotype:
-                summat = self.sum(axis=self.Axis.HAPLOTYPE)
-                #nnz_readwise = summat.getnnz(axis=1)
-                nnz_readwise = np.diff(summat.tocsr().indptr)
-                unique_locs = nnz_readwise < 2
-                unique_reads = summat[unique_locs]
+                numaln_per_read = unique_reads.sum(axis=self.Axis.HAPLOTYPE)
                 if self.count is None:
-                    unique_reads.data = np.ones(unique_reads.nnz)
+                    numaln_per_read.data = np.ones(numaln_per_read.nnz)
                 else:
-                    unique_reads.data = self.count[unique_locs]
-                return unique_reads.sum(axis=self.Axis.LOCUS).A.ravel()
+                    numaln_per_read.data = self.count[numaln_per_read.indices]
+                return numaln_per_read.sum(axis=0).A.ravel()  # An array of size |num_loci|
             else:
-                unique_reads = self.get_unique_reads()
-                return unique_reads.sum(axis=self.Axis.READ)
+                return unique_reads.sum(axis=self.Axis.READ)  # An array of size |num_haplotypes|x|num_loci|
         else:
             raise RuntimeError('The matrix is not finalized.')
 
     def count_alignments(self):
         if self.finalized:
-            summat = self.sum(axis=self.Axis.READ)
-            return summat
+            return self.sum(axis=self.Axis.READ)
         else:
             raise RuntimeError('The matrix is not finalized.')
 

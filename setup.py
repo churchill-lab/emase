@@ -65,6 +65,7 @@ setup(
         'scripts/run-emase',
         'scripts/count-alignments',
         'scripts/get-common-alignments',
+        'scripts/pull-out-unique-reads',
         'scripts/count-shared-multireads-pairwise',
         'scripts/simulate-reads'
     ],
