@@ -80,8 +80,8 @@ def main(argv=None):
         if alnfile is None:
             print >> sys.stderr, "[Error] No alignment file is given."
             return 2
-        if grpfile is None:
-            print >> sys.stderr, "[Error] No locus group info file is given."
+        if outfile is None:
+            print >> sys.stderr, "[Error] No output file name is given."
             return 2
 
         #
