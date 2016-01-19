@@ -83,6 +83,10 @@ def main(argv=None):
             print >> sys.stderr, "[Error] No output file name is given."
             return 2
 
+        print "[Parameter] --shallow: %d" % shallow
+        print "[Parameter] --ignore-allele: %d" % ignore_alleles
+        print "[Parameter] --group-wise: %d" % groupwise
+
         #
         # Main body
         #
