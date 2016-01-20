@@ -3,20 +3,18 @@
 History
 -------
 
-0.10.4 (2016-01-18)
+0.10.5 (2016-01-20)
 ~~~~~~~~~~~~~~~~~~~
-* Added 'mask_reads' method in AlignmentPropertyMatrix class
-* Added a script 'get-genomic-unique-reads' that unsets emase pseudo-alignments that are not uniquely aligning
+* Added 'pull_alignments_from' method in AlignmentPropertyMatrix class
+* Added a script 'pull-out-unique-reads' that unsets emase pseudo-alignments that are not uniquely aligning
 
 0.10.3 (2016-01-06)
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug in run-emase on handling inbred (reference or one haplotype) alignments
 
-
 0.10.2 (2016-01-04)
 ~~~~~~~~~~~~~~~~~~~
 * Added get-common-alignments: To compute intersection between each of paired ends
-
 
 0.9.10 (2016-01-04)
 ~~~~~~~~~~~~~~~~~~~
@@ -41,7 +39,6 @@ History
   - Model 2: Gene->Isoform->Allele (*)
   - Model 3: Gene->Isoform*Allele
   - Model 4: Gene*Isoform*Allele (RSEM model)
-
 
 0.9.5 (2015-05-17)
 ~~~~~~~~~~~~~~~~~~
