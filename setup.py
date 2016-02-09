@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this software. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
 try:
     from setuptools import setup
 except ImportError:
@@ -29,15 +30,26 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
-    'numexpr==2.3.1',
-    'numpy==1.8.2',
-    'scipy==0.13.3',
-    'pysam>=0.6',
-    'cython>=0.13',
-    'tables==3.1.0',
-    'biopython>=1.63'
-]
+# requirements = [
+#     'numpy==1.8.2',
+#     'numexpr==2.3.1',
+#     'scipy==0.13.3',
+#     'pysam>=0.6',
+#     'cython>=0.13',
+#     'tables==3.1.0',
+#     'biopython>=1.63'
+# ]
+
+requirements = []
+on_rtd = os.environ.get('READTHEDOCS', None)
+if not on_rtd:
+    requirements.append('numpy==1.8.2')
+    requirements.append('numexpr==2.3.1')
+    requirements.append('scipy==0.13.3')
+    requirements.append('pysam>=0.6')
+    requirements.append('cython>=0.13')
+    requirements.append('tables==3.1.0')
+    requirements.append('biopython>=1.63')
 
 test_requirements = [
     'pytest'

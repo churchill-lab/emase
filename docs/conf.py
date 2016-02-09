@@ -66,7 +66,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EMASE'
-copyright = u'2015, Kwangbom "KB" Choi'
+copyright = u'2015, Kwangbom "KB" Choi, Ph. D., The Jackson Laboratory'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -228,7 +228,7 @@ latex_elements = {
 latex_documents = [
     ('index', 'emase.tex',
      u'EMASE Documentation',
-     u'Kwangbom "KB" Choi', 'manual'),
+     u'Kwangbom "KB" Choi, Ph. D.', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -259,7 +259,7 @@ latex_documents = [
 man_pages = [
     ('index', 'emase',
      u'EMASE Documentation',
-     [u'Kwangbom "KB" Choi'], 1)
+     [u'Kwangbom "KB" Choi, Ph. D.'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -274,7 +274,7 @@ man_pages = [
 texinfo_documents = [
     ('index', 'emase',
      u'EMASE Documentation',
-     u'Kwangbom "KB" Choi',
+     u'Kwangbom "KB" Choi, Ph. D.',
      'emase',
      'One line description of project.',
      'Miscellaneous'),

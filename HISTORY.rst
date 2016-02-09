@@ -3,7 +3,7 @@
 History
 -------
 
-0.10.8 (02-09-2016)
+0.10.9 (02-09-2016)
 ~~~~~~~~~~~~~~~~~~~
 * Fixed readthedocs compiling fails
 
