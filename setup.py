@@ -30,9 +30,9 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    'scipy==0.13.3',
-    'numpy==1.8.2',
     'numexpr==2.3.1',
+    'numpy==1.8.2',
+    'scipy==0.13.3',
     'pysam>=0.6',
     'cython>=0.13',
     'tables==3.1.0',
@@ -48,7 +48,7 @@ setup(
     version=emase.__version__,
     description="EMASE: Expectation-Maximization algorithm for Allele Specific Expression",
     long_description=readme + '\n\n' + history,
-    author="Kwangbom \"KB\" Choi",
+    author="Kwangbom \"KB\" Choi, Ph. D., The Jackson Laboratory",
     author_email='kb.choi@jax.org',
     url='https://github.com/churchill-lab/emase',
     packages=[
