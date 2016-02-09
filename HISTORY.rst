@@ -3,33 +3,37 @@
 History
 -------
 
-0.10.5 (2016-01-20)
+0.10.6 (02-09-2016)
+~~~~~~~~~~~~~~~~~~~
+* Fixed readthedocs compiling fails
+
+0.10.5 (01-20-2016)
 ~~~~~~~~~~~~~~~~~~~
 * Added 'pull_alignments_from' method in AlignmentPropertyMatrix class
 * Added a script 'pull-out-unique-reads' that unsets emase pseudo-alignments that are not uniquely aligning
 
-0.10.3 (2016-01-06)
+0.10.3 (01-06-2016)
 ~~~~~~~~~~~~~~~~~~~
 * Fixed a bug in run-emase on handling inbred (reference or one haplotype) alignments
 
-0.10.2 (2016-01-04)
+0.10.2 (01-04-2016)
 ~~~~~~~~~~~~~~~~~~~
 * Added get-common-alignments: To compute intersection between each of paired ends
 
-0.9.10 (2016-01-04)
+0.9.10 (01-04-2016)
 ~~~~~~~~~~~~~~~~~~~
 * AlignmentMatrixFactory can handle unmapped reads
 
-0.9.8 (2015-07-31)
+0.9.8 (07-31-2015)
 ~~~~~~~~~~~~~~~~~~
 * Fixed a bug in simulate-reads: No more duplicate read ID's
 
-0.9.7 (2015-07-28)
+0.9.7 (07-28-2015)
 ~~~~~~~~~~~~~~~~~~
 * Added create-hybrid: Build hybrid target directly using custom transcripts
 * Added simulate-reads: Four nested models
 
-0.9.6 (2015-06-02)
+0.9.6 (06-02-2015)
 ~~~~~~~~~~~~~~~~~~
 * AlignmentPropertyMatrix can represent Equivalence Classes
 * Fixed a bug in length normalization
@@ -40,20 +44,20 @@ History
   - Model 3: Gene->Isoform*Allele
   - Model 4: Gene*Isoform*Allele (RSEM model)
 
-0.9.5 (2015-05-17)
+0.9.5 (05-17-2015)
 ~~~~~~~~~~~~~~~~~~
 * Fixed length normalization: Depth = Count / (Transcript_Length - Read_Length + 1)
 
-0.9.4 (2015-02-23)
+0.9.4 (02-23-2015)
 ~~~~~~~~~~~~~~~~~~
 * Fixed a bug in 'prepare-emase'
 
-0.9.3 (2015-02-22)
+0.9.3 (02-22-2015)
 ~~~~~~~~~~~~~~~~~~
 * Fixed a bug in Model 2 of handling multireads
 * 'run-emase' checks absolute sum of error (in TPM) for termination
 
-0.9.2 (2015-02-17)
+0.9.2 (02-17-2015)
 ~~~~~~~~~~~~~~~~~~
 * Added three more models of handling multireads
 
@@ -62,7 +66,7 @@ History
   - Model 3: Gene->Isoform*Allele
   - Model 4: Gene*Isoform*Allele (RSEM model)
 
-0.9.0 (2015-01-31)
+0.9.0 (01-31-2015)
 ~~~~~~~~~~~~~~~~~~
 * First release on PyPI
 * Only implements RSEM model for handling Multiply-mapping reads (or multireads)
