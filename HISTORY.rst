@@ -3,6 +3,10 @@
 History
 -------
 
+0.10.10 (02-15-2016)
+~~~~~~~~~~~~~~~~~~~
+* Minor change in documentation
+
 0.10.9 (02-09-2016)
 ~~~~~~~~~~~~~~~~~~~
 * Fixed readthedocs compiling fails

@@ -13,12 +13,12 @@ Contents:
 
    readme
    installation
-   emase
    usage
    examples
-   contributing
+   emase
    history
    authors
+   contributing
 
 Indices and tables
 ==================

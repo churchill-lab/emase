@@ -47,7 +47,7 @@ Now the following files will be available::
 RNA-seq reads should be aligned against the pooled transcriptome::
 
     bowtie -q -a --best --strata --sam -v 3 ${EMASE_DIR}/bowtie.transcriptome ${FASTQ} \
-        | samtools view -bS -F 4 - > ${BAM_FILE}
+        | samtools view -bS - > ${BAM_FILE}
 
 Before running EMASE, we need to convert the bam file into the emase format::
 
