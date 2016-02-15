@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-"""
+from .Sparse3DMatrix import Sparse3DMatrix
+from .AlignmentPropertyMatrix import AlignmentPropertyMatrix
+from .AlignmentMatrixFactory import AlignmentMatrixFactory
+from .EMfactory import EMfactory
+
+__author__ = 'Kwangbom "KB" Choi, Ph. D., The Jackson Laboratory'
+__email__ = 'kb.choi@jax.org'
+__copyright__ = """
 Copyright (c) 2015 Kwangbom Choi, The Jackson Laboratory
 This software was developed by Kwangbom "KB" Choi in Gary Churchill's Lab.
 This is free software: you can redistribute it and/or modify
@@ -14,12 +21,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this software. If not, see <http://www.gnu.org/licenses/>.
 """
-
-from .Sparse3DMatrix import Sparse3DMatrix
-from .AlignmentPropertyMatrix import AlignmentPropertyMatrix
-from .AlignmentMatrixFactory import AlignmentMatrixFactory
-from .EMfactory import EMfactory
-
-__author__ = 'Kwangbom "KB" Choi, Ph. D., The Jackson Laboratory'
-__email__ = 'kb.choi@jax.org'
-__version__ = '0.10.9'
+__version__ = '0.10.10'
