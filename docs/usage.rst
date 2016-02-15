@@ -26,7 +26,7 @@ We need to first process reference genome::
 
     ${REF_DIR}/emase.transcriptome.fa
     ${REF_DIR}/emase.transcriptome.info         <== Used as ${TID_FILE} in the following steps
-    ${REF_DIR}/emase.gene2transcript.tsv        <== Used as ${GROUP_FILE} in the following steps
+    ${REF_DIR}/emase.gene2transcripts.tsv        <== Used as ${GROUP_FILE} in the following steps
 
 Then build a pooled transcriptome and prepare required files for EMASE::
 
@@ -47,7 +47,7 @@ Now the following files will be available::
 RNA-seq reads should be aligned against the pooled transcriptome::
 
     bowtie -q -a --best --strata --sam -v 3 ${EMASE_DIR}/bowtie.transcriptome ${FASTQ} \
-        | samtools view -bS -F 4 - > ${BAM_FILE}
+        | samtools view -bS - > ${BAM_FILE}
 
 Before running EMASE, we need to convert the bam file into the emase format::
 

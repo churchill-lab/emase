@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+
+import sys
+import getopt
+from emase import AlignmentPropertyMatrix as APM
+
+
+help_message = '''
+Usage:
+    pull-out-unique-reads -i <h5_file> -g <grp_file> -o <out_file> [ --shallow --ignore-alleles ]
+
+Input:
+    -i <h5_file>  : Alignment profile (pseudo-alignment) in emase format
+    -g <grp_file> : Text file that lists all the locus groups. If <grp_file> is given, uniqueness is considered
+                    at group level (e.g., genes)
+    -o <out_file> : PyTables file that stores the final unique alignments
+
+Parameters:
+    -h, --help           : shows this help message
+        --shallow        : return shallow emase file
+        --ignore-alleles : do not require allele level uniqueness
+'''
+
+
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "hi:g:o:v", ["help", "shallow", "ignore-alleles", "verbose"])
+        except getopt.error, msg:
+            raise Usage(msg)
+
+        # Default values of vars
+        alnfile = None
+        grpfile = None
+        outfile = None
+        shallow = False
+        ignore_alleles = False
+        groupwise = False
+        verbose = False
+
+        # option processing (change this later with optparse)
+        for option, value in opts:
+            if option in ("-h", "--help"):
+                raise Usage(help_message)
+            if option == "-i":
+                alnfile = value
+            if option == "-g":
+                grpfile = value
+                groupwise = True
+            if option == "-o":
+                outfile = value
+            if option == "--shallow":
+                shallow = True
+            if option == "--ignore-alleles":
+                ignore_alleles = True
+            if option in ("-v", "--verbose"):
+                verbose = True
+
+        # Check if the required options are given
+        if alnfile is None:
+            print >> sys.stderr, "[Error] No alignment file is given."
+            return 2
+        if outfile is None:
+            print >> sys.stderr, "[Error] No output file name is given."
+            return 2
+        if verbose:
+            print "[Parameter] Input file: %s" % alnfile
+            print "[Parameter] Output file: %s" % outfile
+            if groupwise:
+                print "[Parameter] Group info: %s" % grpfile
+            print "[Parameter] --group-wise: %r" % groupwise
+            print "[Parameter] --ignore-alleles: %r" % ignore_alleles
+            print "[Parameter] --shallow: %r" % shallow
+
+        #
+        # Main body
+        #
+
+        alnmat = APM(h5file=alnfile, grpfile=grpfile)
+        if groupwise:
+            alnmat_g = alnmat.bundle(reset=True, shallow=shallow)
+            alnmat_g_uniq = alnmat_g.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+            num_alns_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(axis=APM.Axis.HAPLOTYPE)
+            alnmat_uniq = alnmat.pull_alignments_from((num_alns_per_read > 0), shallow=shallow)
+        else:
+            alnmat_uniq = alnmat.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+        alnmat_uniq.save(h5file=outfile, shallow=shallow)
+
+        #
+        # End of main body
+        #
+
+    except Usage, err:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

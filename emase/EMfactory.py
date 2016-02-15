@@ -1,10 +1,9 @@
 #!/usr/bin/env python
+
 import numpy as np
 import time
 from scipy.sparse import eye, lil_matrix
 from .AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
-
-__author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 class EMfactory:
@@ -30,25 +29,34 @@ class EMfactory:
             for i in xrange(self.probability.num_groups):
                 self.grp_conv_mat[self.probability.groups[i], i] = 1.0
             self.grp_conv_mat = self.grp_conv_mat.tocsc()
-        self.t2t_mat = eye(self.probability.num_loci, self.probability.num_loci)
-        self.t2t_mat = self.t2t_mat.tolil()
-        for tid_list in self.probability.groups:
-            for ii in xrange(len(tid_list)):
-                for jj in xrange(ii):
-                    i = tid_list[ii]
-                    j = tid_list[jj]
-                    self.t2t_mat[i, j] = 1
-                    self.t2t_mat[j, i] = 1
-        self.t2t_mat = self.t2t_mat.tocsc()
+            self.t2t_mat = eye(self.probability.num_loci, self.probability.num_loci)
+            self.t2t_mat = self.t2t_mat.tolil()
+            for tid_list in self.probability.groups:
+                for ii in xrange(len(tid_list)):
+                    for jj in xrange(ii):
+                        i = tid_list[ii]
+                        j = tid_list[jj]
+                        self.t2t_mat[i, j] = 1
+                        self.t2t_mat[j, i] = 1
+            self.t2t_mat = self.t2t_mat.tocsc()
         if lenfile is not None:
             hid = dict(zip(self.probability.hname, np.arange(len(self.probability.hname))))
             self.target_lengths = np.zeros((self.probability.num_loci, self.probability.num_haplotypes))
-            with open(lenfile) as fh:
-                for curline in fh:
-                    item = curline.rstrip().split("\t")
-                    locus, hap = item[0].split("_")
-                    self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]), 1.0)
-            self.target_lengths = self.target_lengths.transpose() / read_length  # lengths in terms of read counts
+            if self.probability.num_haplotypes > 1:
+                with open(lenfile) as fh:
+                    for curline in fh:
+                        item = curline.rstrip().split("\t")
+                        locus, hap = item[0].split("_")
+                        self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]) - read_length + 1.0, 1.0)
+            elif self.probability.num_haplotypes > 0:
+                with open(lenfile) as fh:
+                    for curline in fh:
+                        item = curline.rstrip().split("\t")
+                        self.target_lengths[self.probability.lid[item[0]], 0] = max(float(item[1]) - read_length + 1.0, 1.0)
+            else:
+                raise RuntimeError('There is something wrong with your emase-format alignment file.')
+            self.target_lengths = self.target_lengths.transpose()
+            #self.target_lengths = self.target_lengths.transpose() / read_length  # lengths in terms of read counts
             if not np.all(self.target_lengths > 0.0):
                 raise RuntimeError('There exist transcripts missing length information.')
         self.probability.normalize_reads(axis=APM.Axis.READ)  # Initialize alignment probability matrix
@@ -89,24 +97,24 @@ class EMfactory:
         """
         Updates the probability of read origin at read level
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.probability.reset()  # reset to alignment incidence matrix
         if model == 1:
-            self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
-            self.probability.normalize_reads(axis=APM.Axis.LOCUS)
-            self.probability.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
-            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
-            self.probability.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
-            self.probability.normalize_reads(axis=APM.Axis.READ)
-        elif model == 2:
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.HAPLOGROUP, grouping_mat=self.t2t_mat)
             haplogroup_sum_mat = self.allelic_expression * self.t2t_mat
             self.probability.multiply(haplogroup_sum_mat, axis=APM.Axis.READ)
             self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
             self.probability.multiply(haplogroup_sum_mat.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.probability.normalize_reads(axis=APM.Axis.READ)
+        elif model == 2:
+            self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
+            self.probability.normalize_reads(axis=APM.Axis.LOCUS)
+            self.probability.multiply(self.allelic_expression.sum(axis=0), axis=APM.Axis.HAPLOTYPE)
+            self.probability.normalize_reads(axis=APM.Axis.GROUP, grouping_mat=self.t2t_mat)
+            self.probability.multiply((self.allelic_expression * self.t2t_mat).sum(axis=0), axis=APM.Axis.HAPLOTYPE)
             self.probability.normalize_reads(axis=APM.Axis.READ)
         elif model == 3:
             self.probability.multiply(self.allelic_expression, axis=APM.Axis.READ)
@@ -123,7 +131,7 @@ class EMfactory:
         """
         A single EM step: Update probability at read level and then re-estimate allelic specific expression
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :return: Nothing (as it performs in-place operations)
         """
         self.update_probability_at_read_level(model)
@@ -135,7 +143,7 @@ class EMfactory:
         """
         Runs EM iterations
 
-        :param model: Normalization model (1: Gene->Isoform->Allele, 2: Gene->Allele->Isoform, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
+        :param model: Normalization model (1: Gene->Allele->Isoform, 2: Gene->Isoform->Allele, 3: Gene->Isoform*Allele, 4: Gene*Isoform*Allele)
         :param tol: Tolerance for termination
         :param max_iters: Maximum number of iterations until termination
         :param verbose: Display information on how EM is running

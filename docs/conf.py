@@ -15,14 +15,14 @@
 
 import sys
 import os
-from mock import MagicMock
+from mock import Mock as MagicMock
 
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
             return Mock()
 
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.sparse', 'pysam', 'tables']
+MOCK_MODULES = ['numexpr', 'numpy', 'scipy', 'scipy.sparse', 'pysam', 'tables']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another
@@ -66,7 +66,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EMASE'
-copyright = u'2015, Kwangbom "KB" Choi'
+copyright = u'2015, Kwangbom "KB" Choi, Ph. D., The Jackson Laboratory'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -122,6 +122,14 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'default'
+
+# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if not on_rtd:  # only import and set the theme if we're building docs locally
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -220,7 +228,7 @@ latex_elements = {
 latex_documents = [
     ('index', 'emase.tex',
      u'EMASE Documentation',
-     u'Kwangbom "KB" Choi', 'manual'),
+     u'Kwangbom "KB" Choi, Ph. D.', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -251,7 +259,7 @@ latex_documents = [
 man_pages = [
     ('index', 'emase',
      u'EMASE Documentation',
-     [u'Kwangbom "KB" Choi'], 1)
+     [u'Kwangbom "KB" Choi, Ph. D.'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -266,7 +274,7 @@ man_pages = [
 texinfo_documents = [
     ('index', 'emase',
      u'EMASE Documentation',
-     u'Kwangbom "KB" Choi',
+     u'Kwangbom "KB" Choi, Ph. D.',
      'emase',
      'One line description of project.',
      'Miscellaneous'),

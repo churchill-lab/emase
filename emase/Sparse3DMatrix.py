@@ -1,11 +1,10 @@
 #!/usr/bin/env python
+
 import copy
 import tables
 import numpy as np
 from scipy.sparse import lil_matrix, csc_matrix, csr_matrix, coo_matrix, hstack, vstack
 from numbers import Number
-
-__author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 class Sparse3DMatrix:

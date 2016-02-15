@@ -16,7 +16,7 @@ EMASE requires the list of transcript ID's and which gene each transcript belong
 
     ${REF_DIR}/emase.transcriptome.fa
     ${REF_DIR}/emase.transcriptome.info
-    ${REF_DIR}/emase.gene2transcript.tsv
+    ${REF_DIR}/emase.gene2transcripts.tsv
 
 **2. Build an individualized genome**
 
@@ -79,7 +79,7 @@ Although EMASE is a flexible framework for many other alignment strategies, the 
 intensely tested with bowtie1 transcriptome alignments with the following parameters::
 
     bowtie -q -a --best --strata --sam -v 3 ${SAMPLE_DIR}/bowtie.transcriptome ${FASTQ_FILE} \
-        | samtools view -bS -F 4 - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
+        | samtools view -bS - > ${SAMPLE_DIR}/bowtie.transcriptome.bam
 
 **6. Convert bam file into the emase format**
 
@@ -96,7 +96,7 @@ the EMASE format using the following script::
 Now we are ready to run EMASE::
 
     run-emase -i ${SAMPLE_DIR}/bowtie.transcriptome.h5 \
-              -g ${REF_DIR}/emase.gene2transcript.tsv \
+              -g ${REF_DIR}/emase.gene2transcripts.tsv \
               -L ${SAMPLE_DIR}/emase.pooled.transcriptome.info \
               -M ${MODEL} \
               -o ${SAMPLE_DIR}/emase \
@@ -145,7 +145,7 @@ This will store the following files in the folder 'S1xS2'::
 Now you can align your RNA-seq reads against the pooled bowtie index of target region::
 
     bowtie -q -a --best --strata --sam -v 3 S1xS2/bowtie.transcriptome ${FASTQ_FILE} \
-        | samtools view -bS -F 4 - > S1xS2/bowtie.transcriptome.bam
+        | samtools view -bS - > S1xS2/bowtie.transcriptome.bam
 
 Next, we convert the alignment file into a format that EMASE use for running EM algorithm::
 

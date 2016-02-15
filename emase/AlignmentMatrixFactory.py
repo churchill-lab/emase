@@ -1,12 +1,11 @@
 #!/usr/bin/env python
+
 import os
 import pysam
 import tables
 from scipy.sparse import coo_matrix
 import numpy as np
 import struct
-
-__author__ = 'Kwangbom "KB" Choi, Ph. D.'
 
 
 class AlignmentMatrixFactory():
@@ -20,13 +19,16 @@ class AlignmentMatrixFactory():
         # self.num_alignments = None
 
     def prepare(self, haplotypes, loci, delim='_', outdir=None):
-        self.hname = haplotypes
+        if len(haplotypes) > 0:  # Suffices given
+            self.hname = haplotypes
+        else:  # Suffix not given
+            self.hname = ['h0']
         self.lname = loci
         self.rname = set()
         fh = pysam.Samfile(self.alnfile, 'rb')
         for aln in fh.fetch(until_eof=True):
             self.rname.add(aln.qname)
-        self.rname = np.array(list(self.rname))
+        self.rname = np.array(sorted(list(self.rname)))
         num_loci = len(self.lname)
         num_reads = len(self.rname)
         lid = dict(zip(self.lname, np.arange(num_loci)))
@@ -36,14 +38,23 @@ class AlignmentMatrixFactory():
             outdir = os.path.dirname(self.alnfile)
         fhout = dict.fromkeys(self.hname)
         for hap in self.hname:
-            outfile = os.path.join(outdir, "%s.bin" % hap)
+            outfile = os.path.join(outdir, "%s_%d.bin" % (hap, os.getpid()))
             self.tmpfiles[hap] = outfile
             fhout[hap] = open(outfile, "wb")
         fh = pysam.Samfile(self.alnfile, 'rb')
-        for aln in fh.fetch(until_eof=True): # TODO: What if we have some data at this aligned indexes?
-            locus, hap = fh.getrname(aln.tid).split("_")
-            fhout[hap].write(struct.pack('>I', rid[aln.qname]))
-            fhout[hap].write(struct.pack('>I', lid[locus]))
+        if len(haplotypes) > 0:  # Suffices given
+            for aln in fh.fetch(until_eof=True):
+                if aln.flag != 4 and aln.flag != 8:
+                    locus, hap = fh.getrname(aln.tid).split(delim)
+                    fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                    fhout[hap].write(struct.pack('>I', lid[locus]))
+        else:  # Suffix not given
+            hap = self.hname[0]
+            for aln in fh.fetch(until_eof=True):
+                if aln.flag != 4 and aln.flag != 8:
+                    locus = fh.getrname(aln.tid)
+                    fhout[hap].write(struct.pack('>I', rid[aln.qname]))
+                    fhout[hap].write(struct.pack('>I', lid[locus]))
         for hap in self.hname:
             fhout[hap].close()
 

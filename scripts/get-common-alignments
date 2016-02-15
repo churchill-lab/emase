@@ -2,12 +2,13 @@
 
 import sys
 import getopt
+import numpy as np
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
 help_message = '''
 Usage:
-    combine-emase-files -i <h5_file_list> -o <out_file>
+    get-common-alignments -i <h5_file_list> -o <out_file>
 
 Input:
     -i <h5_file_list> : comma(,) separated list of emase format (PyTables) files
@@ -31,7 +32,7 @@ def main(argv=None):
 
         # Default values of vars
         flist = None
-        outfile = 'alignments.combined.h5'
+        outfile = 'alignments.common.h5'
         complib = 'zlib'
 
         # option processing (change this later with optparse)
@@ -53,14 +54,16 @@ def main(argv=None):
         # Main body
         #
 
-        aln_list = list()
-        for f in flist:
-            # TODO: Check if the loci and haplotypes are in the equivalent orders
-            aln_list.append(APM(h5file=f))
-        combined_aln = aln_list[0].copy()
-        for aln in aln_list[1:]:
-            combined_aln = combined_aln.combine(aln)
-        combined_aln.save(h5file=outfile, complib=complib)
+        alnmat = APM(h5file=flist[0])
+        for f in flist[1:]:
+            alnmat_next = APM(h5file=f)
+            if np.all(alnmat.rname == alnmat_next.rname):
+                alnmat = alnmat * alnmat_next
+            else:
+                print >> sys.stderr, "[FATAL ERROR] The read ID's are not compatible."
+                return 2
+
+        alnmat.save(h5file=outfile, complib=complib)
 
         #
         # End of main body

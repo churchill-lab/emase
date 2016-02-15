@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os
 import sys
 import getopt
@@ -11,26 +12,24 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_dna
 from itertools import dropwhile
 
-__author__ = 'Kwangbom "KB" Choi, Ph. D.'
-
 
 help_message = '''
-    Usage:
-        prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
+Usage:
+    prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
 
-    Input:
-        <genome_files> : List of Genome files (comma delimited)
-        <gtf_files>    : List of gene annotation files (comma delimited, in the order of genomes)
-        <hap_list>     : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
-        <out_dir>      : Output folder to store results (default: the current working directory)
+Input:
+    -G <genome_files> : List of Genome files (comma delimited)
+    -g <gtf_files>    : List of gene annotation files (comma delimited, in the order of genomes)
+    -s <hap_list>     : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
+    -o <out_dir>      : Output folder to store results (default: the current working directory)
 
-    Parameters:
-        -h, --help: shows this help message
-        -m, --save-g2tmap: saves gene id to transcript id list in a tab-delimited text file
-        -x, --no-bowtie-index: skips building bowtie index
+Parameters:
+    -h, --help            : shows this help message
+    -m, --save-g2tmap     : saves gene id to transcript id list in a tab-delimited text file
+    -x, --no-bowtie-index : skips building bowtie index
 
-    Note:
-        Does not work if the input gtf file is older than Ensembl Release 75.
+Note:
+    Does not work if the input gtf file is older than Ensembl Release 75.
 '''
 
 
@@ -210,11 +209,11 @@ def main(argv=None):
         #
         # Get pooled transcriptome
         if num_haps > 1:
-            transcriptomefile = os.path.join(outdir, 'emase.pooled.transcriptome.fa')
-            lenfile = os.path.join(outdir, 'emase.pooled.transcriptome.info')
+            transcriptomefile = os.path.join(outdir, 'emase.pooled.transcripts.fa')
+            lenfile = os.path.join(outdir, 'emase.pooled.transcripts.info')
         else:
-            transcriptomefile = os.path.join(outdir, 'emase.transcriptome.fa')
-            lenfile = os.path.join(outdir, 'emase.transcriptome.info')
+            transcriptomefile = os.path.join(outdir, 'emase.transcripts.fa')
+            lenfile = os.path.join(outdir, 'emase.transcripts.info')
         seqout = open(transcriptomefile, 'w')
         lenout = open(lenfile, 'w')
         for hid in xrange(num_haps):
@@ -249,7 +248,7 @@ def main(argv=None):
         lenout.close()
 
         if save_g2tmap:
-            with open(os.path.join(outdir, 'emase.gene2transcript.tsv'), 'w') as fhout:
+            with open(os.path.join(outdir, 'emase.gene2transcripts.tsv'), 'w') as fhout:
                 print >> sys.stderr, "Recording mapping of gene id to transcript id's..."
                 glist = gdb.keys()
                 glist.sort()
@@ -262,7 +261,7 @@ def main(argv=None):
         #
         # Build bowtie index for the pooled transcriptome
         if build_bowtie_index:
-            out_index = os.path.join(os.path.dirname(transcriptomefile), 'bowtie.transcriptome')
+            out_index = os.path.join(os.path.dirname(transcriptomefile), 'bowtie.transcripts')
             print >> sys.stderr, "Building bowtie index..."
             status = subprocess.call("bowtie-build %s %s" % (transcriptomefile, out_index), shell=True)
 
