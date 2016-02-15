@@ -5,8 +5,12 @@ Overview
 .. image:: https://badge.fury.io/py/emase.png
     :target: http://badge.fury.io/py/emase
 
-.. image:: https://pypip.in/d/emase/badge.png
-        :target: https://pypi.python.org/pypi/emase
+.. image:: https://travis-ci.org/churchill-lab/emase.png?branch=master
+    :target: https://travis-ci.org/churchill-lab/emase
+
+.. image:: https://readthedocs.org/projects/emase/badge/?version=latest
+    :target: http://emase.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
 
 
 EMASE: Expectation-Maximization algorithm for Allele Specific Expression 
@@ -40,7 +44,7 @@ variants across in human and model organisms. However development of tools that
 can effectively utilize this individual/strain-specific variation to inform
 quantitation of gene expression abundance have lagged behind.
 
-EMASE, together with Seqnature (https://github.com/jaxcs/Seqnature), offers an integrated 
+EMASE, together with g2gtools (https://github.com/churchill-lab/g2gtools), offers an integrated
 solution to utilize known genetic variations in quantifying expression abundances at allele 
 and gene/isoform level.
 
