@@ -15,10 +15,10 @@ Input:
     -g <grp_file>        : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
     -L <len_file>        : File that contains transcript lengths
     -M <multiread_model> : Multiread model ID
-                           1: Gene->Isoform->Allele,
-                           2: Gene->Allele->Isoform,
-                           3: Gene->(Isoform*Allele), (default model)
-                           4: Gene*Isoform*Allele
+                           1: Gene->Allele->Isoform,
+                           2: Gene->Isoform->Allele,
+                           3: Gene->(Isoform*Allele),
+                           4: Gene*Isoform*Allele  (default model)
     -o <outbase>         : EMASE outputs the result to <folder/basename> (default: './emase')
     -p <pseudocount>     : Pseudocount for allele specificity (default: 0.0)
     -r <read_length>     : Read length (default: 100)
@@ -49,7 +49,7 @@ def main(argv=None):
         h5file = None
         grpfile = None
         lenfile = None
-        multiread_model = 3
+        multiread_model = 4
         outbase = './emase'
         read_length = 100
         pseudocount = 0.0
