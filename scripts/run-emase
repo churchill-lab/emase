@@ -99,12 +99,12 @@ def main(argv=None):
         em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
-        em_factory.report_effective_read_counts(filename="%s.isoforms.effective_read_counts" % outbase)
+        em_factory.report_read_counts(filename="%s.isoforms.expected_read_counts" % outbase)
         if report_posterior:
             em_factory.export_posterior_probability(filename="%s.posterior.h5" % outbase)
         if report_gene_counts:
             em_factory.report_depths(filename="%s.genes.tpm" % outbase, tpm=True, grp_wise=True)
-            em_factory.report_effective_read_counts(filename="%s.genes.effective_read_counts" % outbase, grp_wise=True)
+            em_factory.report_read_counts(filename="%s.genes.expected_read_counts" % outbase, grp_wise=True)
         if report_alignment_counts:
             alnmat = APM(h5file=h5file, grpfile=grpfile)
             alnmat.report_alignment_counts(filename="%s.isoforms.alignment_counts" % outbase)
