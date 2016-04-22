@@ -26,7 +26,7 @@ We need to first process reference genome::
 
     ${REF_DIR}/emase.transcriptome.fa
     ${REF_DIR}/emase.transcriptome.info         <== Used as ${TID_FILE} in the following steps
-    ${REF_DIR}/emase.gene2transcripts.tsv        <== Used as ${GROUP_FILE} in the following steps
+    ${REF_DIR}/emase.gene2transcripts.tsv       <== Used as ${GROUP_FILE} in the following steps
 
 Then build a pooled transcriptome and prepare required files for EMASE::
 
