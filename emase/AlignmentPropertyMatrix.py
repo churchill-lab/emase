@@ -376,7 +376,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         if not shallow:
             h5fh.set_node_attr(h5fh.root, 'hname', self.hname)
             h5fh.create_carray(h5fh.root, 'lname', obj=self.lname, title='Locus Names', filters=fil)
-            h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
+            if self.rname is not None:
+                h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
         h5fh.flush()
         h5fh.close()
 

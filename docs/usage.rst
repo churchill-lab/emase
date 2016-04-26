@@ -53,6 +53,10 @@ Before running EMASE, we need to convert the bam file into the emase format::
 
     bam-to-emase -a ${BAM_FILE} -i ${TID_FILE} -s ${SUFFICE1},${SUFFIX2} -o ${EMASE_FILE}
 
+For paired-end data, perform upto this step with R1 and R2 end independently, and get their common alignments::
+
+    get-common-alignments -i ${EMASE_FILE_R1},${EMASE_FILE_R2} -o ${EMASE_FILE}
+
 Finally, to run EMASE::
 
     run-emase -i ${EMASE_FILE} -g ${GROUP_FILE} -L ${TINFO_FILE} -M ${MODEL} -o ${OUTBASE} \
@@ -60,7 +64,7 @@ Finally, to run EMASE::
 
 'run-emase' outputs the following files::
 
-    ${OUTBASE}.isoforms.effective_read_counts
+    ${OUTBASE}.isoforms.expected_read_counts
     ${OUTBASE}.isoforms.tpm
-    ${OUTBASE}.genes.effective_read_counts
+    ${OUTBASE}.genes.expected_read_counts
     ${OUTBASE}.genes.tpm
