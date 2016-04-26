@@ -3,9 +3,9 @@
 History
 -------
 
-0.10.13 (04-25-2016)
+0.10.14 (04-25-2016)
 ~~~~~~~~~~~~~~~~~~~~
-* Added option to not having rname when saving ``AlignmentPropertyMatrix``
+* Added option to not having rname when loading/saving ``AlignmentPropertyMatrix``
 * Documentation updated to reflect recent changes (e.g., processing paired-end data etc.)
 
 0.10.12 (04-22-2016)
