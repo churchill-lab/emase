@@ -3,6 +3,11 @@
 History
 -------
 
+0.10.15 (05-04-2016)
+~~~~~~~~~~~~~~~~~~~~
+* Uploaded to Anaconda.org
+* Updated documentation
+
 0.10.14 (04-25-2016)
 ~~~~~~~~~~~~~~~~~~~~
 * Added option to not having rname when loading/saving ``AlignmentPropertyMatrix``

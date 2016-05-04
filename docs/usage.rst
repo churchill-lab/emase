@@ -18,7 +18,11 @@ Or::
 To run EMASE on command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We need to first process reference genome::
+**Note:** We will assume you installed EMASE in its own conda virtual environment. First of all, you have to "activate" the virtual environment by doing the following::
+
+    source activate emase
+
+The first step of the pipeline is to process reference genome::
 
     prepare-emase -G ${REF_GENOME} -g ${REF_GTF} -o ${REF_DIR} -m --no-bowtie-index
 
@@ -30,7 +34,7 @@ We need to first process reference genome::
 
 Then build a pooled transcriptome and prepare required files for EMASE::
 
-    prepare-emase -G ${GENOME1},${GENOME2} -g ${GTF1},${GTF2} \
+    create-hybrid -G ${GENOME1},${GENOME2} -g ${GTF1},${GTF2} \
                   -s ${SUFFIX1},${SUFFIX2} -o ${EMASE_DIR}
 
 Now the following files will be available::
