@@ -47,9 +47,10 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             if not shallow:
                 self.hname = h5fh.get_node_attr(datanode, 'hname')
                 self.lname = h5fh.get_node(metanode, 'lname').read()
-                self.rname = h5fh.get_node(metanode, 'rname').read()
                 self.lid = dict(zip(self.lname, np.arange(self.num_loci)))
-                self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
+                if h5fh.__contains__('%s' % (metanode + '/rname')):
+                    self.rname = h5fh.get_node(metanode, 'rname').read()
+                    self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
             h5fh.close()
 
         elif shape is not None:  # Use for initializing an empty matrix
@@ -376,7 +377,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         if not shallow:
             h5fh.set_node_attr(h5fh.root, 'hname', self.hname)
             h5fh.create_carray(h5fh.root, 'lname', obj=self.lname, title='Locus Names', filters=fil)
-            h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
+            if self.rname is not None:
+                h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
         h5fh.flush()
         h5fh.close()
 

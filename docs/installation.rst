@@ -2,13 +2,11 @@
 Installation
 ============
 
-We recommend using conda environment::
+To avoid version confliction among dependencies, we highly recommend using conda virtual environment::
 
-    $ git clone https://github.com/churchill-lab/emase.git
-    $ conda create -n emase scipy=0.13.3 hdf5 cython pytables biopython
+    $ conda create -n emase jupyter
     $ source activate emase
-    (emase) $ conda install -c https://conda.binstar.org/bcbio pysam
-    (emase) $ python setup.py install
+    (emase) $ conda install -c kbchoi emase
 
 Or if you have virtualenvwrapper installed::
 
