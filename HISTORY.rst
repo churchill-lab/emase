@@ -3,6 +3,12 @@
 History
 -------
 
+0.10.16 (05-10-2016)
+~~~~~~~~~~~~~~~~~~~~
+* Modified ``prepare-emase`` so it can process the newest Ensembl gene annotation (Release 84)
+* The script ``prepare-emase`` can process gzipped files
+* Updated documentation
+
 0.10.15 (05-04-2016)
 ~~~~~~~~~~~~~~~~~~~~
 * Uploaded to Anaconda.org
