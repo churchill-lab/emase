@@ -153,7 +153,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "save-g2tmap", "no-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "save-g2tmap", "save-dbs", "no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -164,6 +164,7 @@ def main(argv=None):
         num_haps = 0
         outdir = '.'
         save_g2tmap = False
+        save_dbs = False
         build_bowtie_index = True
 
         # option processing (change this later with optparse)
@@ -179,6 +180,8 @@ def main(argv=None):
                 haplist = value.split(',')
             if option in ("-m", "--save-g2tmap"):
                 save_g2tmap = True
+            if option in ("--save-dbs"):
+                save_dbs = True
             if option in ("-x", "--no-bowtie-index"):
                 build_bowtie_index = False
             if option == "-o":
@@ -238,6 +241,10 @@ def main(argv=None):
             annofh.close()
             if num_haps == 1:
                 print >> sys.stderr, "Building %s transcriptome (Note: No suffix added to ID's)..." % genomename
+                if save_dbs:
+                    import cPickle
+                    cPickle.dump(gdb, open(os.path.join(outdir, 'emase.gdb.pkl'), 'wb'))
+                    cPickle.dump(tdb, open(os.path.join(outdir, 'emase.tdb.pkl'), 'wb'))
             elif num_haps > 1:
                 print >> sys.stderr, "Building %s transcriptome using suffix \'_%s\'..." % (genomename, hapname)
             tlist = tdb.keys()
