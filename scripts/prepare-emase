@@ -43,100 +43,99 @@ def is_comment(s):
     return s.startswith('#')
 
 
-def parse_gtf(gtffile):
-    gdb = {}
-    tdb = {}
-    with open(gtffile) as fh:
-        for curline in dropwhile(is_comment, fh):
-            item = curline.rstrip().split("\t")
-            attribute = defaultdict(list)
-            for e in item[8].split("; "):
-                e1, e2 = e.replace(';', '').split('"')[:2]
-                attribute[e1.strip()].append(e2.strip())
-            attribute = dict(attribute)
-            feature = item[2]
-            s = int(item[3])
-            e = int(item[4])
-            #chro = item[0].replace('chr', '')
-            chro = item[0]  # Leave the chromosome names as is in gtf file
-            strand = item[6]
-            if feature == 'gene':  # Seqnature currently has some issue processing this entry
-                gid = attribute.pop('gene_id')[0]
-                if gdb.has_key(gid):
-                    print "[Error] Duplicate entry: %s" % gid
-                else:
-                    gdb[gid] = {'chr':chro,
-                                'strand':strand,
-                                'start':s,
-                                'end':e,
-                                'isoform':set()}
-                    for k, v in attribute.iteritems():
-                        if len(v) == 1:
-                            v = v.pop()
-                        gdb[gid][k] = v
-            elif feature == 'transcript':
-                gid = attribute['gene_id'][0]
-                tid = attribute.pop('transcript_id')[0]
-                if tdb.has_key(tid):
-                    print "[Error] Duplicate entry: %s" % tid
-                else:
-                    tdb[tid] = {'chr':chro,
-                                'strand':strand,
-                                'start':s,
-                                'end':e,
-                                'eid':[],
-                                'exon':[],
-                                'exon_number':[],  # Do we need this?
-                                'UTR':[],
-                                'five_prime_utr':[],
-                                'three_prime_utr':[],
-                                'Selenocysteine':[],
-                                'start_codon':[],
-                                'stop_codon':[],
-                                'start_codon_frame':[],
-                                'stop_codon_frame':[]}
-                    for k, v in attribute.iteritems():
-                        if len(v) == 1:
-                            v = v.pop()
-                        tdb[tid][k] = v
-                    gid = tdb[tid]['gene_id']
-                    if gdb.has_key(gid):
-                        gdb[gid]['isoform'].add(tid)
-                    else:  # This is a non-standard case where the input gtf does not have detailed gene-level annotation
-                        gdb[gid] = dict()
-                        gdb[gid]['chr'] = chro
-                        gdb[gid]['isoform'] = set(tid)
+def parse_gtf(gtf_fh):
+    gdb = dict()
+    tdb = dict()
+    for curline in dropwhile(is_comment, gtf_fh):
+        item = curline.rstrip().split("\t")
+        attribute = defaultdict(list)
+        for e in item[8].split("; "):
+            e1, e2 = e.replace(';', '').split('"')[:2]
+            attribute[e1.strip()].append(e2.strip())
+        attribute = dict(attribute)
+        feature = item[2]
+        s = int(item[3])
+        e = int(item[4])
+        #chro = item[0].replace('chr', '')
+        chro = item[0]  # Leave the chromosome names as is in gtf file
+        strand = item[6]
+        if feature == 'gene':  # Seqnature currently has some issue processing this entry
+            gid = attribute.pop('gene_id')[0]
+            if gdb.has_key(gid):
+                print "[Error] Duplicate entry: %s" % gid
             else:
-                gid = attribute['gene_id'][0]
-                tid = attribute['transcript_id'][0]
-                if feature == 'exon':
-                    if tdb.has_key(tid):
-                        try:
-                            enu = int(attribute.pop('exon_number')[0])
-                            tdb[tid]['exon_number'].append(enu)
-                        except:
-                            pass
-                        try:
-                            eid = attribute.pop('exon_id')[0]
-                            tdb[tid]['eid'].append(eid)
-                        except:
-                            pass
-                        tdb[tid]['exon'].append((s, e))
-                    else:  # This is a non-standard case where input gtf does not have detailed transcript-level annotation
-                        tdb[tid] = dict()
-                        tdb[tid]['chr'] = chro
-                        tdb[tid]['strand'] = strand
-                        tdb[tid]['exon'] = [(s, e)]
-                elif feature in ('UTR', 'five_prime_utr', 'three_prime_utr',  'Selenocysteine'):
-                    tdb[tid][feature].append((s, e))
-                elif feature in ('start_codon', 'stop_codon'):
-                    tdb[tid][feature].append((s, e))
-                    tdb[tid][feature + '_frame'].append(int(item[7]))
-                elif feature == 'CDS':
-                    pass
-                else:
-                    print >> sys.stderr, "[Unknown feature: %s]/n%s" % (feature, curline)
-    return (gdb, tdb)
+                gdb[gid] = {'chr':chro,
+                            'strand':strand,
+                            'start':s,
+                            'end':e,
+                            'isoform':set()}
+                for k, v in attribute.iteritems():
+                    if len(v) == 1:
+                        v = v.pop()
+                    gdb[gid][k] = v
+        elif feature == 'transcript':
+            gid = attribute['gene_id'][0]
+            tid = attribute.pop('transcript_id')[0]
+            if tdb.has_key(tid):
+                print "[Error] Duplicate entry: %s" % tid
+            else:
+                tdb[tid] = {'chr':chro,
+                            'strand':strand,
+                            'start':s,
+                            'end':e,
+                            'eid':[],
+                            'exon':[],
+                            'exon_number':[],  # Do we need this?
+                            'UTR':[],
+                            'five_prime_utr':[],
+                            'three_prime_utr':[],
+                            'Selenocysteine':[],
+                            'start_codon':[],
+                            'stop_codon':[],
+                            'start_codon_frame':[],
+                            'stop_codon_frame':[]}
+                for k, v in attribute.iteritems():
+                    if len(v) == 1:
+                        v = v.pop()
+                    tdb[tid][k] = v
+                gid = tdb[tid]['gene_id']
+                if gdb.has_key(gid):
+                    gdb[gid]['isoform'].add(tid)
+                else:  # This is a non-standard case where the input gtf does not have detailed gene-level annotation
+                    gdb[gid] = dict()
+                    gdb[gid]['chr'] = chro
+                    gdb[gid]['isoform'] = set(tid)
+        else:
+            gid = attribute['gene_id'][0]
+            tid = attribute['transcript_id'][0]
+            if feature == 'exon':
+                if tdb.has_key(tid):
+                    try:
+                        enu = int(attribute.pop('exon_number')[0])
+                        tdb[tid]['exon_number'].append(enu)
+                    except:
+                        pass
+                    try:
+                        eid = attribute.pop('exon_id')[0]
+                        tdb[tid]['eid'].append(eid)
+                    except:
+                        pass
+                    tdb[tid]['exon'].append((s, e))
+                else:  # This is a non-standard case where input gtf does not have detailed transcript-level annotation
+                    tdb[tid] = dict()
+                    tdb[tid]['chr'] = chro
+                    tdb[tid]['strand'] = strand
+                    tdb[tid]['exon'] = [(s, e)]
+            elif feature in ('UTR', 'five_prime_utr', 'three_prime_utr',  'Selenocysteine'):
+                tdb[tid][feature].append((s, e))
+            elif feature in ('start_codon', 'stop_codon'):
+                tdb[tid][feature].append((s, e))
+                tdb[tid][feature + '_frame'].append(int(item[7]))
+            elif feature == 'CDS':
+                pass
+            else:
+                print >> sys.stderr, "[Unknown feature: %s]/n%s" % (feature, curline)
+    return gdb, tdb
 
 
 #
@@ -224,9 +223,19 @@ def main(argv=None):
             hapname = haplist[hid]
             gtffile = gtflist[hid]
             print >> sys.stderr, "Loading %s genome..." % genomename
-            genome = SeqIO.to_dict(SeqIO.parse(open(genomefile), "fasta"))
+            if os.path.splitext(genomefile)[0] == '.gz':
+                genomefh = gzip.open(genomefile, 'rb')
+            else:
+                genomefh = open(genomefile)
+            genome = SeqIO.to_dict(SeqIO.parse(genomefh, "fasta"))
+            genomefh.close()
+            if os.path.splitext(gtffile)[0] == '.gz':
+                annofh = gzip.open(gtffile, 'rb')
+            else:
+                annofh = open(gtffile)
             print >> sys.stderr, "Parsing %s..." % os.path.basename(gtffile)
-            gdb, tdb = parse_gtf(gtffile)
+            gdb, tdb = parse_gtf(annofh)
+            annofh.close()
             if num_haps == 1:
                 print >> sys.stderr, "Building %s transcriptome (Note: No suffix added to ID's)..." % genomename
             elif num_haps > 1:
