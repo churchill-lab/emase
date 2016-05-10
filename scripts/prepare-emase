@@ -88,6 +88,8 @@ def parse_gtf(gtffile):
                                 'exon':[],
                                 'exon_number':[],  # Do we need this?
                                 'UTR':[],
+                                'five_prime_utr':[],
+                                'three_prime_utr':[],
                                 'Selenocysteine':[],
                                 'start_codon':[],
                                 'stop_codon':[],
