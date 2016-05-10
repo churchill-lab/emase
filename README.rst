@@ -5,6 +5,9 @@ Overview
 .. image:: https://badge.fury.io/py/emase.png
     :target: http://badge.fury.io/py/emase
 
+.. image:: https://anaconda.org/kbchoi/emase/badges/version.svg
+    :target: https://anaconda.org/kbchoi/emase
+
 .. image:: https://travis-ci.org/churchill-lab/emase.png?branch=master
     :target: https://travis-ci.org/churchill-lab/emase
 
