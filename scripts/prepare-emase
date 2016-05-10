@@ -226,13 +226,13 @@ def main(argv=None):
             hapname = haplist[hid]
             gtffile = gtflist[hid]
             print >> sys.stderr, "Loading %s genome..." % genomename
-            if os.path.splitext(genomefile)[0] == '.gz':
+            if os.path.splitext(genomefile)[1] == '.gz':
                 genomefh = gzip.open(genomefile, 'rb')
             else:
                 genomefh = open(genomefile)
             genome = SeqIO.to_dict(SeqIO.parse(genomefh, "fasta"))
             genomefh.close()
-            if os.path.splitext(gtffile)[0] == '.gz':
+            if os.path.splitext(gtffile)[1] == '.gz':
                 annofh = gzip.open(gtffile, 'rb')
             else:
                 annofh = open(gtffile)
