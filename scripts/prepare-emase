@@ -51,8 +51,8 @@ def parse_gtf(gtffile):
             item = curline.rstrip().split("\t")
             attribute = defaultdict(list)
             for e in item[8].split("; "):
-                e1, e2 = e.replace('"', '').replace(';', '').split()
-                attribute[e1].append(e2)
+                e1, e2 = e.replace(';', '').split('"')[:2]
+                attribute[e1.strip()].append(e2.strip())
             attribute = dict(attribute)
             feature = item[2]
             s = int(item[3])
@@ -60,7 +60,7 @@ def parse_gtf(gtffile):
             #chro = item[0].replace('chr', '')
             chro = item[0]  # Leave the chromosome names as is in gtf file
             strand = item[6]
-            if feature == 'gene': # Seqnature currently has some issue processing this entry
+            if feature == 'gene':  # Seqnature currently has some issue processing this entry
                 gid = attribute.pop('gene_id')[0]
                 if gdb.has_key(gid):
                     print "[Error] Duplicate entry: %s" % gid
@@ -134,7 +134,6 @@ def parse_gtf(gtffile):
                     pass
                 else:
                     print >> sys.stderr, "[Unknown feature: %s]/n%s" % (feature, curline)
-
     return (gdb, tdb)
 
 

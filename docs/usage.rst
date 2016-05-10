@@ -72,3 +72,4 @@ Finally, to run EMASE::
     ${OUTBASE}.isoforms.tpm
     ${OUTBASE}.genes.expected_read_counts
     ${OUTBASE}.genes.tpm
+
