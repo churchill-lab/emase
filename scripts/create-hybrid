@@ -18,9 +18,10 @@ Usage:
     create-hybrid -F <fasta_files> [ -s <hap_list> -o <out_file> --create-bowtie-index ]
 
 Input:
-    -F <fasta_files> : List of fasta files (comma delimited)
-    -s <hap_list>    : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
-    -o <out_file>    : Output file name (default: './emase.pooled.targets.fa')
+    -F <fasta_files>    : List of fasta files (comma delimited)
+    -s <hap_list>       : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
+    -o <out_file>       : Output file name (default: './emase.pooled.targets.fa')
+    --delim <delimiter> : Delimiter string for new target sequence IDs (default: '_')
 
 Parameters:
     --help, -h            : shows this help message
@@ -38,7 +39,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hF:s:o:", ["help", "create-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hF:s:o:", ["help", "delim", "create-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -47,6 +48,7 @@ def main(argv=None):
         haplist = None
         num_haps = 0
         outfile = './emase.pooled.targets.fa'
+        delim = '_'
         build_bowtie_index = False
 
         # option processing (change this later with optparse)
@@ -58,6 +60,8 @@ def main(argv=None):
                 num_haps = len(fastalist)
             if option == "-s":
                 haplist = value.split(',')
+            if option == "--delim":
+                delim = value
             if option == "--create-bowtie-index":
                 build_bowtie_index = True
             if option == "-o":
@@ -90,18 +94,17 @@ def main(argv=None):
         lenout = open(lenfile, 'w')
         for hid in xrange(num_haps):
             fasta = fastalist[hid]
-            #fastaname = os.path.splitext(os.path.basename(fasta))[0]
             hapname = haplist[hid]
-            print >> sys.stderr, "Adding suffix \'_%s\' to the sequence ID's of %s..." % (hapname, fasta)
+            print >> sys.stderr, "Adding suffix \'%s%s\' to the sequence ID's of %s..." % (delim, hapname, fasta)
             fh = open(fasta)
             curline = fh.next()  # The first fasta header
-            curline = curline.rstrip().split()[0] + '_' + hapname
+            curline = curline.rstrip().split()[0] + delim + hapname
             seqout.write('%s\n' % curline)
             lenout.write('%s\t' % curline[1:])
             seqlen = 0
             for curline in fh:
                 if curline[0] == '>':
-                    curline = curline.rstrip().split()[0] + '_' + hapname + "\n"
+                    curline = curline.rstrip().split()[0] + delim + hapname + "\n"
                     lenout.write('%d\n%s\t' % (seqlen, curline[1:].rstrip()))
                     seqlen = 0
                 else:

@@ -19,10 +19,11 @@ Usage:
     prepare-emase -G <genome_files> [ -g <gtf_files> -s <hap_list> -o <out_dir> -m -x ]
 
 Input:
-    -G <genome_files> : List of Genome files (comma delimited)
-    -g <gtf_files>    : List of gene annotation files (comma delimited, in the order of genomes)
-    -s <hap_list>     : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
-    -o <out_dir>      : Output folder to store results (default: the current working directory)
+    -G <genome_files>   : List of Genome files (comma delimited)
+    -g <gtf_files>      : List of gene annotation files (comma delimited, in the order of genomes)
+    -s <hap_list>       : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
+    -o <out_dir>        : Output folder to store results (default: the current working directory)
+    --delim <delimiter> : A delimiter string for new locus IDs (default: '_')
 
 Parameters:
     -h, --help            : shows this help message
@@ -56,7 +57,7 @@ def parse_gtf(gtf_fh):
         feature = item[2]
         s = int(item[3])
         e = int(item[4])
-        #chro = item[0].replace('chr', '')
+        # chro = item[0].replace('chr', '')
         chro = item[0]  # Leave the chromosome names as is in gtf file
         strand = item[6]
         if feature == 'gene':  # Seqnature currently has some issue processing this entry
@@ -153,7 +154,8 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:", ["help", "save-g2tmap", "save-dbs", "no-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hG:g:s:mxo:",
+                                       ["help", "delim", "save-g2tmap", "save-dbs", "no-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -163,6 +165,7 @@ def main(argv=None):
         haplist = None
         num_haps = 0
         outdir = '.'
+        delim = '_'
         save_g2tmap = False
         save_dbs = False
         build_bowtie_index = True
@@ -178,6 +181,8 @@ def main(argv=None):
                 gtflist = value.split(',')
             if option == "-s":
                 haplist = value.split(',')
+            if option in ("--delim"):
+                delim = value
             if option in ("-m", "--save-g2tmap"):
                 save_g2tmap = True
             if option in ("--save-dbs"):
@@ -246,14 +251,15 @@ def main(argv=None):
                     cPickle.dump(gdb, open(os.path.join(outdir, 'emase.gdb.pkl'), 'wb'))
                     cPickle.dump(tdb, open(os.path.join(outdir, 'emase.tdb.pkl'), 'wb'))
             elif num_haps > 1:
-                print >> sys.stderr, "Building %s transcriptome using suffix \'_%s\'..." % (genomename, hapname)
+                print >> sys.stderr, "Building %s transcriptome using suffix \'%s%s\'..." % (genomename, delim, hapname)
             tlist = tdb.keys()
             tlist.sort()
             for tid in tlist:
                 tinfo = tdb[tid]
-                if genome.has_key(tinfo['chr']):  # Filter out transcripts from chromosome that the input genome does not contain
-                    if num_haps > 1: # No need to add suffix if we deal with a single genome
-                        tid = tid + "_%s" % hapname
+                if genome.has_key(tinfo['chr']):
+                    if num_haps > 1:  # No need to add suffix if we deal with a single genome
+                        tid = '%s%s%s' % (tid, delim, hapname)
+                        # tid = tid + "_%s" % hapname
                     fragment = Seq("", generic_dna)
                     for exon in tinfo['exon']:
                         fragment += get_fragment(exon[0], exon[1], tinfo['chr'], tinfo['strand'], genome)

@@ -3,6 +3,11 @@
 History
 -------
 
+0.10.17 (06-09-2016)
+~~~~~~~~~~~~~~~~~~~~
+* Modified ``prepare-emase`` so it can use other delimiter than '_' to separate target sequence ID and haplotype name
+* Ported to Python3
+
 0.10.16 (05-10-2016)
 ~~~~~~~~~~~~~~~~~~~~
 * Modified ``prepare-emase`` so it can process the newest Ensembl gene annotation (Release 84)

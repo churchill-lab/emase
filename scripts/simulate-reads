@@ -13,7 +13,7 @@ help_message = '''
 Usage:
     simulate-reads -R <reference_dir> -H <hybrid_dir> -p <param_file> \\
                    -m <simulation_model> -N <total_count> -X <num_sims> -o <out_base> \\
-                 [ -r <read_len> -e <err_rate> -L ]
+                 [ -r <read_len> -e <err_rate> -L --delim <delimiter> ]
 
 Input:
     -R, --ref-dir <reference_dir>     : Directory where EMASE reference data resides
@@ -25,6 +25,7 @@ Input:
     -r <read_len>                     : The length of the simulated reads (default: 100)
     -e, --error-rate <error_rate>     : Mutation rate given by Poisson model (default: 0.1)
     -o, --outfile-basename <out_base> : The base name for output files (default: './emase.simulated')
+    --delim <delimiter_string>        : Delimiter that separates target sequence ID and haplotype name (default: '_')
 
 Parameters:
     -h, --help                        : shows this help message
@@ -131,6 +132,7 @@ def main(argv=None):
         # Default values of vars
         ref_dir = os.getenv('EMASE_TARGET_BASE', '.')
         hyb_dir = '.'
+        delim = '_'
         outbase = './emase.simulated'
         model = 1
         total_simreads = 10000000
@@ -161,6 +163,8 @@ def main(argv=None):
                 num_simulations = int(value)
             if option == "-r":
                 read_len = int(value)
+            if option == "--delim":
+                delim = value
             if option in ("-e", "--error-rate"):
                 error_rate = float(value)
             if option in ("-o", "--outfile-basename"):
@@ -188,7 +192,6 @@ def main(argv=None):
         if model not in (1, 2, 3, 4):
             print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + 'Simulation model should be either 1, 2, 3 or 4.'
             return 2
-
 
         #
         # Main body
@@ -232,7 +235,7 @@ def main(argv=None):
         with open(target_info_file) as fh:
             for curline in fh:
                 item = curline.rstrip().split('\t')
-                t, h = item[0].split('_')
+                t, h = item[0].split(delim)
                 trange[tid[t], hid[h]] = np.int(item[1])
         trange = trange - read_len + 1
 

@@ -9,7 +9,7 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 help_message = '''
 Usage:
     run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
-              -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance>
+              [ -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance> --delim <delimiter> ]
 Input:
     -i <h5_file>         : Alignments stored in a PyTables HDF5 format
     -g <grp_file>        : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
@@ -24,6 +24,7 @@ Input:
     -r <read_length>     : Read length (default: 100)
     -m <max_iters>       : The number of maximum iterations for EM (default: 999)
     -t <tolerance>       : Tolerance for the termination of EM. (default: 0.0001)
+    --delim <delimiter>  : Delimiter string for separating target sequence ID and haplotype name (default: '_')
 Parameters:
     -h, --help : shows this help message
     -c         : reports the alignment counts (Consider using another script 'count-alignments' instead.)
@@ -41,7 +42,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help", "delim"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -51,6 +52,7 @@ def main(argv=None):
         lenfile = None
         multiread_model = 4
         outbase = './emase'
+        delim = '_'
         read_length = 100
         pseudocount = 0.0
         max_iters = 999
@@ -96,7 +98,7 @@ def main(argv=None):
         #
 
         em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
-        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length)
+        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length, delim=delim)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_read_counts(filename="%s.isoforms.expected_read_counts" % outbase)

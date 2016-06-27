@@ -8,13 +8,14 @@ from emase.AlignmentMatrixFactory import AlignmentMatrixFactory as AMF
 
 help_message = '''
 Usage:
-    bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
+    bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file> [ --delim <delimiter_string> ]
 
 Input:
     -a <aln_file>   : Sam/Bam file
     -i <lid_file>   : Text file that lists all the locus IDs
     -s <haplotypes> : Haplotype names listed using comma(,)
     -o <out_file>   : PyTables file that stores the data
+    --delim <delimiter_string> : Delimiter string for separating target sequence ID and haplotype name
 
 Parameters:
     -h, --help      : shows this help message
@@ -46,7 +47,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help"])
+            opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help", "delim"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -55,6 +56,7 @@ def main(argv=None):
         lidfile = None
         outfile = 'alignments.transcriptome.h5'
         haplotypes = tuple()
+        delim = '_'
         index_dtype = 'uint32'
         data_dtype  = 'uint8'
 
@@ -70,6 +72,8 @@ def main(argv=None):
                 outfile = value
             if option == "-s":
                 haplotypes = tuple(value.split(','))
+            if option == "--delim":
+                delim = value
             if option == "-t":
                 index_dtype = value
             if option == "-T":
@@ -77,7 +81,7 @@ def main(argv=None):
 
         # Check if the required options are given
         if len(haplotypes) < 2:
-            print >> sys.stderr, "[Warning] %d haplotype/strain is given." % len(haplotypes)
+            print >> sys.stderr, "[Warning] Given %d haplotype/strain name(s)." % len(haplotypes)
         if alnfile is None:
             print >> sys.stderr, "[Error] No alignment file is given."
             return 2
@@ -92,7 +96,7 @@ def main(argv=None):
         loci = get_names(lidfile)
 
         alignmat_factory = AMF(alnfile)
-        alignmat_factory.prepare(haplotypes, loci, outdir=os.path.dirname(outfile))
+        alignmat_factory.prepare(haplotypes, loci, delim=delim, outdir=os.path.dirname(outfile))
         alignmat_factory.produce(outfile, index_dtype=index_dtype, data_dtype=data_dtype)
         alignmat_factory.cleanup()
 

@@ -17,7 +17,7 @@ class EMfactory:
         self.t2t_mat = None
         self.target_lengths = None
 
-    def prepare(self, pseudocount=0.0, lenfile=None, read_length=100):
+    def prepare(self, pseudocount=0.0, lenfile=None, read_length=100, delim='_'):
         """
         Initializes the probability of read origin according to the alignment profile
 
@@ -46,7 +46,7 @@ class EMfactory:
                 with open(lenfile) as fh:
                     for curline in fh:
                         item = curline.rstrip().split("\t")
-                        locus, hap = item[0].split("_")
+                        locus, hap = item[0].split(delim)
                         self.target_lengths[self.probability.lid[locus], hid[hap]] = max(float(item[1]) - read_length + 1.0, 1.0)
             elif self.probability.num_haplotypes > 0:
                 with open(lenfile) as fh:
