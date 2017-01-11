@@ -45,7 +45,9 @@ class AlignmentMatrixFactory():
         if len(haplotypes) > 0:  # Suffices given
             for aln in fh.fetch(until_eof=True):
                 if aln.flag != 4 and aln.flag != 8:
-                    locus, hap = fh.getrname(aln.tid).split(delim)
+                    curtid = fh.getrname(aln.tid)
+                    k = curtid.rfind(delim)
+                    locus, hap = curtid[:k], curtid[(k+1):]
                     fhout[hap].write(struct.pack('>I', rid[aln.qname]))
                     fhout[hap].write(struct.pack('>I', lid[locus]))
         else:  # Suffix not given

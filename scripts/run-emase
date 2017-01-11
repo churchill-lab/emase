@@ -70,6 +70,8 @@ def main(argv=None):
             if option == "-g":
                 grpfile = value
                 report_gene_counts = True
+            if option == "--delim":
+                delim = value
             if option == "-L":
                 lenfile = value
             if option == "-M":

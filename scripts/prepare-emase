@@ -181,11 +181,11 @@ def main(argv=None):
                 gtflist = value.split(',')
             if option == "-s":
                 haplist = value.split(',')
-            if option in ("--delim"):
+            if option == "--delim":
                 delim = value
             if option in ("-m", "--save-g2tmap"):
                 save_g2tmap = True
-            if option in ("--save-dbs"):
+            if option == "--save-dbs":
                 save_dbs = True
             if option in ("-x", "--no-bowtie-index"):
                 build_bowtie_index = False

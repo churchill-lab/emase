@@ -3,10 +3,9 @@
 History
 -------
 
-0.10.17 (06-09-2016)
+0.10.17 (01-11-2017)
 ~~~~~~~~~~~~~~~~~~~~
-* Modified ``prepare-emase`` so it can use other delimiter than '_' to separate target sequence ID and haplotype name
-* Ported to Python3
+* We can use other delimiter than '_' to separate target sequence ID and haplotype name
 
 0.10.16 (05-10-2016)
 ~~~~~~~~~~~~~~~~~~~~
