@@ -44,9 +44,8 @@ class AlignmentMatrixFactory():
         fh = pysam.Samfile(self.alnfile, 'rb')
         if len(haplotypes) > 0:  # Suffices given
             for aln in fh.fetch(until_eof=True):
-                if aln.flag != 4 and aln.flag != 8:
+                if not aln.is_unmapped:
                     curtid = fh.getrname(aln.tid)
-                    print curtid, aln.flag
                     k = curtid.rfind(delim)
                     locus, hap = curtid[:k], curtid[(k+1):]
                     fhout[hap].write(struct.pack('>I', rid[aln.qname]))
@@ -54,7 +53,7 @@ class AlignmentMatrixFactory():
         else:  # Suffix not given
             hap = self.hname[0]
             for aln in fh.fetch(until_eof=True):
-                if aln.flag != 4 and aln.flag != 8:
+                if not aln.is_unmapped:
                     locus = fh.getrname(aln.tid)
                     fhout[hap].write(struct.pack('>I', rid[aln.qname]))
                     fhout[hap].write(struct.pack('>I', lid[locus]))
