@@ -46,6 +46,7 @@ class AlignmentMatrixFactory():
             for aln in fh.fetch(until_eof=True):
                 if aln.flag != 4 and aln.flag != 8:
                     curtid = fh.getrname(aln.tid)
+                    print curtid
                     k = curtid.rfind(delim)
                     locus, hap = curtid[:k], curtid[(k+1):]
                     fhout[hap].write(struct.pack('>I', rid[aln.qname]))
