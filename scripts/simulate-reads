@@ -235,8 +235,10 @@ def main(argv=None):
         with open(target_info_file) as fh:
             for curline in fh:
                 item = curline.rstrip().split('\t')
-                t, h = item[0].split(delim)
-                trange[tid[t], hid[h]] = np.int(item[1])
+                curtid = item[0]
+                k = curtid.rfind(delim)
+                tt, hh = curtid[:k], curtid[(k+1):]
+                trange[tid[tt], hid[hh]] = np.int(item[1])
         trange = trange - read_len + 1
 
         for k in xrange(num_simulations):
