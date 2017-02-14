@@ -15,9 +15,6 @@ Overview
     :target: http://emase.readthedocs.org/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://zenodo.org/badge/30134570.svg
-    :target: https://zenodo.org/badge/latestdoi/30134570
-
 EMASE: Expectation-Maximization algorithm for Allele Specific Expression 
 ------------------------------------------------------------------------
 Narayanan Raghupathy, Kwangbom Choi, Steve Munger, and Gary Churchill
