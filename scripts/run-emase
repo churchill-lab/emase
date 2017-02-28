@@ -42,7 +42,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help", "delim"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help", "min-efflen", "delim"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -54,6 +54,7 @@ def main(argv=None):
         outbase = './emase'
         delim = '_'
         read_length = 100
+        min_efflen = 1.0
         pseudocount = 0.0
         max_iters = 999
         tolerance = 0.0001
@@ -74,6 +75,8 @@ def main(argv=None):
                 delim = value
             if option == "-L":
                 lenfile = value
+            if option == "--min-efflen":
+                min_efflen = value
             if option == "-M":
                 multiread_model = int(value)
             if option == "-o":
@@ -100,7 +103,7 @@ def main(argv=None):
         #
 
         em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
-        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length, delim=delim)
+        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length, min_efflen=min_efflen, delim=delim)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_read_counts(filename="%s.isoforms.expected_read_counts" % outbase)

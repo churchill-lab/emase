@@ -17,7 +17,7 @@ class EMfactory:
         self.t2t_mat = None
         self.target_lengths = None
 
-    def prepare(self, pseudocount=0.0, lenfile=None, read_length=100, delim='_'):
+    def prepare(self, pseudocount=0.0, lenfile=None, read_length=100, min_efflen=1, delim='_'):
         """
         Initializes the probability of read origin according to the alignment profile
 
@@ -49,14 +49,16 @@ class EMfactory:
                         curtid = item[0]
                         k = curtid.rfind(delim)
                         locus, hap = curtid[:k], curtid[(k+1):]
-                        self.target_lengths[self.probability.lid[locus], hid[hap]] = float(item[1]) - read_length + 1.0
+                        self.target_lengths[self.probability.lid[locus], hid[hap]] = float(item[1])
                         self.target_lengths[self.target_lengths<1] = 1e9
+                        self.target_lengths[self.target_lengths<min_efflen] = min_efflen
             elif self.probability.num_haplotypes > 0:
                 with open(lenfile) as fh:
                     for curline in fh:
                         item = curline.rstrip().split("\t")
-                        self.target_lengths[self.probability.lid[item[0]], 0] = float(item[1]) - read_length + 1.0
+                        self.target_lengths[self.probability.lid[item[0]], 0] = float(item[1])
                         self.target_lengths[self.target_lengths<1] = 1e9
+                        self.target_lengths[self.target_lengths<min_efflen] = min_efflen
             else:
                 raise RuntimeError('There is something wrong with your emase-format alignment file.')
             self.target_lengths = self.target_lengths.transpose()

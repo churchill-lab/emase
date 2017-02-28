@@ -6,6 +6,7 @@ History
 0.10.17 (01-11-2017)
 ~~~~~~~~~~~~~~~~~~~~
 * We can use other delimiter than '_' to separate target sequence ID and haplotype name
+* We should provide effective length of target sequences for EM
 
 0.10.16 (05-10-2016)
 ~~~~~~~~~~~~~~~~~~~~
