@@ -76,7 +76,7 @@ def main(argv=None):
             if option == "-L":
                 lenfile = value
             if option == "--min-efflen":
-                min_efflen = value
+                min_efflen = int(value)
             if option == "-M":
                 multiread_model = int(value)
             if option == "-o":
