@@ -42,7 +42,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help", "min-efflen", "delim"])
+            opts, args = getopt.getopt(argv[1:], "hi:g:L:M:o:p:r:m:t:cw", ["help", "min-efflen=", "delim="])
         except getopt.error, msg:
             raise Usage(msg)
 
