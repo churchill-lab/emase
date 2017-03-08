@@ -344,9 +344,9 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         cntdata = np.vstack((alignment_counts, allelic_unique_counts))
         cntdata = np.vstack((cntdata, locus_unique_counts))
         fhout = open(filename, 'w')
-        fhout.write("locus\t" + "\t".join(['aln_%s' % h for h in self.hname]) + "\t")
+        fhout.write("#target_id\t" + "\t".join(['aln_%s' % h for h in self.hname]) + "\t")
         fhout.write("\t".join(['uniq_%s' % h for h in self.hname]) + "\t")
-        fhout.write("locus_uniq" + "\n")
+        fhout.write("target_uniq" + "\n")
         for locus_id in xrange(self.num_loci):
             fhout.write("\t".join([self.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())) + "\n")
         fhout.close()

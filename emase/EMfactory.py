@@ -205,7 +205,7 @@ class EMfactory:
             report_order = np.arange(len(lname))  # report in the original locus order
         cntdata = np.vstack((expected_read_counts, total_read_counts))
         fhout = open(filename, 'w')
-        fhout.write("locus\t" + "\t".join(self.probability.hname) + "\ttotal")
+        fhout.write("#target_id\t" + "\t".join(self.probability.hname) + "\ttotal")
         if notes is not None:
             fhout.write("\tnotes")
         fhout.write("\n")
@@ -244,7 +244,7 @@ class EMfactory:
             report_order = np.arange(len(lname))  # report in the original locus order
         cntdata = np.vstack((depths, total_depths))
         fhout = open(filename, 'w')
-        fhout.write("locus\t" + "\t".join(self.probability.hname) + "\ttotal")
+        fhout.write("#target_id\t" + "\t".join(self.probability.hname) + "\ttotal")
         if notes is not None:
             fhout.write("\tnotes")
         fhout.write("\n")
