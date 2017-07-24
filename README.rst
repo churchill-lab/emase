@@ -67,11 +67,9 @@ allele-specific gene expression and total gene expressionsimultaneously. The EM
 algorithm employed in EMASE models multi-reads at the level of gene, isoform,
 and allele and apportions them probabilistically.
 
-Earlier, we developed Seqnature to utilize known genetic variations, bot SNPs
-and Indels, to build indivdualized genomes and adjust annotations. One can use
-Seqnature to create individualized diploid transcritpme and align RNA-seq reads
-simultaneously to the diploid transcriptome and get alignment file in BAM
-format. This diploid BAM file can be used as input to EMASE.
+One can use g2gtools to create personalized diploid transcritpme and align RNA-seq reads
+simultaneously to the diploid transcriptome and get alignment file in BAM format. 
+This diploid BAM file can be used as input to EMASE.
 
 Applications
 ~~~~~~~~~~~~
@@ -80,8 +78,8 @@ Allele-specific gene expression in F1 Hybrids from model organisms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If we have F1 hybrids with parental genetic variants information, one can use
-Seqnature to build strain specific genomes and extract diploid transcriptome.
-RNA-seq alignment bam file obtained by aligbning RNA-seq reads to the diploid
+g2gtools to build strain specific genomes and extract diploid transcriptome.
+RNA-seq alignment bam file obtained by aligning RNA-seq reads to the diploid
 transcriptome is used as input for EMASE.
 
 Personalized ASE analysis in Human
@@ -106,7 +104,6 @@ obtaining effective read counts for each allele and isoform. For example, we can
 program to obtain unique reads at allele-level for every gene, gene unique reads but allele-level multireads, 
 and the total number of reads aligned to every gene. Having these alignment statistics at for every isoform and gene 
 can be useful in interpreting expression estimates from EMASE. 
-
 
 
 References
