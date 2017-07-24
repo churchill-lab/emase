@@ -109,7 +109,7 @@ can be useful in interpreting expression estimates from EMASE.
 References
 ~~~~~~~~~~
 
-* EMASE: Expectation-Maximization algorithm for Allele Specific Expression, Narayanan Raghupathy, Kwangbom Choi, Steve Munger, and Gary Churchill, Manuscript in preparation.
+* [Hierarchical Analysis of Multi-mapping RNA-Seq Reads Improves the Accuracy of Allele-specific Expression](http://www.biorxiv.org/content/early/2017/07/22/166900). Narayanan Raghupathy, Kwangbom Choi, Matthew J Vincent, Glen L Beane, Keith Sheppard, Steven C Munger, Ron Korstanje, Fernando Pardo Manuel de Villena, Gary A Churchill, doi: https://doi.org/10.1101/166900
 
 * [RNA-Seq Alignment to Individualized Genomes Improves Transcript Abundance Estimates in Multiparent Populations](http://www.genetics.org/content/198/1/59.short) Steven C. Munger, Narayanan Raghupathy,Kwangbom Choi, Allen K. Simons, Daniel M. Gatti, Douglas A. Hinerfeld, Karen L. Svenson, Mark P. Keller, Alan D. Attie, Matthew A. Hibbs, Joel H. Graber, Elissa J. Chesler and Gary A. Churchill. Genetics. 2014 Sep;198(1):59-73. doi: 10.1534/genetics.114.165886.
 
