@@ -20,6 +20,7 @@ Usage:
 Input:
     -F <fasta_files>    : List of fasta files (comma delimited)
     -s <hap_list>       : Names of haplotypes to be used instead (comma delimited, in the order of genomes)
+    -A <poly_A length>  : The length of poly-A tail to append at the end of transcript sequences (default: 0)
     -o <out_file>       : Output file name (default: './emase.pooled.targets.fa')
     --delim <delimiter> : Delimiter string for new target sequence IDs (default: '_')
 
@@ -39,7 +40,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hF:s:o:", ["help", "delim", "create-bowtie-index"])
+            opts, args = getopt.getopt(argv[1:], "hF:s:A:o:", ["help", "delim", "create-bowtie-index"])
         except getopt.error, msg:
             raise Usage(msg)
 
@@ -47,6 +48,7 @@ def main(argv=None):
         fastalist = list()
         haplist = None
         num_haps = 0
+        len_polyA = 0
         outfile = './emase.pooled.targets.fa'
         delim = '_'
         build_bowtie_index = False
@@ -60,6 +62,8 @@ def main(argv=None):
                 num_haps = len(fastalist)
             if option == "-s":
                 haplist = value.split(',')
+            if option == "-A":
+                len_polyA = int(value)
             if option == "--delim":
                 delim = value
             if option == "--create-bowtie-index":

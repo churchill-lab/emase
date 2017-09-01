@@ -11,7 +11,7 @@ class Sparse3DMatrix:
     """
     3-dim sparse matrix designed for "pooled" RNA-seq alignments
     """
-    def __init__(self, other=None, h5file=None, datanode='/', shape=None, dtype=float):
+    def __init__(self, other=None, h5file=None, datanode='/', shape=None, initialize_matrices=True, dtype=float):
         self.shape = (0, 0, 0)
         self.ndim = 3
         self.data = list()
@@ -40,8 +40,9 @@ class Sparse3DMatrix:
                 raise RuntimeError('The shape must be a tuple of three positive integers.')
             else:
                 self.shape = shape
-                for hid in xrange(self.shape[1]):
-                    self.data.append(lil_matrix((self.shape[2], self.shape[0]), dtype=dtype))
+                if initialize_matrices:
+                    for hid in xrange(self.shape[1]):
+                        self.data.append(lil_matrix((self.shape[2], self.shape[0]), dtype=dtype))
 
     def _reconstruct_spmat(self, h5fh, hid, datanode, dtype):
         try:

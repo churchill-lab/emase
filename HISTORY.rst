@@ -3,10 +3,10 @@
 History
 -------
 
-0.10.17 (01-11-2017)
+0.10.17 (08-31-2017)
 ~~~~~~~~~~~~~~~~~~~~
-* We can use other delimiter than '_' to separate target sequence ID and haplotype name
-* We should provide effective length of target sequences for EM
+* We can use other delimiter than '_' to separate target sequence ID and haplotype name.
+* We require users provide effective length of target sequences (No more read length adjustment by emase). We are doing this because effective lengths are different depending on methods (e.g. RSEM and kallisto). We recommend using transcript length as effective length but append poly-A tail of length ``read length - 1`` when you prepare alignment targets.
 
 0.10.16 (05-10-2016)
 ~~~~~~~~~~~~~~~~~~~~

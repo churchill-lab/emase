@@ -15,12 +15,13 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
     Axis = enum(LOCUS=0, HAPLOTYPE=1, READ=2, GROUP=3, HAPLOGROUP=4)
 
-    def __init__(self, other=None, \
-                 h5file=None, datanode='/', metanode='/', shallow=False, \
-                 shape=None, dtype=float, haplotype_names=None, locus_names=None, read_names=None, \
-                 grpfile=None):
+    def __init__(self, other=None,
+                 h5file=None, datanode='/', metanode='/', shallow=False,
+                 shape=None, dtype=float, haplotype_names=None, locus_names=None, read_names=None,
+                 initialize_matrices=True, grpfile=None):
 
-        Sparse3DMatrix.__init__(self, other=other, h5file=h5file, datanode=datanode, shape=shape, dtype=dtype)
+        Sparse3DMatrix.__init__(self, other=other, h5file=h5file, datanode=datanode,
+                                shape=shape, initialize_matrices=initialize_matrices, dtype=dtype)
 
         self.num_loci, self.num_haplotypes, self.num_reads = self.shape
         self.num_groups = 0
@@ -123,7 +124,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     grp_conv_mat[self.groups[i], i] = 1.0
                 grp_conv_mat = grp_conv_mat.tocsc()
                 for hid in xrange(self.num_haplotypes):
-                    self.data[hid] = self.data[hid] * grp_conv_mat # TODO: Is there any better way to save memory?
+                    self.data[hid] = self.data[hid] * grp_conv_mat  # TODO: Is there any better way to save memory?
                 self.num_loci = self.num_groups
                 self.shape = (self.num_groups, self.num_haplotypes, self.num_reads)
                 self.lname = copy.copy(self.gname)
