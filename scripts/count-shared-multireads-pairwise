@@ -3,6 +3,7 @@
 import sys
 import getopt
 import numpy as np
+from scipy.sparse import diags
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
@@ -28,9 +29,10 @@ class Usage(Exception):
 def get_num_shared_multireads(alnmat):
     hapsum = alnmat.sum(axis=APM.Axis.HAPLOTYPE)
     hapsum.data = np.ones(hapsum.nnz)
-    cntmat = hapsum.transpose() * hapsum
-    #cntmat.setdiag(0)
-    #cntmat.eliminate_zeros()
+    if alnmat.count is not None:
+        cntmat = hapsum.transpose() * diags(alnmat.count, 0) * hapsum
+    else:
+        cntmat = hapsum.transpose() * hapsum
     return cntmat
 
 

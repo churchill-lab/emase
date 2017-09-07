@@ -7,6 +7,7 @@ History
 ~~~~~~~~~~~~~~~~~~~~
 * We can use other delimiter than '_' to separate target sequence ID and haplotype name.
 * We require users provide effective length of target sequences (No more read length adjustment by emase). We are doing this because effective lengths are different depending on methods (e.g. RSEM and kallisto). We recommend using transcript length as effective length but append poly-A tail of length ``read length - 1`` when you prepare alignment targets.
+* Fixed ``count-shared-multireads-pairwise`` such that it works with equivalence classes
 
 0.10.16 (05-10-2016)
 ~~~~~~~~~~~~~~~~~~~~
