@@ -9,7 +9,7 @@ from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 help_message = '''
 Usage:
     run-emase -i <h5_file> -g <grp_file> -L <len_file> -M <multiread_model> -o <outbase> \\
-              [ -p <pseudocount> -r <read_length> -m <max_iters> -t <tolerance> --delim <delimiter> ]
+              [ -p <pseudocount> -m <max_iters> -t <tolerance> --delim <delimiter> ]
 Input:
     -i <h5_file>         : Alignments stored in a PyTables HDF5 format
     -g <grp_file>        : Gene-to-transcript map (ENSMUSGxxx followed by a list of ENSMUSTyyy's)
@@ -21,7 +21,6 @@ Input:
                            4: Gene*Isoform*Allele  (default model)
     -o <outbase>         : EMASE outputs the result to <folder/basename> (default: './emase')
     -p <pseudocount>     : Pseudocount for allele specificity (default: 0.0)
-    -r <read_length>     : Read length (default: 100)
     -m <max_iters>       : The number of maximum iterations for EM (default: 999)
     -t <tolerance>       : Tolerance for the termination of EM. (default: 0.0001)
     --delim <delimiter>  : Delimiter string for separating target sequence ID and haplotype name (default: '_')
@@ -53,7 +52,6 @@ def main(argv=None):
         multiread_model = 4
         outbase = './emase'
         delim = '_'
-        read_length = 100
         min_efflen = 1.0
         pseudocount = 0.0
         max_iters = 999
@@ -83,8 +81,6 @@ def main(argv=None):
                 outbase = value
             if option == "-p":
                 pseudocount = float(value)
-            if option == "-r":
-                read_length = int(value)
             if option == "-m":
                 max_iters = int(value)
             if option == "-t":
@@ -103,7 +99,7 @@ def main(argv=None):
         #
 
         em_factory = EMfactory(APM(h5file=h5file, grpfile=grpfile))
-        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, read_length=read_length, min_efflen=min_efflen, delim=delim)
+        em_factory.prepare(pseudocount=pseudocount, lenfile=lenfile, min_efflen=min_efflen, delim=delim)
         em_factory.run(model=multiread_model, tol=tolerance, max_iters=max_iters, verbose=True)
         em_factory.report_depths(filename="%s.isoforms.tpm" % outbase, tpm=True)
         em_factory.report_read_counts(filename="%s.isoforms.expected_read_counts" % outbase)
