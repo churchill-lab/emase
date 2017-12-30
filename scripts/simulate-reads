@@ -249,7 +249,7 @@ def main(argv=None):
             # Write the true read counts and simulated reads
             if num_simulations > 1:
                 true_gaout = outbase + '.%03d.genes.read_counts' % (k+1)
-                true_taout = outbase + '.%03d.transcripts.read_counts' % (k+1)
+                true_taout = outbase + '.%03d.isoforms.read_counts' % (k+1)
                 outfile = outbase + '.%03d.fa' % (k+1)
             else:
                 true_gaout = outbase + '.genes.read_counts'
