@@ -253,7 +253,7 @@ def main(argv=None):
                 outfile = outbase + '.%03d.fa' % (k+1)
             else:
                 true_gaout = outbase + '.genes.read_counts'
-                true_taout = outbase + '.transcripts.read_counts'
+                true_taout = outbase + '.isoforms.read_counts'
                 outfile = outbase + '.fa'
             np.savetxt(true_gaout, np.column_stack((gname, np.char.mod('%d', gacount_sim))), \
                        header='Gene_ID\t' + "\t".join(hname), fmt='%s', delimiter='\t')
