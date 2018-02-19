@@ -47,3 +47,7 @@ docs/_build
 
 # Backup files
 *.bak
+
+# github pages files
+Gemfile.lock
+_site
