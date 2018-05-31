@@ -142,7 +142,7 @@ class EMfactory:
         if self.target_lengths is not None:
             self.allelic_expression = np.divide(self.allelic_expression, self.target_lengths)
 
-    def run(self, model, tol=0.001, max_iters=999, verbose=True):
+    def run(self, model, tol=0.0001, max_iters=999, verbose=True):
         """
         Runs EM iterations
 
@@ -163,11 +163,13 @@ class EMfactory:
         time0 = time.time()
         target_err = 1000000.0 * tol
         while err_sum > target_err and num_iters < max_iters:
-            prev_isoform_expression = self.get_allelic_expression().sum(axis=0)
-            prev_isoform_expression *= (1000000.0 / prev_isoform_expression.sum())
+            prev_isoform_expression = self.allelic_expression * self.target_lengths
+            #prev_isoform_expression = self.get_allelic_expression().sum(axis=0)
+            #prev_isoform_expression *= (1000000.0 / prev_isoform_expression.sum())
             self.update_allelic_expression(model=model)
-            curr_isoform_expression = self.get_allelic_expression().sum(axis=0)
-            curr_isoform_expression *= (1000000.0 / curr_isoform_expression.sum())
+            curr_isoform_expression = self.allelic_expression * self.target_lengths
+            #curr_isoform_expression = self.get_allelic_expression().sum(axis=0)
+            #curr_isoform_expression *= (1000000.0 / curr_isoform_expression.sum())
             err = np.abs(curr_isoform_expression - prev_isoform_expression)
             err_sum = err.sum()
             num_iters += 1
