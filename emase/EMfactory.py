@@ -153,6 +153,7 @@ class EMfactory:
         :return: Nothing (as it performs in-place operations)
         """
         orig_err_states = np.seterr(all='raise')
+        time0 = time.time()
         np.seterr(under='ignore')
         if verbose:
             print
@@ -160,10 +161,13 @@ class EMfactory:
             print "Iter No  Time (hh:mm:ss)   Total change (reads) "
             print "-------  ---------------  ----------------------"
         num_iters = 0
-        err_sum = 1000000.0
-        time0 = time.time()
+        if self.probability.count is not None:
+            total_read_count = self.probability.count.sum()
+        else:
+            total_read_count = self.probability.num_reads
         #target_err = 1000000.0 * tol
-        target_err = self.probability.num_reads * tol
+        target_err = total_read_count * tol
+        err_sum = 1000000.0
         while err_sum > target_err and num_iters < max_iters:
             prev_isoform_expression = self.allelic_expression * self.target_lengths
             #prev_isoform_expression = self.get_allelic_expression().sum(axis=0)
@@ -180,7 +184,7 @@ class EMfactory:
                 delmin, s = divmod(int(time1 - time0), 60)
                 h, m = divmod(delmin, 60)
                 #print " %5d      %4d:%02d:%02d     %9.1f / 1000000" % (num_iters, h, m, s, err_sum)
-                print " %5d      %4d:%02d:%02d     %9.1f / %d" % (num_iters, h, m, s, err_sum, self.probability.num_reads)
+                print " %5d      %4d:%02d:%02d     %9.1f / %d" % (num_iters, h, m, s, err_sum, total_read_count)
 
     def report_read_counts(self, filename, grp_wise=False, reorder='as-is', notes=None):
         """
