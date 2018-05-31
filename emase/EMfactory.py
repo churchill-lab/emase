@@ -184,7 +184,7 @@ class EMfactory:
                 delmin, s = divmod(int(time1 - time0), 60)
                 h, m = divmod(delmin, 60)
                 #print " %5d      %4d:%02d:%02d     %9.1f / 1000000" % (num_iters, h, m, s, err_sum)
-                print " %5d      %4d:%02d:%02d     %9.1f / %d" % (num_iters, h, m, s, err_sum, total_read_count)
+                print " %5d      %4d:%02d:%02d     %9.1f / %8d" % (num_iters, h, m, s, err_sum, total_read_count)
 
     def report_read_counts(self, filename, grp_wise=False, reorder='as-is', notes=None):
         """
