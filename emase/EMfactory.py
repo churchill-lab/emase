@@ -15,7 +15,7 @@ class EMfactory:
         self.allelic_expression = None
         self.grp_conv_mat = None
         self.t2t_mat = None
-        self.target_lengths = np.ones((alignments.num_loci, alignments.num_haplotypes))
+        self.target_lengths = np.ones((alignments.num_loci, alignments.num_haplotypes)).T
 
     def prepare(self, pseudocount=0.0, lenfile=None, min_efflen=1, delim='_'):
         """
