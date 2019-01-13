@@ -45,6 +45,9 @@ docs/_build
 # PyCharm settings
 .idea
 
+# VS Code settings
+.vscode
+
 # Backup files
 *.bak
 
