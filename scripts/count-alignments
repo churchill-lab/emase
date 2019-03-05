@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import getopt
 import numpy as np
@@ -11,9 +12,9 @@ Usage:
     count-alignments -i <infile> -g <grpfile> -o <outbase>
 
 Input:
-    -i <infile>  : Alignments stored in an EMASE format (PyTables HDF5)
-    -g <grpfile> : Gene to isoform map if counting at gene level
-    -o <outbase> : The name of output result file. (default: './emase')
+    -i <infile>    : Alignments stored in an EMASE format (PyTables HDF5)
+    -g <grpfile>   : Gene to isoform map if counting at gene level
+    -o <outbase>   : The name of output result file. (default: './emase')
 
 Parameters:
     -h, --help   : shows this help message
@@ -23,21 +24,6 @@ Parameters:
 class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
-
-
-def report_alignment_counts(alignments, filename):
-    alignment_counts = alignments.count_alignments()
-    allelic_unique_counts = alignments.count_unique_reads(ignore_haplotype=False)
-    locus_unique_counts = alignments.count_unique_reads(ignore_haplotype=True)
-    cntdata = np.vstack((alignment_counts, allelic_unique_counts))
-    cntdata = np.vstack((cntdata, locus_unique_counts))
-    fhout = open(filename, 'w')
-    fhout.write("#target_id\t" + "\t".join([ 'aln_%s' % h for h in alignments.hname]) + "\t")
-    fhout.write("\t".join([ 'uniq_%s' % h for h in alignments.hname ]) + "\t")
-    fhout.write("target_uniq" + "\n")
-    for locus_id in xrange(alignments.num_loci):
-        fhout.write("\t".join([alignments.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())) + "\n")
-    fhout.close()
 
 
 def main(argv=None):
