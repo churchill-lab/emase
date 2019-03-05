@@ -44,11 +44,11 @@ requirements = []
 on_rtd = os.environ.get('READTHEDOCS', None)
 if not on_rtd:
     requirements.append('numpy==1.8.2')
-    requirements.append('numexpr==2.3.1')
+    requirements.append('numexpr>=2.3.1')
     requirements.append('scipy==0.13.3')
     requirements.append('pysam>=0.6')
     requirements.append('cython>=0.13')
-    requirements.append('tables==3.1.0')
+    requirements.append('tables>=3.1.0')
     requirements.append('biopython>=1.63')
 
 test_requirements = [

@@ -363,6 +363,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         fhout.write("#target_id\t" + "\t".join(['aln_%s' % h for h in self.hname]) + "\t")
         fhout.write("\t".join(['uniq_%s' % h for h in self.hname]) + "\t")
         fhout.write("target_uniq" + "\n")
+        if self.sname is not None:
+            fhout.write("#sample_id: %s" % self.sname[0])
         for locus_id in xrange(self.num_loci):
             fhout.write("\t".join([self.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())) + "\n")
         fhout.close()
