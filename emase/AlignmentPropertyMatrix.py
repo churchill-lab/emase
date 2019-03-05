@@ -17,7 +17,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
     def __init__(self, other=None,
                  h5file=None, datanode='/', metanode='/', shallow=False,
-                 shape=None, dtype=float, haplotype_names=None, locus_names=None, read_names=None,
+                 shape=None, dtype=float, haplotype_names=None, locus_names=None, read_names=None, sample_names=None,
                  initialize_matrices=True, grpfile=None):
 
         Sparse3DMatrix.__init__(self, other=other, h5file=h5file, datanode=datanode,
@@ -29,6 +29,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         self.hname  = None
         self.lname  = None   # locus name
         self.rname  = None   # read name
+        self.sname  = None   # sample name (e.g. sample barcodes::cell barcodes)
         self.lid    = None   # locus ID
         self.rid    = None   # read ID
         self.gname  = None   # group name
@@ -43,8 +44,6 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
 
         elif h5file is not None:  # Use for loading from a pytables file
             h5fh = tables.open_file(h5file, 'r')
-            if h5fh.__contains__('%s' % (datanode + '/count')):
-                self.count = h5fh.get_node(datanode, 'count').read()
             if not shallow:
                 self.hname = h5fh.get_node_attr(datanode, 'hname')
                 self.lname = h5fh.get_node(metanode, 'lname').read()
@@ -52,6 +51,18 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 if h5fh.__contains__('%s' % (metanode + '/rname')):
                     self.rname = h5fh.get_node(metanode, 'rname').read()
                     self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
+                if h5fh.__contains__('%s' % (metanode + '/sname')):
+                    self.sname = h5fh.get_node(metanode, 'sname').read()
+            if h5fh.__contains__('%s' % (datanode + '/count')):
+                try:
+                    self.count = h5fh.get_node(datanode, 'count').read()  # Format-1
+                except tables.NoSuchNodeError as e:  # Format-2
+                    nmat_node = h5fh.get_node(datanode + '/count')
+                    indptr = h5fh.get_node(nmat_node, 'indptr').read()
+                    indices = h5fh.get_node(nmat_node, 'indices').read()
+                    data = h5fh.get_node(nmat_node, 'data').read()
+                    self.count = csc_matrix((data, indices, indptr), shape=(self.num_reads, 1))
+                    self.count = self.count.todense().A.flatten()
             h5fh.close()
 
         elif shape is not None:  # Use for initializing an empty matrix
@@ -72,6 +83,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     self.rid   = dict(zip(self.rname, np.arange(self.num_reads)))
                 else:
                     raise RuntimeError('The number of names does not match to the matrix shape.')
+            if sample_names is not None:
+                self.sname = np.array(sample_names)
 
         if grpfile is not None:
             self.__load_groups(grpfile)
@@ -97,6 +110,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         self.hname = other.hname
         self.lname = copy.copy(other.lname)
         self.rname = copy.copy(other.rname)
+        self.sname = copy.copy(other.sname)
         self.lid   = copy.copy(other.lid)
         self.rid   = copy.copy(other.rid)
 
@@ -161,6 +175,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     grp_align.lname = copy.copy(self.gname)
                     grp_align.hname = self.hname
                     grp_align.rname = copy.copy(self.rname)
+                    grp_align.sname = copy.copy(self.sname)
                     grp_align.lid   = dict(zip(grp_align.lname, np.arange(grp_align.num_loci)))
                     grp_align.rid   = copy.copy(self.rid)
                 if reset:
@@ -380,6 +395,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             h5fh.create_carray(h5fh.root, 'lname', obj=self.lname, title='Locus Names', filters=fil)
             if self.rname is not None:
                 h5fh.create_carray(h5fh.root, 'rname', obj=self.rname, title='Read Names', filters=fil)
+            if self.sname is not None:
+                h5fh.create_carray(h5fh.root, 'sname', obj=self.sname, title='Sample Names', filters=fil)
         h5fh.flush()
         h5fh.close()
 
