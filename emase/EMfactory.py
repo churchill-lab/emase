@@ -216,7 +216,7 @@ class EMfactory:
             fhout.write("\tnotes")
         fhout.write("\n")
         if self.probability.sname is not None:
-            fhout.write("#sample_id\t%s\n" % self.probability.sname[0])
+            fhout.write("#sample_id: %s\n" % self.probability.sname[0])
         for locus_id in report_order:
             lname_cur = lname[locus_id]
             fhout.write("\t".join([lname_cur] + map(str, cntdata[:, locus_id].ravel())))
@@ -257,7 +257,7 @@ class EMfactory:
             fhout.write("\tnotes")
         fhout.write("\n")
         if self.probability.sname is not None:
-            fhout.write("#sample_id\t%s\n" % self.probability.sname[0])
+            fhout.write("#sample_id: %s\n" % self.probability.sname[0])
         for locus_id in report_order:
             lname_cur = lname[locus_id]
             fhout.write("\t".join([lname_cur] + map(str, cntdata[:, locus_id].ravel())))
