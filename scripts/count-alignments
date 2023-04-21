@@ -6,7 +6,7 @@ import numpy as np
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
-help_message = '''
+help_message = """
 Usage:
     count-alignments -i <infile> -g <grpfile> -o <outbase>
 
@@ -17,7 +17,7 @@ Input:
 
 Parameters:
     -h, --help   : shows this help message
-'''
+"""
 
 
 class Usage(Exception):
@@ -31,12 +31,17 @@ def report_alignment_counts(alignments, filename):
     locus_unique_counts = alignments.count_unique_reads(ignore_haplotype=True)
     cntdata = np.vstack((alignment_counts, allelic_unique_counts))
     cntdata = np.vstack((cntdata, locus_unique_counts))
-    fhout = open(filename, 'w')
-    fhout.write("locus\t" + "\t".join([ 'aln_%s' % h for h in alignments.hname]) + "\t")
-    fhout.write("\t".join([ 'uniq_%s' % h for h in alignments.hname ]) + "\t")
+    fhout = open(filename, "w")
+    fhout.write("locus\t" + "\t".join(["aln_%s" % h for h in alignments.hname]) + "\t")
+    fhout.write("\t".join([f"uniq_{h}" for h in alignments.hname]) + "\t")
     fhout.write("locus_uniq" + "\n")
-    for locus_id in xrange(alignments.num_loci):
-        fhout.write("\t".join([alignments.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())) + "\n")
+    for locus_id in range(alignments.num_loci):
+        fhout.write(
+            "\t".join(
+                [alignments.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())
+            )
+            + "\n"
+        )
     fhout.close()
 
 
@@ -46,13 +51,13 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "hi:g:o:", ["help"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
         infile = None
         grpfile = None
-        outbase = './emase'
+        outbase = "./emase"
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -74,19 +79,19 @@ def main(argv=None):
         #
 
         alnmat = APM(h5file=infile, grpfile=grpfile)
-        outfile1 = "%s.isoforms.alignment_counts" % outbase
+        outfile1 = f"{outbase}.isoforms.alignment_counts"
         alnmat.report_alignment_counts(filename=outfile1)
 
         alnmat._bundle_inline(reset=True)
-        outfile2 = "%s.genes.alignment_counts" % outbase
+        outfile2 = f"{outbase}.genes.alignment_counts"
         alnmat.report_alignment_counts(filename=outfile2)
 
         #
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 

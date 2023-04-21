@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 Copyright (c) 2015 Kwangbom Choi, The Jackson Laboratory
 This software was developed by Kwangbom "KB" Choi in Gary Churchill's Lab.
@@ -43,13 +41,10 @@ with open('HISTORY.rst') as history_file:
 requirements = []
 on_rtd = os.environ.get('READTHEDOCS', None)
 if not on_rtd:
-    requirements.append('numpy==1.8.2')
-    requirements.append('numexpr==2.3.1')
-    requirements.append('scipy==0.13.3')
-    requirements.append('pysam>=0.6')
-    requirements.append('cython>=0.13')
-    requirements.append('tables==3.1.0')
-    requirements.append('biopython>=1.63')
+    with open("requirements.txt") as requirements_file:
+        requirements_lines = requirements_file.readlines()
+        for line in requirements_lines:
+            requirements.append(line)
 
 test_requirements = [
     'pytest'
@@ -90,8 +85,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.10'
     ],
     test_suite='tests',
     tests_require=test_requirements

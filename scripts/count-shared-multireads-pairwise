@@ -6,7 +6,7 @@ import numpy as np
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
-help_message = '''
+help_message = """
 Usage:
     count-shared-multireads-pairwise -i <infile> -g <grpfile> -o <outbase>
 
@@ -17,7 +17,7 @@ Input:
 
 Parameters:
     -h, --help   : shows this help message
-'''
+"""
 
 
 class Usage(Exception):
@@ -29,8 +29,8 @@ def get_num_shared_multireads(alnmat):
     hapsum = alnmat.sum(axis=APM.Axis.HAPLOTYPE)
     hapsum.data = np.ones(hapsum.nnz)
     cntmat = hapsum.transpose() * hapsum
-    #cntmat.setdiag(0)
-    #cntmat.eliminate_zeros()
+    # cntmat.setdiag(0)
+    # cntmat.eliminate_zeros()
     return cntmat
 
 
@@ -40,13 +40,13 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "hi:g:o:", ["help"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
         infile = None
         grpfile = None
-        outbase = 'emase'
+        outbase = "emase"
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -69,18 +69,18 @@ def main(argv=None):
 
         alnmat = APM(h5file=infile, grpfile=grpfile)
         cntmat = get_num_shared_multireads(alnmat)
-        np.savez_compressed("%s.isoforms.shared_read_counts" % outbase, counts=cntmat)
+        np.savez_compressed(f"{outbase}.isoforms.shared_read_counts", counts=cntmat)
 
         alnmat._bundle_inline(reset=True)
         cntmat = get_num_shared_multireads(alnmat)
-        np.savez_compressed("%s.genes.shared_read_counts" % outbase, counts=cntmat)
+        np.savez_compressed(f"{outbase}.genes.shared_read_counts", counts=cntmat)
 
         #
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 

@@ -6,14 +6,14 @@ import numpy as np
 from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
-help_message = '''
+help_message = """
 Usage:
     get-common-alignments -i <h5_file_list> -o <out_file>
 
 Input:
     -i <h5_file_list> : comma(,) separated list of emase format (PyTables) files
     -o <out_file>     : output file name
-'''
+"""
 
 
 class Usage(Exception):
@@ -27,21 +27,23 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "hi:c:o:", ["help"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
         flist = None
-        outfile = 'alignments.common.h5'
-        complib = 'zlib'
+        outfile = "alignments.common.h5"
+        complib = "zlib"
 
         # option processing (change this later with optparse)
         for option, value in opts:
             if option in ("-h", "--help"):
                 raise Usage(help_message)
             if option == "-i":
-                flist = value.split(',')
-            if option == "-c":  # hidden option (Specify the compression mode for writing PyTables)
+                flist = value.split(",")
+            if (
+                option == "-c"
+            ):  # hidden option (Specify the compression mode for writing PyTables)
                 complib = value
             if option == "-o":
                 outfile = value
@@ -60,7 +62,10 @@ def main(argv=None):
             if np.all(alnmat.rname == alnmat_next.rname):
                 alnmat = alnmat * alnmat_next
             else:
-                print >> sys.stderr, "[FATAL ERROR] The read ID's are not compatible."
+                print(
+                    "[FATAL ERROR] The read ID's are not compatible.",
+                    file=sys.stderr
+                )
                 return 2
 
         alnmat.save(h5file=outfile, complib=complib)
@@ -69,8 +74,8 @@ def main(argv=None):
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 

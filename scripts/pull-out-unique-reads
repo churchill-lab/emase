@@ -5,7 +5,7 @@ import getopt
 from emase import AlignmentPropertyMatrix as APM
 
 
-help_message = '''
+help_message = """
 Usage:
     pull-out-unique-reads -i <h5_file> -g <grp_file> -o <out_file> [ --shallow --ignore-alleles ]
 
@@ -19,7 +19,7 @@ Parameters:
     -h, --help           : shows this help message
         --shallow        : return shallow emase file
         --ignore-alleles : do not require allele level uniqueness
-'''
+"""
 
 
 class Usage(Exception):
@@ -32,8 +32,10 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hi:g:o:v", ["help", "shallow", "ignore-alleles", "verbose"])
-        except getopt.error, msg:
+            opts, args = getopt.getopt(
+                argv[1:], "hi:g:o:v", ["help", "shallow", "ignore-alleles", "verbose"]
+            )
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
@@ -65,19 +67,19 @@ def main(argv=None):
 
         # Check if the required options are given
         if alnfile is None:
-            print >> sys.stderr, "[Error] No alignment file is given."
+            print("[Error] No alignment file is given.", file=sys.stderr)
             return 2
         if outfile is None:
-            print >> sys.stderr, "[Error] No output file name is given."
+            print("[Error] No output file name is given.", file=sys.stderr)
             return 2
         if verbose:
-            print "[Parameter] Input file: %s" % alnfile
-            print "[Parameter] Output file: %s" % outfile
+            print(f"[Parameter] Input file: {alnfile}")
+            print(f"[Parameter] Output file: {outfile}")
             if groupwise:
-                print "[Parameter] Group info: %s" % grpfile
-            print "[Parameter] --group-wise: %r" % groupwise
-            print "[Parameter] --ignore-alleles: %r" % ignore_alleles
-            print "[Parameter] --shallow: %r" % shallow
+                print(f"[Parameter] Group info: {grpfile}")
+            print(f"[Parameter] --group-wise: {groupwise}")
+            print(f"[Parameter] --ignore-alleles: {ignore_alleles}")
+            print(f"[Parameter] --shallow: {shallow}")
 
         #
         # Main body
@@ -86,19 +88,27 @@ def main(argv=None):
         alnmat = APM(h5file=alnfile, grpfile=grpfile)
         if groupwise:
             alnmat_g = alnmat.bundle(reset=True, shallow=shallow)
-            alnmat_g_uniq = alnmat_g.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
-            num_alns_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(axis=APM.Axis.HAPLOTYPE)
-            alnmat_uniq = alnmat.pull_alignments_from((num_alns_per_read > 0), shallow=shallow)
+            alnmat_g_uniq = alnmat_g.get_unique_reads(
+                ignore_haplotype=ignore_alleles, shallow=shallow
+            )
+            num_alns_per_read = alnmat_g_uniq.sum(axis=APM.Axis.LOCUS).sum(
+                axis=APM.Axis.HAPLOTYPE
+            )
+            alnmat_uniq = alnmat.pull_alignments_from(
+                (num_alns_per_read > 0), shallow=shallow
+            )
         else:
-            alnmat_uniq = alnmat.get_unique_reads(ignore_haplotype=ignore_alleles, shallow=shallow)
+            alnmat_uniq = alnmat.get_unique_reads(
+                ignore_haplotype=ignore_alleles, shallow=shallow
+            )
         alnmat_uniq.save(h5file=outfile, shallow=shallow)
 
         #
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 

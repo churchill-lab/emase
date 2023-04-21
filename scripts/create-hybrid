@@ -5,15 +5,9 @@ import sys
 import getopt
 import string
 import subprocess
-from collections import defaultdict
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
-from itertools import dropwhile
 
 
-help_message = '''
+help_message = """
 Usage:
     create-hybrid -F <fasta_files> [ -s <hap_list> -o <out_file> --create-bowtie-index ]
 
@@ -25,7 +19,7 @@ Input:
 Parameters:
     --help, -h            : shows this help message
     --create-bowtie-index : builds bowtie1 index
-'''
+"""
 
 
 class Usage(Exception):
@@ -38,15 +32,17 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hF:s:o:", ["help", "create-bowtie-index"])
-        except getopt.error, msg:
+            opts, args = getopt.getopt(
+                argv[1:], "hF:s:o:", ["help", "create-bowtie-index"]
+            )
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
         fastalist = list()
         haplist = None
         num_haps = 0
-        outfile = './emase.pooled.targets.fa'
+        outfile = "./emase.pooled.targets.fa"
         build_bowtie_index = False
 
         # option processing (change this later with optparse)
@@ -54,10 +50,10 @@ def main(argv=None):
             if option in ("-h", "--help"):
                 raise Usage(help_message)
             if option == "-F":
-                fastalist = value.split(',')
+                fastalist = value.split(",")
                 num_haps = len(fastalist)
             if option == "-s":
-                haplist = value.split(',')
+                haplist = value.split(",")
             if option == "--create-bowtie-index":
                 build_bowtie_index = True
             if option == "-o":
@@ -65,13 +61,13 @@ def main(argv=None):
 
         # Check if the required options are given
         if num_haps < 2:
-            print >> sys.stderr, "At least two fasta files should be given."
+            print("At least two fasta files should be given.", file=sys.stderr)
             return 2
         if haplist is None:
-            haplist = list(string.uppercase[:num_haps])
-            print >> sys.stderr, "Default haplotype names will be used: %s" % ', '.join(haplist)
+            haplist = list(string.ascii_uppercase[:num_haps])
+            print("Default haplotype names will be used: %s" % ", ".join(haplist), file=sys.stderr)
         if len(haplist) != num_haps:
-            print >> sys.stderr, "The number of specified haplotypes is not matching to the number of fasta files."
+            print("The number of specified haplotypes is not matching to the number of fasta files.", file=sys.stderr)
             return 2
 
         #
@@ -85,46 +81,48 @@ def main(argv=None):
         #
         # Get pooled transcriptome
         outbase = os.path.splitext(outfile)[0]
-        lenfile = outbase + '.info'
-        seqout = open(outfile, 'w')
-        lenout = open(lenfile, 'w')
-        for hid in xrange(num_haps):
+        lenfile = outbase + ".info"
+        seqout = open(outfile, "w")
+        lenout = open(lenfile, "w")
+        for hid in range(num_haps):
             fasta = fastalist[hid]
-            #fastaname = os.path.splitext(os.path.basename(fasta))[0]
+            # fastaname = os.path.splitext(os.path.basename(fasta))[0]
             hapname = haplist[hid]
-            print >> sys.stderr, "Adding suffix \'_%s\' to the sequence ID's of %s..." % (hapname, fasta)
+            print(f"Adding suffix '_{hapname}' to the sequence ID's of {fasta}...", file=sys.stderr)
             fh = open(fasta)
-            curline = fh.next()  # The first fasta header
-            curline = curline.rstrip().split()[0] + '_' + hapname
-            seqout.write('%s\n' % curline)
-            lenout.write('%s\t' % curline[1:])
+            curline = fh.readline()  # The first fasta header
+            curline = curline.rstrip().split()[0] + "_" + hapname
+            seqout.write(f"{curline}\n")
+            lenout.write(f"{curline[1:]}\t")
             seqlen = 0
             for curline in fh:
-                if curline[0] == '>':
-                    curline = curline.rstrip().split()[0] + '_' + hapname + "\n"
-                    lenout.write('%d\n%s\t' % (seqlen, curline[1:].rstrip()))
+                if curline[0] == ">":
+                    curline = curline.rstrip().split()[0] + "_" + hapname + "\n"
+                    lenout.write("%d\n%s\t" % (seqlen, curline[1:].rstrip()))
                     seqlen = 0
                 else:
                     seqlen += len(curline.rstrip())
                 seqout.write(curline)
             fh.close()
-            lenout.write('%d\n' % seqlen)
+            lenout.write(f"{seqlen}\n")
         seqout.close()
         lenout.close()
 
         #
         # Build bowtie index for the pooled transcriptome
         if build_bowtie_index:
-            out_index = outbase + '.bowtie1'
-            print >> sys.stderr, "Building bowtie1 index..."
-            status = subprocess.call("bowtie-build %s %s" % (outfile, out_index), shell=True)
+            out_index = f"{outbase}.bowtie1"
+            print("Building bowtie1 index...", file=sys.stderr)
+            status = subprocess.call(
+                "bowtie-build %s %s" % (outfile, out_index), shell=True
+            )
 
         #
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 

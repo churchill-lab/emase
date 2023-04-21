@@ -6,7 +6,7 @@ import getopt
 from emase.AlignmentMatrixFactory import AlignmentMatrixFactory as AMF
 
 
-help_message = '''
+help_message = """
 Usage:
     bam-to-emase -a <aln_file> -i <lid_file> -s <haplotypes> -o <out_file>
 
@@ -18,7 +18,7 @@ Input:
 
 Parameters:
     -h, --help      : shows this help message
-'''
+"""
 
 
 class Usage(Exception):
@@ -33,12 +33,12 @@ def get_names(idfile):
         for curline in fh:
             item = curline.rstrip().split("\t")
             g = item[0]
-            if not ids.has_key(g):
+            if g not in ids:
                 ids[g] = master_id
                 master_id += 1
     num_ids = len(ids)
-    names = {index:name for name, index in ids.iteritems()}
-    return [names[k] for k in xrange(num_ids)]
+    names = {index: name for name, index in ids.items()}
+    return [names[k] for k in range(num_ids)]
 
 
 def main(argv=None):
@@ -47,16 +47,16 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "ha:i:o:s:t:T:", ["help"])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         # Default values of vars
         alnfile = None
         lidfile = None
-        outfile = 'alignments.transcriptome.h5'
+        outfile = "alignments.transcriptome.h5"
         haplotypes = tuple()
-        index_dtype = 'uint32'
-        data_dtype  = 'uint8'
+        index_dtype = "uint32"
+        data_dtype = "uint8"
 
         # option processing (change this later with optparse)
         for option, value in opts:
@@ -69,7 +69,7 @@ def main(argv=None):
             if option == "-o":
                 outfile = value
             if option == "-s":
-                haplotypes = tuple(value.split(','))
+                haplotypes = tuple(value.split(","))
             if option == "-t":
                 index_dtype = value
             if option == "-T":
@@ -77,12 +77,15 @@ def main(argv=None):
 
         # Check if the required options are given
         if len(haplotypes) < 2:
-            print >> sys.stderr, "[Warning] %d haplotype/strain is given." % len(haplotypes)
+            print(
+                f"[Warning] {len(haplotypes)} haplotype/strain is given.",
+                file=sys.stderr,
+            )
         if alnfile is None:
-            print >> sys.stderr, "[Error] No alignment file is given."
+            print("[Error] No alignment file is given.", file=sys.stderr)
             return 2
         if lidfile is None:
-            print >> sys.stderr, "[Error] No locus ID file is given."
+            print("[Error] No locus ID file is given.", file=sys.stderr)
             return 2
 
         #
@@ -93,18 +96,19 @@ def main(argv=None):
 
         alignmat_factory = AMF(alnfile)
         alignmat_factory.prepare(haplotypes, loci, outdir=os.path.dirname(outfile))
-        alignmat_factory.produce(outfile, index_dtype=index_dtype, data_dtype=data_dtype)
+        alignmat_factory.produce(
+            outfile, index_dtype=index_dtype, data_dtype=data_dtype
+        )
         alignmat_factory.cleanup()
 
         #
         # End of main body
         #
 
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+    except Usage as err:
+        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
         return 2
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
