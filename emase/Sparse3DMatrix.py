@@ -71,7 +71,7 @@ class Sparse3DMatrix:
             spmat = csc_matrix(
                 (data, indices, indptr), shape=(self.shape[2], self.shape[0])
             )
-        elif mtype is "coo_matrix":
+        elif mtype == "coo_matrix":
             coor = h5fh.get_node(hapnode, "coor").read()
             data = h5fh.get_node(hapnode, "data").read()
             data = data.astype(dtype)

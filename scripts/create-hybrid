@@ -114,7 +114,8 @@ def main(argv=None):
             out_index = f"{outbase}.bowtie1"
             print("Building bowtie1 index...", file=sys.stderr)
             status = subprocess.call(
-                "bowtie-build %s %s" % (outfile, out_index), shell=True
+                f"bowtie-build {outfile} {out_index}",
+                shell=True
             )
 
         #
