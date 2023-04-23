@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-
+import getopt
 import os
 import sys
-import getopt
+
 from emase.AlignmentMatrixFactory import AlignmentMatrixFactory as AMF
 
 

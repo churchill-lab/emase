@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-
-import os
-import sys
+from collections import defaultdict
+from itertools import dropwhile
 import getopt
+import gzip
+import os
 import string
 import subprocess
-from collections import defaultdict
+import sys
+
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from itertools import dropwhile
-import gzip
 
 
 help_message = """
@@ -265,25 +265,22 @@ def main(argv=None):
                 annofh = gzip.open(gtffile, "rb")
             else:
                 annofh = open(gtffile)
-            print("Parsing %s..." % os.path.basename(gtffile), file=sys.stderr)
+            print(f"Parsing {os.path.basename(gtffile)}...", file=sys.stderr)
             gdb, tdb = parse_gtf(annofh)
             annofh.close()
             if num_haps == 1:
                 print(
-                    "Building %s transcriptome (Note: No suffix added to ID's)..."
-                    % genomename,
-                    file=sys.stderr,
+                    f"Building {genomename} transcriptome (Note: No suffix added to ID's)...",
+                    file=sys.stderr
                 )
                 if save_dbs:
                     import _pickle as cPickle
-
                     cPickle.dump(gdb, open(os.path.join(outdir, "emase.gdb.pkl"), "wb"))
                     cPickle.dump(tdb, open(os.path.join(outdir, "emase.tdb.pkl"), "wb"))
             elif num_haps > 1:
                 print(
-                    "Building %s transcriptome using suffix '_%s'..."
-                    % (genomename, hapname),
-                    file=sys.stderr,
+                    f"Building {genomename} transcriptome using suffix '_{hapname}'...",
+                    file=sys.stderr
                 )
             for tid in sorted(list(tdb.keys())):
                 tinfo = tdb[tid]

@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-
-import copy
-import tables
-import numpy as np
-from scipy.sparse import lil_matrix, csc_matrix, csr_matrix, coo_matrix, hstack, vstack
 from numbers import Number
+import copy
+
+from scipy.sparse import lil_matrix, csc_matrix, csr_matrix, coo_matrix, hstack, vstack
+import numpy as np
+import tables
 
 
 class Sparse3DMatrix:
@@ -401,6 +400,3 @@ class Sparse3DMatrix:
         else:
             raise RuntimeError("The matrix is not finalized.")
 
-
-if __name__ == "__main__":
-    pass  # TODO: Give some usage example

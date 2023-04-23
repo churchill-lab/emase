@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 import struct
 
@@ -125,6 +123,3 @@ class AlignmentMatrixFactory:
         for tmpfile in self.tmpfiles.itervalues():
             os.remove(tmpfile)
 
-
-if __name__ == "__main__":
-    pass  # TODO: Put some simple test

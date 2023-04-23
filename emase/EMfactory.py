@@ -1,9 +1,9 @@
-#!/usr/bin/env python
-
-import numpy as np
 import time
+
 from scipy.sparse import eye, lil_matrix
-from .AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
+import numpy as np
+
+from emase.AlignmentPropertyMatrix import AlignmentPropertyMatrix as APM
 
 
 class EMfactory:
@@ -312,6 +312,3 @@ class EMfactory:
         """
         self.probability.save(h5file=filename, title=title)
 
-
-if __name__ == "__main__":
-    pass  # TODO: Put some simple test

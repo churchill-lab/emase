@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-
 import copy
-import tables
-from .Sparse3DMatrix import Sparse3DMatrix
-import numpy as np
+
 from scipy.sparse import lil_matrix, coo_matrix, csc_matrix, csr_matrix
+import numpy as np
+import tables
+
+from emase.Sparse3DMatrix import Sparse3DMatrix
 
 
 def enum(**enums):
@@ -519,6 +519,3 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         else:
             return sorted(np.nonzero(self.data[hid][:, lid])[0])
 
-
-if __name__ == "__main__":
-    pass  # TODO: Put a simple usage example here

@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-
-import os
-import sys
 import getopt
+import os
 import string
 import subprocess
+import sys
 
 
 help_message = """
@@ -65,7 +64,7 @@ def main(argv=None):
             return 2
         if haplist is None:
             haplist = list(string.ascii_uppercase[:num_haps])
-            print("Default haplotype names will be used: %s" % ", ".join(haplist), file=sys.stderr)
+            print(f"Default haplotype names will be used: {', '.join(haplist)}", file=sys.stderr)
         if len(haplist) != num_haps:
             print("The number of specified haplotypes is not matching to the number of fasta files.", file=sys.stderr)
             return 2
@@ -81,7 +80,7 @@ def main(argv=None):
         #
         # Get pooled transcriptome
         outbase = os.path.splitext(outfile)[0]
-        lenfile = outbase + ".info"
+        lenfile = f"{outbase}.info"
         seqout = open(outfile, "w")
         lenout = open(lenfile, "w")
         for hid in range(num_haps):
@@ -97,8 +96,8 @@ def main(argv=None):
             seqlen = 0
             for curline in fh:
                 if curline[0] == ">":
-                    curline = curline.rstrip().split()[0] + "_" + hapname + "\n"
-                    lenout.write("%d\n%s\t" % (seqlen, curline[1:].rstrip()))
+                    curline = f"{curline.rstrip().split()[0]}_{hapname}\n"
+                    lenout.write(f"{seqlen}\n{curline[1:].rstrip()}\t")
                     seqlen = 0
                 else:
                     seqlen += len(curline.rstrip())
