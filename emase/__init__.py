@@ -7,4 +7,4 @@ from .EMfactory import EMfactory
 
 __author__ = 'Kwangbom "KB" Choi, Ph. D., The Jackson Laboratory'
 __email__ = ''
-__version__ = '0.11.00'
+__version__ = '0.11.0'
