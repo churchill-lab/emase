@@ -83,7 +83,7 @@ class AlignmentMatrixFactory:
             hap = self.hname[hid]
             infile = self.tmpfiles[hap]
             dmat = np.fromfile(open(infile, "rb"), dtype=">I")
-            dmat = dmat.reshape((len(dmat) / 2, 2)).T
+            dmat = dmat.reshape((int(len(dmat) / 2), 2)).T
             if dmat.shape[0] > 2:
                 dvec = dmat[2]
             else:
@@ -120,6 +120,5 @@ class AlignmentMatrixFactory:
         h5fh.close()
 
     def cleanup(self):
-        for tmpfile in self.tmpfiles.itervalues():
-            os.remove(tmpfile)
-
+        for tmpfile in self.tmpfiles.items():
+            os.remove(tmpfile[1])
