@@ -64,6 +64,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             if not shallow:
                 self.hname = h5fh.get_node_attr(datanode, "hname")
                 self.lname = h5fh.get_node(metanode, "lname").read()
+                # convert from bytes to string
+                self.lname = [x.decode() for x in self.lname]
                 self.lid = dict(zip(self.lname, np.arange(self.num_loci)))
                 if h5fh.__contains__(f"{metanode}/rname"):
                     self.rname = h5fh.get_node(metanode, "rname").read()
@@ -419,12 +421,10 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         fhout.write("\t".join([f"uniq_{h}" for h in self.hname]) + "\t")
         fhout.write("locus_uniq" + "\n")
         for locus_id in range(self.num_loci):
-            fhout.write(
-                "\t".join(
-                    [self.lname[locus_id]] + map(str, cntdata[:, locus_id].ravel())
-                )
-                + "\n"
-            )
+            lout = [self.lname[locus_id]]
+            lout.extend(list(map(str, cntdata[:, locus_id].ravel())))
+            fhout.write("\t".join(lout))
+            fhout.write("\n")
         fhout.close()
 
     def combine(self, other, shallow=False):

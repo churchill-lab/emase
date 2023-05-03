@@ -253,9 +253,12 @@ class EMfactory:
         if notes is not None:
             fhout.write("\tnotes")
         fhout.write("\n")
+        print(filename)
         for locus_id in report_order:
             lname_cur = lname[locus_id]
-            fhout.write("\t".join([lname_cur] + map(str, cntdata[:, locus_id].ravel())))
+            lout = [lname_cur]
+            lout.extend(list(map(str, cntdata[:, locus_id].ravel())))
+            fhout.write("\t".join(lout))
             if notes is not None:
                 fhout.write("\t%s" % notes[lname_cur])
             fhout.write("\n")
@@ -296,7 +299,7 @@ class EMfactory:
         fhout.write("\n")
         for locus_id in report_order:
             lname_cur = lname[locus_id]
-            fhout.write("\t".join([lname_cur] + map(str, cntdata[:, locus_id].ravel())))
+            fhout.write("\t".join([lname_cur] + list(map(str, cntdata[:, locus_id].ravel()))))
             if notes is not None:
                 fhout.write(f"\t{notes[lname_cur]}")
             fhout.write("\n")
