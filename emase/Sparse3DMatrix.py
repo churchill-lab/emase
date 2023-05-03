@@ -38,7 +38,7 @@ class Sparse3DMatrix:
                 raise RuntimeError(
                     "The shape must be a tuple of three positive integers."
                 )
-            elif np.any(shape < 1):
+            elif (np.array(shape) < 1).any():
                 raise RuntimeError(
                     "The shape must be a tuple of three positive integers."
                 )
