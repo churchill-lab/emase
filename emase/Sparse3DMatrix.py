@@ -52,6 +52,10 @@ class Sparse3DMatrix:
     def _reconstruct_spmat(self, h5fh, hid, datanode, dtype):
         try:
             mtype = h5fh.get_node_attr(datanode, "mtype")
+            try:
+                mtype = mtype.decode()
+            except Exception:
+                pass
             incidence_only = h5fh.get_node_attr(datanode, "incidence_only")
         except AttributeError:
             mtype = "coo_matrix"
