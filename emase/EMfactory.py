@@ -280,7 +280,6 @@ class EMfactory:
         if notes is not None:
             fhout.write('\tnotes')
         fhout.write('\n')
-        print(filename)
         for locus_id in report_order:
             lname_cur = lname[locus_id]
             lout = [lname_cur]
