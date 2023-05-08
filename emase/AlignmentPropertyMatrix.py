@@ -8,7 +8,7 @@ from emase.Sparse3DMatrix import Sparse3DMatrix
 
 
 def enum(**enums):
-    return type("Enum", (), enums)
+    return type('Enum', (), enums)
 
 
 class AlignmentPropertyMatrix(Sparse3DMatrix):
@@ -18,8 +18,8 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         self,
         other=None,
         h5file=None,
-        datanode="/",
-        metanode="/",
+        datanode='/',
+        metanode='/',
         shallow=False,
         shape=None,
         dtype=float,
@@ -58,17 +58,17 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 self.__copy_group_info(other)
 
         elif h5file is not None:  # Use for loading from a pytables file
-            h5fh = tables.open_file(h5file, "r")
-            if h5fh.__contains__(f"{datanode}/count"):
-                self.count = h5fh.get_node(datanode, "count").read()
+            h5fh = tables.open_file(h5file, 'r')
+            if h5fh.__contains__(f'{datanode}/count'):
+                self.count = h5fh.get_node(datanode, 'count').read()
             if not shallow:
-                self.hname = h5fh.get_node_attr(datanode, "hname")
-                self.lname = h5fh.get_node(metanode, "lname").read()
+                self.hname = h5fh.get_node_attr(datanode, 'hname')
+                self.lname = h5fh.get_node(metanode, 'lname').read()
                 # convert from bytes to string
                 self.lname = [x.decode() for x in self.lname]
                 self.lid = dict(zip(self.lname, np.arange(self.num_loci)))
-                if h5fh.__contains__(f"{metanode}/rname"):
-                    self.rname = h5fh.get_node(metanode, "rname").read()
+                if h5fh.__contains__(f'{metanode}/rname'):
+                    self.rname = h5fh.get_node(metanode, 'rname').read()
                     self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
             h5fh.close()
 
@@ -78,7 +78,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     self.hname = haplotype_names
                 else:
                     raise RuntimeError(
-                        "The number of names does not match to the matrix shape."
+                        'The number of names does not match to the matrix shape.'
                     )
             if locus_names is not None:
                 if len(locus_names) == self.num_loci:
@@ -86,7 +86,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     self.lid = dict(zip(self.lname, np.arange(self.num_loci)))
                 else:
                     raise RuntimeError(
-                        "The number of names does not match to the matrix shape."
+                        'The number of names does not match to the matrix shape.'
                     )
             if read_names is not None:
                 if len(read_names) == self.num_reads:
@@ -94,26 +94,28 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     self.rid = dict(zip(self.rname, np.arange(self.num_reads)))
                 else:
                     raise RuntimeError(
-                        "The number of names does not match to the matrix shape."
+                        'The number of names does not match to the matrix shape.'
                     )
 
         if grpfile is not None:
             self.__load_groups(grpfile)
 
-    def __load_groups(self, grpfile):  # A group is a set of isoforms within a gene
+    def __load_groups(
+        self, grpfile
+    ):  # A group is a set of isoforms within a gene
         if self.lid is not None:
             self.gname = list()
             self.groups = list()
             with open(grpfile) as fh:
                 for curline in fh:
-                    item = curline.rstrip().split("\t")
+                    item = curline.rstrip().split('\t')
                     self.gname.append(item[0])
                     tid_list = [self.lid[t] for t in item[1:]]
                     self.groups.append(tid_list)
             self.gname = np.array(self.gname)
             self.num_groups = len(self.gname)
         else:
-            raise RuntimeError("Locus IDs are not available.")
+            raise RuntimeError('Locus IDs are not available.')
 
     load_groups = __load_groups
 
@@ -156,7 +158,11 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                         self.data[hid] * grp_conv_mat
                     )  # TODO: Is there any better way to save memory?
                 self.num_loci = self.num_groups
-                self.shape = (self.num_groups, self.num_haplotypes, self.num_reads)
+                self.shape = (
+                    self.num_groups,
+                    self.num_haplotypes,
+                    self.num_reads,
+                )
                 self.lname = copy.copy(self.gname)
                 self.lid = dict(zip(self.gname, np.arange(self.num_groups)))
                 self.num_groups = 0
@@ -165,9 +171,11 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 if reset:
                     self.reset()
             else:
-                raise RuntimeError("No group information is available for bundling.")
+                raise RuntimeError(
+                    'No group information is available for bundling.'
+                )
         else:
-            raise RuntimeError("The matrix is not finalized.")
+            raise RuntimeError('The matrix is not finalized.')
 
     def bundle(
         self, reset=False, shallow=False
@@ -207,9 +215,11 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     grp_align.reset()
                 return grp_align
             else:
-                raise RuntimeError("No group information is available for bundling.")
+                raise RuntimeError(
+                    'No group information is available for bundling.'
+                )
         else:
-            raise RuntimeError("The matrix is not finalized.")
+            raise RuntimeError('The matrix is not finalized.')
 
     #
     # Binary Operators
@@ -273,10 +283,10 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     sum_mat.append(sum_hap)
                 sum_mat = np.vstack(sum_mat)
             else:
-                raise RuntimeError("The axis should be 0, 1, or 2.")
+                raise RuntimeError('The axis should be 0, 1, or 2.')
             return sum_mat
         else:
-            raise RuntimeError("The original matrix must be finalized.")
+            raise RuntimeError('The original matrix must be finalized.')
 
     def normalize_reads(self, axis, grouping_mat=None):
         """
@@ -288,7 +298,9 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         :rtype: None
         """
         if self.finalized:
-            if axis == self.Axis.LOCUS:  # Locus-wise normalization on each read
+            if (
+                axis == self.Axis.LOCUS
+            ):  # Locus-wise normalization on each read
                 normalizer = self.sum(
                     axis=self.Axis.HAPLOTYPE
                 )  # Sparse matrix of |reads| x |loci|
@@ -315,9 +327,11 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 normalizer = normalizer.ravel()
                 for hid in range(self.num_haplotypes):
                     self.data[hid].data /= normalizer[self.data[hid].indices]
-            elif axis == self.Axis.GROUP:  # group-wise normalization on each read
+            elif (
+                axis == self.Axis.GROUP
+            ):  # group-wise normalization on each read
                 if grouping_mat is None:
-                    raise RuntimeError("Group information matrix is missing.")
+                    raise RuntimeError('Group information matrix is missing.')
                 normalizer = self.sum(axis=self.Axis.HAPLOTYPE) * grouping_mat
                 for hid in range(self.num_haplotypes):
                     self.data[
@@ -328,7 +342,7 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 axis == self.Axis.HAPLOGROUP
             ):  # haplotype-wise & group-wise normalization on each read
                 if grouping_mat is None:
-                    raise RuntimeError("Group information matrix is missing.")
+                    raise RuntimeError('Group information matrix is missing.')
                 for hid in range(
                     self.num_haplotypes
                 ):  # normalizer is different hap-by-hap
@@ -340,9 +354,9 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     ].eliminate_zeros()  # Trying to avoid numerical problem (inf or nan)
                     self.data[hid] = np.divide(self.data[hid], normalizer)
             else:
-                raise RuntimeError("The axis should be 0, 1, 2, or 3.")
+                raise RuntimeError('The axis should be 0, 1, 2, or 3.')
         else:
-            raise RuntimeError("The original matrix must be finalized.")
+            raise RuntimeError('The original matrix must be finalized.')
 
     def pull_alignments_from(self, reads_to_use, shallow=False):
         """
@@ -373,15 +387,19 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             if ignore_haplotype:
                 summat = self.sum(axis=self.Axis.HAPLOTYPE)
                 nnz_per_read = np.diff(summat.tocsr().indptr)
-                unique_reads = np.logical_and(nnz_per_read > 0, nnz_per_read < 2)
+                unique_reads = np.logical_and(
+                    nnz_per_read > 0, nnz_per_read < 2
+                )
             else:  # allelic multireads should be removed
                 alncnt_per_read = self.sum(axis=self.Axis.LOCUS).sum(
                     axis=self.Axis.HAPLOTYPE
                 )
-                unique_reads = np.logical_and(alncnt_per_read > 0, alncnt_per_read < 2)
+                unique_reads = np.logical_and(
+                    alncnt_per_read > 0, alncnt_per_read < 2
+                )
             return self.pull_alignments_from(unique_reads, shallow=shallow)
         else:
-            raise RuntimeError("The matrix is not finalized.")
+            raise RuntimeError('The matrix is not finalized.')
 
     def count_unique_reads(self, ignore_haplotype=False):
         if self.finalized:
@@ -402,13 +420,13 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                     axis=self.Axis.READ
                 )  # An array of size |num_haplotypes|x|num_loci|
         else:
-            raise RuntimeError("The matrix is not finalized.")
+            raise RuntimeError('The matrix is not finalized.')
 
     def count_alignments(self):
         if self.finalized:
             return self.sum(axis=self.Axis.READ)
         else:
-            raise RuntimeError("The matrix is not finalized.")
+            raise RuntimeError('The matrix is not finalized.')
 
     def report_alignment_counts(self, filename):
         alignment_counts = self.count_alignments()
@@ -416,15 +434,17 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         locus_unique_counts = self.count_unique_reads(ignore_haplotype=True)
         cntdata = np.vstack((alignment_counts, allelic_unique_counts))
         cntdata = np.vstack((cntdata, locus_unique_counts))
-        fhout = open(filename, "w")
-        fhout.write("locus\t" + "\t".join([f"aln_{h}" for h in self.hname]) + "\t")
-        fhout.write("\t".join([f"uniq_{h}" for h in self.hname]) + "\t")
-        fhout.write("locus_uniq" + "\n")
+        fhout = open(filename, 'w')
+        fhout.write(
+            'locus\t' + '\t'.join([f'aln_{h}' for h in self.hname]) + '\t'
+        )
+        fhout.write('\t'.join([f'uniq_{h}' for h in self.hname]) + '\t')
+        fhout.write('locus_uniq' + '\n')
         for locus_id in range(self.num_loci):
             lout = [self.lname[locus_id]]
             lout.extend(list(map(str, cntdata[:, locus_id].ravel())))
-            fhout.write("\t".join(lout))
-            fhout.write("\n")
+            fhout.write('\t'.join(lout))
+            fhout.write('\n')
         fhout.close()
 
     def combine(self, other, shallow=False):
@@ -442,16 +462,16 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
                 dmat.__copy_group_info(self)
             return dmat
         else:
-            raise RuntimeError("Both matrices must be finalized.")
+            raise RuntimeError('Both matrices must be finalized.')
 
     def save(
         self,
         h5file,
         title=None,
-        index_dtype="uint32",
+        index_dtype='uint32',
         data_dtype=float,
         incidence_only=True,
-        complib="zlib",
+        complib='zlib',
         shallow=False,
     ):
         Sparse3DMatrix.save(
@@ -463,24 +483,32 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             incidence_only=incidence_only,
             complib=complib,
         )
-        h5fh = tables.open_file(h5file, "a")
+        h5fh = tables.open_file(h5file, 'a')
         fil = tables.Filters(complevel=1, complib=complib)
         if self.count is not None:
             h5fh.create_carray(
                 h5fh.root,
-                "count",
+                'count',
                 obj=self.count,
-                title="Equivalence Class Counts",
+                title='Equivalence Class Counts',
                 filters=fil,
             )
         if not shallow:
-            h5fh.set_node_attr(h5fh.root, "hname", self.hname)
+            h5fh.set_node_attr(h5fh.root, 'hname', self.hname)
             h5fh.create_carray(
-                h5fh.root, "lname", obj=self.lname, title="Locus Names", filters=fil
+                h5fh.root,
+                'lname',
+                obj=self.lname,
+                title='Locus Names',
+                filters=fil,
             )
             if self.rname is not None:
                 h5fh.create_carray(
-                    h5fh.root, "rname", obj=self.rname, title="Read Names", filters=fil
+                    h5fh.root,
+                    'rname',
+                    obj=self.rname,
+                    title='Read Names',
+                    filters=fil,
                 )
         h5fh.flush()
         h5fh.close()
@@ -495,15 +523,15 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
         """
         if self.rname is not None:
             print(self.rname[rid])
-            print("--")
+            print('--')
         r = self.get_read_data(rid)
         aligned_loci = np.unique(r.nonzero()[1])
         for locus in aligned_loci:
             nzvec = r[:, locus].todense().transpose()[0].A.flatten()
             if self.lname is not None:
-                print(self.lname[locus], end=" ")
+                print(self.lname[locus], end=' ')
             else:
-                print(locus, end=" ")
+                print(locus, end=' ')
             print(nzvec)
 
     #
@@ -518,4 +546,3 @@ class AlignmentPropertyMatrix(Sparse3DMatrix):
             return sorted(list(ridset))
         else:
             return sorted(np.nonzero(self.data[hid][:, lid])[0])
-

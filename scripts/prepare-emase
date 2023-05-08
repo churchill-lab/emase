@@ -39,17 +39,17 @@ class Usage(Exception):
 
 
 def is_comment(s):
-    return s.startswith("#")
+    return s.startswith('#')
 
 
 def parse_gtf(gtf_fh):
     gdb = dict()
     tdb = dict()
     for curline in dropwhile(is_comment, gtf_fh):
-        item = curline.rstrip().split("\t")
+        item = curline.rstrip().split('\t')
         attribute = defaultdict(list)
-        for e in item[8].split("; "):
-            e1, e2 = e.replace(";", "").split('"')[:2]
+        for e in item[8].split('; '):
+            e1, e2 = e.replace(';', '').split('"')[:2]
             attribute[e1.strip()].append(e2.strip())
         attribute = dict(attribute)
         feature = item[2]
@@ -59,92 +59,95 @@ def parse_gtf(gtf_fh):
         chro = item[0]  # Leave the chromosome names as is in gtf file
         strand = item[6]
         if (
-            feature == "gene"
+            feature == 'gene'
         ):  # Seqnature currently has some issue processing this entry
-            gid = attribute.pop("gene_id")[0]
+            gid = attribute.pop('gene_id')[0]
             if gid in gdb:
-                print(f"[Error] Duplicate entry: {gid}")
+                print(f'[Error] Duplicate entry: {gid}')
             else:
                 gdb[gid] = {
-                    "chr": chro,
-                    "strand": strand,
-                    "start": s,
-                    "end": e,
-                    "isoform": set(),
+                    'chr': chro,
+                    'strand': strand,
+                    'start': s,
+                    'end': e,
+                    'isoform': set(),
                 }
                 for k, v in attribute.items():
                     if len(v) == 1:
                         v = v.pop()
                     gdb[gid][k] = v
-        elif feature == "transcript":
-            gid = attribute["gene_id"][0]
-            tid = attribute.pop("transcript_id")[0]
+        elif feature == 'transcript':
+            gid = attribute['gene_id'][0]
+            tid = attribute.pop('transcript_id')[0]
             if tid in tdb:
-                print(f"[Error] Duplicate entry: {tid}")
+                print(f'[Error] Duplicate entry: {tid}')
             else:
                 tdb[tid] = {
-                    "chr": chro,
-                    "strand": strand,
-                    "start": s,
-                    "end": e,
-                    "eid": [],
-                    "exon": [],
-                    "exon_number": [],  # Do we need this?
-                    "UTR": [],
-                    "five_prime_utr": [],
-                    "three_prime_utr": [],
-                    "Selenocysteine": [],
-                    "start_codon": [],
-                    "stop_codon": [],
-                    "start_codon_frame": [],
-                    "stop_codon_frame": [],
+                    'chr': chro,
+                    'strand': strand,
+                    'start': s,
+                    'end': e,
+                    'eid': [],
+                    'exon': [],
+                    'exon_number': [],  # Do we need this?
+                    'UTR': [],
+                    'five_prime_utr': [],
+                    'three_prime_utr': [],
+                    'Selenocysteine': [],
+                    'start_codon': [],
+                    'stop_codon': [],
+                    'start_codon_frame': [],
+                    'stop_codon_frame': [],
                 }
                 for k, v in attribute.items():
                     if len(v) == 1:
                         v = v.pop()
                     tdb[tid][k] = v
-                gid = tdb[tid]["gene_id"]
+                gid = tdb[tid]['gene_id']
                 if gid in gdb:
-                    gdb[gid]["isoform"].add(tid)
+                    gdb[gid]['isoform'].add(tid)
                 else:  # This is a non-standard case where the input gtf does not have detailed gene-level annotation
                     gdb[gid] = dict()
-                    gdb[gid]["chr"] = chro
-                    gdb[gid]["isoform"] = set(tid)
+                    gdb[gid]['chr'] = chro
+                    gdb[gid]['isoform'] = set(tid)
         else:
-            gid = attribute["gene_id"][0]
-            tid = attribute["transcript_id"][0]
-            if feature == "exon":
+            gid = attribute['gene_id'][0]
+            tid = attribute['transcript_id'][0]
+            if feature == 'exon':
                 if tid in tdb:
                     try:
-                        enu = int(attribute.pop("exon_number")[0])
-                        tdb[tid]["exon_number"].append(enu)
+                        enu = int(attribute.pop('exon_number')[0])
+                        tdb[tid]['exon_number'].append(enu)
                     except:
                         pass
                     try:
-                        eid = attribute.pop("exon_id")[0]
-                        tdb[tid]["eid"].append(eid)
+                        eid = attribute.pop('exon_id')[0]
+                        tdb[tid]['eid'].append(eid)
                     except:
                         pass
-                    tdb[tid]["exon"].append((s, e))
+                    tdb[tid]['exon'].append((s, e))
                 else:  # This is a non-standard case where input gtf does not have detailed transcript-level annotation
                     tdb[tid] = dict()
-                    tdb[tid]["chr"] = chro
-                    tdb[tid]["strand"] = strand
-                    tdb[tid]["exon"] = [(s, e)]
+                    tdb[tid]['chr'] = chro
+                    tdb[tid]['strand'] = strand
+                    tdb[tid]['exon'] = [(s, e)]
             elif feature in (
-                "UTR",
-                "five_prime_utr",
-                "three_prime_utr",
-                "Selenocysteine",
+                'UTR',
+                'five_prime_utr',
+                'three_prime_utr',
+                'Selenocysteine',
             ):
                 tdb[tid][feature].append((s, e))
-            elif feature in ("start_codon", "stop_codon"):
+            elif feature in ('start_codon', 'stop_codon'):
                 tdb[tid][feature].append((s, e))
-                tdb[tid][feature + "_frame"].append(int(item[7]))
-            elif feature == "CDS":
+                tdb[tid][feature + '_frame'].append(int(item[7]))
+            elif feature == 'CDS':
                 pass
             else:
-                print("[Unknown feature: %s]/n%s" % (feature, curline), file=sys.stderr)
+                print(
+                    '[Unknown feature: %s]/n%s' % (feature, curline),
+                    file=sys.stderr,
+                )
     return gdb, tdb
 
 
@@ -152,8 +155,8 @@ def parse_gtf(gtf_fh):
 # Get the regions of genes
 #
 def get_fragment(start, end, chro, strand, genome):
-    fragment = genome[chro].seq[(start - 1): end]
-    if strand == "-":
+    fragment = genome[chro].seq[(start - 1) : end]
+    if strand == '-':
         fragment = fragment.reverse_complement()
     return fragment
 
@@ -165,8 +168,8 @@ def main(argv=None):
         try:
             opts, args = getopt.getopt(
                 argv[1:],
-                "hG:g:s:mxo:",
-                ["help", "save-g2tmap", "save-dbs", "no-bowtie-index"],
+                'hG:g:s:mxo:',
+                ['help', 'save-g2tmap', 'save-dbs', 'no-bowtie-index'],
             )
         except getopt.error as msg:
             raise Usage(msg)
@@ -176,34 +179,34 @@ def main(argv=None):
         gtflist = None
         haplist = None
         num_haps = 0
-        outdir = "."
+        outdir = '.'
         save_g2tmap = False
         save_dbs = False
         build_bowtie_index = True
 
         # option processing (change this later with optparse)
         for option, value in opts:
-            if option in ("-h", "--help"):
+            if option in ('-h', '--help'):
                 raise Usage(help_message)
-            if option == "-G":
-                genomelist = value.split(",")
+            if option == '-G':
+                genomelist = value.split(',')
                 num_haps = len(genomelist)
-            if option == "-g":
-                gtflist = value.split(",")
-            if option == "-s":
-                haplist = value.split(",")
-            if option in ("-m", "--save-g2tmap"):
+            if option == '-g':
+                gtflist = value.split(',')
+            if option == '-s':
+                haplist = value.split(',')
+            if option in ('-m', '--save-g2tmap'):
                 save_g2tmap = True
-            if option in ("--save-dbs"):
+            if option in ('--save-dbs'):
                 save_dbs = True
-            if option in ("-x", "--no-bowtie-index"):
+            if option in ('-x', '--no-bowtie-index'):
                 build_bowtie_index = False
-            if option == "-o":
+            if option == '-o':
                 outdir = value
 
         # Check if the required options are given
         if num_haps < 1:
-            print("No genome file is given.", file=sys.stderr)
+            print('No genome file is given.', file=sys.stderr)
             return 2
         if haplist is None:
             haplist = list(string.ascii_uppercase[:num_haps])
@@ -214,21 +217,23 @@ def main(argv=None):
                 )
             else:
                 print(
-                    "Default haplotype names will be used: %s" % ", ".join(haplist),
+                    'Default haplotype names will be used: %s'
+                    % ', '.join(haplist),
                     file=sys.stderr,
                 )
         if gtflist is None:
             gtflist = [
-                os.path.splitext(genomefile)[0] + ".gtf" for genomefile in genomelist
+                os.path.splitext(genomefile)[0] + '.gtf'
+                for genomefile in genomelist
             ]
             print(
-                "Assuming there exist the following GTF files:\n%s"
-                % "\n".join(gtflist),
+                'Assuming there exist the following GTF files:\n%s'
+                % '\n'.join(gtflist),
                 file=sys.stderr,
             )
         if len(haplist) != num_haps or len(gtflist) != num_haps:
             print(
-                "The number of gtf files or specified haplotypes is not matching to the number of genomes.",
+                'The number of gtf files or specified haplotypes is not matching to the number of genomes.',
                 file=sys.stderr,
             )
 
@@ -242,91 +247,105 @@ def main(argv=None):
         #
         # Get pooled transcriptome
         if num_haps > 1:
-            transcriptomefile = os.path.join(outdir, "emase.pooled.transcripts.fa")
-            lenfile = os.path.join(outdir, "emase.pooled.transcripts.info")
+            transcriptomefile = os.path.join(
+                outdir, 'emase.pooled.transcripts.fa'
+            )
+            lenfile = os.path.join(outdir, 'emase.pooled.transcripts.info')
         else:
-            transcriptomefile = os.path.join(outdir, "emase.transcripts.fa")
-            lenfile = os.path.join(outdir, "emase.transcripts.info")
-        seqout = open(transcriptomefile, "w")
-        lenout = open(lenfile, "w")
+            transcriptomefile = os.path.join(outdir, 'emase.transcripts.fa')
+            lenfile = os.path.join(outdir, 'emase.transcripts.info')
+        seqout = open(transcriptomefile, 'w')
+        lenout = open(lenfile, 'w')
         for hid in range(num_haps):
             genomefile = genomelist[hid]
             genomename = os.path.splitext(os.path.basename(genomefile))[0]
             hapname = haplist[hid]
             gtffile = gtflist[hid]
-            print(f"Loading {genomename} genome...", file=sys.stderr)
-            if os.path.splitext(genomefile)[1] == ".gz":
-                genomefh = gzip.open(genomefile, "rb")
+            print(f'Loading {genomename} genome...', file=sys.stderr)
+            if os.path.splitext(genomefile)[1] == '.gz':
+                genomefh = gzip.open(genomefile, 'rb')
             else:
                 genomefh = open(genomefile)
-            genome = SeqIO.to_dict(SeqIO.parse(genomefh, "fasta"))
+            genome = SeqIO.to_dict(SeqIO.parse(genomefh, 'fasta'))
             genomefh.close()
-            if os.path.splitext(gtffile)[1] == ".gz":
-                annofh = gzip.open(gtffile, "rb")
+            if os.path.splitext(gtffile)[1] == '.gz':
+                annofh = gzip.open(gtffile, 'rb')
             else:
                 annofh = open(gtffile)
-            print(f"Parsing {os.path.basename(gtffile)}...", file=sys.stderr)
+            print(f'Parsing {os.path.basename(gtffile)}...', file=sys.stderr)
             gdb, tdb = parse_gtf(annofh)
             annofh.close()
             if num_haps == 1:
                 print(
                     f"Building {genomename} transcriptome (Note: No suffix added to ID's)...",
-                    file=sys.stderr
+                    file=sys.stderr,
                 )
                 if save_dbs:
                     import _pickle as cPickle
-                    cPickle.dump(gdb, open(os.path.join(outdir, "emase.gdb.pkl"), "wb"))
-                    cPickle.dump(tdb, open(os.path.join(outdir, "emase.tdb.pkl"), "wb"))
+
+                    cPickle.dump(
+                        gdb, open(os.path.join(outdir, 'emase.gdb.pkl'), 'wb')
+                    )
+                    cPickle.dump(
+                        tdb, open(os.path.join(outdir, 'emase.tdb.pkl'), 'wb')
+                    )
             elif num_haps > 1:
                 print(
                     f"Building {genomename} transcriptome using suffix '_{hapname}'...",
-                    file=sys.stderr
+                    file=sys.stderr,
                 )
             for tid in sorted(list(tdb.keys())):
                 tinfo = tdb[tid]
-                if tinfo["chr"] in genome:
+                if tinfo['chr'] in genome:
                     # Filter out transcripts from chromosome that the input genome does not contain
                     if num_haps > 1:
                         # No need to add suffix if we deal with a single genome
-                        tid = f"{tid}_{hapname}"
-                    fragment = Seq("")
-                    for exon in tinfo["exon"]:
+                        tid = f'{tid}_{hapname}'
+                    fragment = Seq('')
+                    for exon in tinfo['exon']:
                         fragment += get_fragment(
-                            exon[0], exon[1], tinfo["chr"], tinfo["strand"], genome
+                            exon[0],
+                            exon[1],
+                            tinfo['chr'],
+                            tinfo['strand'],
+                            genome,
                         )
                     if len(fragment) > 0:
-                        SeqIO.write(SeqRecord(fragment, tid, "", ""), seqout, "fasta")
-                    lenout.write(f"{tid}\t{len(fragment)}\n")
+                        SeqIO.write(
+                            SeqRecord(fragment, tid, '', ''), seqout, 'fasta'
+                        )
+                    lenout.write(f'{tid}\t{len(fragment)}\n')
                 else:
                     print(
                         f"Skipping Transcript {tid} of Chromosome {tinfo['chr']}...",
-                        file=sys.stderr
+                        file=sys.stderr,
                     )
         seqout.close()
         lenout.close()
 
         if save_g2tmap:
-            with open(os.path.join(outdir, "emase.gene2transcripts.tsv"), "w") as fhout:
+            with open(
+                os.path.join(outdir, 'emase.gene2transcripts.tsv'), 'w'
+            ) as fhout:
                 print(
                     "Recording mapping of gene id to transcript id's...",
                     file=sys.stderr,
                 )
                 for gid in sorted(list(gdb.keys())):
-                    if gdb[gid]["chr"] in genome:
+                    if gdb[gid]['chr'] in genome:
                         item = [gid]
-                        item = item + list(gdb[gid]["isoform"])
-                        fhout.write("\t".join(item) + "\n")
+                        item = item + list(gdb[gid]['isoform'])
+                        fhout.write('\t'.join(item) + '\n')
 
         #
         # Build bowtie index for the pooled transcriptome
         if build_bowtie_index:
             out_index = os.path.join(
-                os.path.dirname(transcriptomefile), "bowtie.transcripts"
+                os.path.dirname(transcriptomefile), 'bowtie.transcripts'
             )
-            print("Building bowtie index...", file=sys.stderr)
+            print('Building bowtie index...', file=sys.stderr)
             status = subprocess.call(
-                f"bowtie-build {transcriptomefile} {out_index}"
-                , shell=True
+                f'bowtie-build {transcriptomefile} {out_index}', shell=True
             )
 
         #
@@ -334,9 +353,11 @@ def main(argv=None):
         #
 
     except Usage as err:
-        print(sys.argv[0].split("/")[-1] + ": " + str(err.msg), file=sys.stderr)
+        print(
+            sys.argv[0].split('/')[-1] + ': ' + str(err.msg), file=sys.stderr
+        )
         return 2
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

@@ -40,6 +40,11 @@ setup(
         "emase",
     ],
     package_dir={"emase": "emase"},
+    entry_points={
+        "console_scripts": [
+            "emase = emase.commands:app",
+        ]
+    },
     include_package_data=True,
     scripts=[
         "scripts/prepare-emase",

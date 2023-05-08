@@ -113,4 +113,6 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    print('*** ERROR ***')
+    print('Please use "emase pull_out_unique_reads"')
+    print('*** ERROR ***')
